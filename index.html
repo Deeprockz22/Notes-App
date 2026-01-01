@@ -27,7 +27,25 @@
     <div class="app-container">
         <!-- Header -->
         <header class="app-header">
-            <h1 class="app-title">Focus</h1>
+            <div class="header-left">
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+
+            <div class="header-center">
+                <h1 class="app-title">
+                    FOCUS
+                    <button class="logo-btn" id="logo-settings-btn" aria-label="Settings">
+                        <span class="logo-letter">F</span>
+                    </button>
+                </h1>
+            </div>
+
+            <div class="header-right">
+                <!-- Install button will be inserted here by PWA script -->
+            </div>
+
             <nav class="nav-tabs">
                 <button class="nav-tab active" data-tab="timer">
                     <span class="tab-icon">⏱️</span>
@@ -48,16 +66,38 @@
         <main class="app-main">
             <!-- Timer Section -->
             <section class="section active" id="timer-section">
-                <div class="timer-container">
+                <div class="timer-container" data-style="circular">
+                    <!-- Quick Timer Presets -->
+                    <div class="timer-presets">
+                        <button class="preset-btn" data-duration="15">15m</button>
+                        <button class="preset-btn" data-duration="25">25m</button>
+                        <button class="preset-btn" data-duration="45">45m</button>
+                        <button class="preset-btn" data-duration="60">60m</button>
+                    </div>
+
                     <div class="timer-display">
-                        <div class="timer-time" id="timer-time">25:00</div>
+                        <!-- Circular Progress Ring (SVG) -->
+                        <svg class="timer-ring" viewBox="0 0 200 200">
+                            <circle class="timer-ring-bg" cx="100" cy="100" r="90"></circle>
+                            <circle class="timer-ring-progress" cx="100" cy="100" r="90"></circle>
+                        </svg>
+
+                        <!-- Time Display (Clickable to Edit) -->
+                        <div class="timer-time" id="timer-time" title="Click to edit time">25:00</div>
                         <div class="timer-label" id="timer-label">Work Session</div>
+
+                        <!-- Linear Progress Bar -->
+                        <div class="timer-progress-bar">
+                            <div class="timer-progress-fill"></div>
+                        </div>
                     </div>
 
                     <div class="timer-controls">
                         <button class="btn btn-primary" id="timer-start">Start</button>
                         <button class="btn btn-secondary" id="timer-pause" disabled>Pause</button>
                         <button class="btn btn-secondary" id="timer-reset">Reset</button>
+                        <button class="btn btn-secondary" id="timer-fullscreen"
+                            title="Fullscreen Focus Mode">🖥️</button>
                     </div>
 
                     <div class="timer-stats">
@@ -72,11 +112,31 @@
                     </div>
 
                     <div class="timer-settings">
-                        <button class="btn-icon" id="settings-toggle" title="Settings">⚙️</button>
+                        <button class="btn-icon" id="settings-toggle" title="Timer Settings">⚙️</button>
                     </div>
 
                     <div class="settings-panel hidden" id="settings-panel">
                         <h3>Timer Settings</h3>
+
+                        <div class="setting-item">
+                            <label for="timer-style">Timer Style</label>
+                            <select id="timer-style">
+                                <option value="circular">Circular Progress</option>
+                                <option value="linear">Linear Bar</option>
+                                <option value="minimal">Minimal</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-item">
+                            <label for="animation-intensity">Animation Intensity</label>
+                            <select id="animation-intensity">
+                                <option value="off">Off</option>
+                                <option value="subtle">Subtle</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="intense">Intense</option>
+                            </select>
+                        </div>
+
                         <div class="setting-item">
                             <label for="work-duration">Work Duration (minutes)</label>
                             <input type="number" id="work-duration" min="1" max="60" value="25">
@@ -176,6 +236,80 @@
                 </div>
             </section>
         </main>
+
+        <!-- Global Settings Modal -->
+        <div class="modal hidden" id="global-settings-modal">
+            <div class="modal-content settings-modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="btn-close" id="close-global-settings">✕</button>
+                </div>
+
+                <div class="settings-content">
+                    <div class="settings-section">
+                        <h3>Appearance</h3>
+                        <div class="setting-item-row">
+                            <label>Theme</label>
+                            <div class="theme-switch-container">
+                                <span class="theme-label">☀️ Light</span>
+                                <label class="theme-switch">
+                                    <input type="checkbox" id="theme-switch-input">
+                                    <span class="theme-slider"></span>
+                                </label>
+                                <span class="theme-label">🌙 Dark</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Data Management</h3>
+                        <div class="setting-item-row">
+                            <label>Clear All Data</label>
+                            <button class="btn btn-danger" id="clear-data-btn">Clear</button>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>About</h3>
+                        <p class="settings-info">Focus - Minimalist Productivity Tool</p>
+                        <p class="settings-info">Version 2.0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fullscreen Timer Modal -->
+        <div class="fullscreen-timer hidden" id="fullscreen-timer">
+            <button class="btn-close fullscreen-close" id="close-fullscreen" title="Exit Fullscreen (Esc)">✕</button>
+
+            <div class="fullscreen-content">
+                <!-- Circular Progress Ring -->
+                <svg class="fullscreen-ring" viewBox="0 0 200 200">
+                    <circle class="timer-ring-bg" cx="100" cy="100" r="90"></circle>
+                    <circle class="timer-ring-progress fullscreen-progress" cx="100" cy="100" r="90"></circle>
+                </svg>
+
+                <!-- Linear Progress Bar -->
+                <div class="fullscreen-progress-bar">
+                    <div class="fullscreen-progress-fill"></div>
+                </div>
+
+                <!-- Centered Timer Display -->
+                <div class="fullscreen-timer-center">
+                    <div class="fullscreen-time" id="fullscreen-time">25:00</div>
+                    <div class="fullscreen-label" id="fullscreen-label">Work Session</div>
+                </div>
+
+                <!-- Floating Quote (positioned via JS) -->
+                <div class="fullscreen-quote" id="fullscreen-quote"></div>
+
+                <!-- Fullscreen Controls -->
+                <div class="fullscreen-controls">
+                    <button class="btn btn-primary" id="fullscreen-start">Start</button>
+                    <button class="btn btn-secondary" id="fullscreen-pause" disabled>Pause</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <audio id="timer-sound" preload="auto">
