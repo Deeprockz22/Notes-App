@@ -1,5 +1,5 @@
 // Service Worker for Focus PWA
-const CACHE_NAME = 'focus-pwa-v1';
+const CACHE_NAME = 'focus-pwa-v2';
 const urlsToCache = [
     '/index.html',
     '/style.css',
