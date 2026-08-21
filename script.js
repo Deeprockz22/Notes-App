@@ -194,6 +194,7 @@ const Timer = {
         this.timeLeft = this.settings.workDuration * 60;
         this.updateDisplay();
         this.updateStats();
+        this.updateProgress();
         this.attachEvents();
         this.loadSettings();
         this.applyVisualSettings();
@@ -430,21 +431,10 @@ const Timer = {
         const elapsed = totalTime - this.timeLeft;
         const percentage = (elapsed / totalTime) * 100;
 
-        // Update circular progress
-        const circle = document.querySelector('.timer-ring-progress');
-        if (circle) {
-            const circumference = 2 * Math.PI * 90;
-            const offset = circumference * (percentage / 100);
-            circle.style.strokeDashoffset = offset;
-
-            // Change color based on remaining time
-            circle.classList.remove('low-time', 'critical-time');
-            if (this.timeLeft < 300 && this.timeLeft >= 60) { // 1-5 minutes
-                circle.classList.add('low-time');
-            }
-            if (this.timeLeft < 60) { // < 1 minute
-                circle.classList.add('critical-time');
-            }
+        // Update water level (drains as time passes)
+        const water = document.getElementById('main-water');
+        if (water) {
+            water.style.height = `${Math.max(0, 100 - percentage)}%`;
         }
 
         // Update linear progress
@@ -1060,25 +1050,13 @@ const FullscreenTimer = {
         const elapsed = totalTime - Timer.timeLeft;
         const percentage = (elapsed / totalTime) * 100;
 
-        // Update circular progress ring
-        const circle = document.querySelector('.fullscreen-progress');
-        if (circle) {
-            const circumference = 2 * Math.PI * 90;
-            const offset = circumference * (percentage / 100);
-            circle.style.strokeDashoffset = offset;
-
-            // Change color based on remaining time
-            circle.classList.remove('low-time', 'critical-time');
-            if (Timer.timeLeft < 300 && Timer.timeLeft >= 60) {
-                circle.classList.add('low-time');
-            }
-            if (Timer.timeLeft < 60) {
-                circle.classList.add('critical-time');
-                document.getElementById('fullscreen-timer').classList.add('critical');
-            } else {
-                document.getElementById('fullscreen-timer').classList.remove('critical');
-            }
+        // Update water level (drains as time passes)
+        const water = document.getElementById('fullscreen-water');
+        if (water) {
+            water.style.height = `${Math.max(0, 100 - percentage)}%`;
         }
+
+        document.getElementById('fullscreen-timer').classList.toggle('critical', Timer.timeLeft < 60);
 
         // Update linear progress bar
         const progressFill = document.querySelector('.fullscreen-progress-fill');
@@ -1153,6 +1131,40 @@ const FullscreenTimer = {
     updateFromMainTimer() {
         if (this.isOpen) {
             this.syncFromMainTimer();
+            document.getElementById('fullscreen-timer').classList.toggle('running', Timer.isRunning);
+        }
+    }
+};
+
+// ===================================
+// WATER TANK (boiling bubbles)
+// ===================================
+const WaterTank = {
+    BUBBLE_COUNT: 14,
+
+    init() {
+        this.fill('main-bubbles');
+        this.fill('fullscreen-bubbles');
+    },
+
+    fill(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        for (let i = 0; i < this.BUBBLE_COUNT; i++) {
+            const bubble = document.createElement('span');
+            bubble.className = 'bubble';
+
+            const size = 3 + Math.random() * 9;
+            bubble.style.width = `${size.toFixed(1)}px`;
+            bubble.style.height = `${size.toFixed(1)}px`;
+            bubble.style.left = `${(Math.random() * 92).toFixed(1)}%`;
+            bubble.style.setProperty('--s', (0.7 + Math.random() * 0.6).toFixed(2));
+            bubble.style.setProperty('--dur', `${(2.2 + Math.random() * 2.8).toFixed(2)}s`);
+            bubble.style.setProperty('--delay', `${(-Math.random() * 5).toFixed(2)}s`);
+            bubble.style.setProperty('--sway', `${((Math.random() - 0.5) * 26).toFixed(1)}px`);
+
+            container.appendChild(bubble);
         }
     }
 };
@@ -1228,6 +1240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Tasks.init();
     Notes.init();
     FullscreenTimer.init();
+    WaterTank.init();
     PWAInstall.init();
 
     // Request notification permission

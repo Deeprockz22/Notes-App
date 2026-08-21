@@ -26,6 +26,10 @@
     --accent-primary: #000000;
     --accent-hover: #262626;
 
+    /* Water Tank */
+    --water-color: #000000;
+    --bubble-color: rgba(255, 255, 255, 0.35);
+
     /* Status colors */
     --color-success: #10b981;
     --color-danger: #ef4444;
@@ -88,6 +92,10 @@
 
     --accent-primary: #ffffff;
     --accent-hover: #e5e5e5;
+
+    /* Water Tank (inverted so it stays visible on dark bg) */
+    --water-color: #ffffff;
+    --bubble-color: rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -461,42 +469,127 @@ body {
     justify-content: center;
 }
 
-/* Circular Progress Ring */
-.timer-ring {
+/* Boiling Water Tank (replaces progress ring) */
+.water-tank {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 350px;
     height: 350px;
+    border-radius: 50%;
+    border: 3px solid var(--border-dark);
+    overflow: hidden;
     z-index: 0;
+    background: var(--bg-primary);
 }
 
-.timer-ring-bg {
-    fill: none;
-    stroke: var(--border-light);
-    stroke-width: 8;
+.water {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--water-color);
+    transition: height 1s linear;
 }
 
-.timer-ring-progress {
-    fill: none;
-    stroke: var(--accent-primary);
-    stroke-width: 8;
-    stroke-linecap: round;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-    stroke-dasharray: 565.48;
-    /* 2 * π * 90 */
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+/* Rotating wave layers create the undulating surface */
+.water-wave {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 260%;
+    aspect-ratio: 1 / 1;
+    background: var(--water-color);
+    animation: water-spin 9s linear infinite;
 }
 
-.timer-ring-progress.low-time {
-    stroke: var(--color-warning);
+.water-wave.w1 {
+    border-radius: 43%;
+    transform: translate(-50%, -50%) rotate(0deg);
 }
 
-.timer-ring-progress.critical-time {
-    stroke: var(--color-danger);
+.water-wave.w2 {
+    border-radius: 46%;
+    opacity: 0.55;
+    animation-duration: 13s;
+    animation-direction: reverse;
+}
+
+@keyframes water-spin {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Bubbles rise through the water and pop at the surface */
+.bubbles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.timer-display.running .bubbles,
+.fullscreen-timer.running .bubbles {
+    opacity: 1;
+}
+
+.bubble {
+    position: absolute;
+    bottom: -6px;
+    border-radius: 50%;
+    background: var(--bubble-color);
+    box-shadow: inset 0 0 2px var(--bubble-color);
+    opacity: 0;
+    transform: scale(0.6);
+    animation: bubble-rise-pop var(--dur) ease-in infinite;
+    animation-delay: var(--delay);
+    animation-play-state: paused;
+    will-change: bottom, transform, opacity;
+}
+
+.timer-display.running .bubble,
+.fullscreen-timer.running .bubble {
+    animation-play-state: running;
+}
+
+.timer-display.critical .bubble,
+.fullscreen-timer.critical .bubble {
+    animation-duration: calc(var(--dur) * 0.45);
+}
+
+@keyframes bubble-rise-pop {
+    0% {
+        bottom: -6px;
+        transform: translateX(0) scale(calc(var(--s) * 0.7));
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    55% {
+        transform: translateX(var(--sway)) scale(var(--s));
+    }
+
+    80% {
+        opacity: 1;
+        transform: translateX(calc(var(--sway) * -0.4)) scale(calc(var(--s) * 1.1));
+    }
+
+    100% {
+        bottom: 96%;
+        transform: translateX(var(--sway)) scale(calc(var(--s) * 2));
+        opacity: 0;
+    }
 }
 
 /* Linear Progress Bar */
@@ -534,10 +627,8 @@ body {
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
     margin-bottom: var(--spacing-sm);
-    background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
+    mix-blend-mode: difference;
     position: relative;
     z-index: 1;
     cursor: pointer;
@@ -558,7 +649,8 @@ body {
 
 .timer-label {
     font-size: var(--font-size-xl);
-    color: var(--text-secondary);
+    color: #ffffff;
+    mix-blend-mode: difference;
     font-weight: 500;
     position: relative;
     z-index: 1;
@@ -569,14 +661,9 @@ body {
     font-size: 72px !important;
 }
 
-.timer-display.large-timer .timer-ring {
+.timer-display.large-timer .water-tank {
     width: 380px;
     height: 380px;
-}
-
-.timer-display.large-timer .timer-ring-bg,
-.timer-display.large-timer .timer-ring-progress {
-    r: 95;
 }
 
 /* Breathing Animation */
@@ -653,7 +740,7 @@ body {
 }
 
 /* Timer Style Variants */
-.timer-container[data-style="minimal"] .timer-ring,
+.timer-container[data-style="minimal"] .water-tank,
 .timer-container[data-style="minimal"] .timer-progress-bar {
     display: none;
 }
@@ -662,7 +749,7 @@ body {
     display: none;
 }
 
-.timer-container[data-style="linear"] .timer-ring {
+.timer-container[data-style="linear"] .water-tank {
     display: none;
 }
 
@@ -1436,18 +1523,13 @@ input:checked+.theme-slider:before {
     height: 100%;
 }
 
-/* Fullscreen Progress Ring - Centered */
-.fullscreen-ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+/* Fullscreen Water Tank - Centered */
+.fullscreen-tank {
     width: min(60vw, 60vh);
     height: min(60vw, 60vh);
     max-width: 600px;
     max-height: 600px;
     z-index: 0;
-    opacity: 0.2;
 }
 
 /* Fullscreen Linear Progress Bar */
@@ -1501,17 +1583,16 @@ input:checked+.theme-slider:before {
     font-weight: 700;
     letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
-    background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
+    mix-blend-mode: difference;
     user-select: none;
     text-align: center;
 }
 
 .fullscreen-label {
     font-size: var(--font-size-2xl);
-    color: var(--text-secondary);
+    color: #ffffff;
+    mix-blend-mode: difference;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.15em;
@@ -1540,7 +1621,7 @@ input:checked+.theme-slider:before {
 }
 
 /* Timer Style Variants for Fullscreen */
-.fullscreen-content[data-style="minimal"] .fullscreen-ring {
+.fullscreen-content[data-style="minimal"] .fullscreen-tank {
     display: none;
 }
 
@@ -1548,7 +1629,7 @@ input:checked+.theme-slider:before {
     display: none;
 }
 
-.fullscreen-content[data-style="linear"] .fullscreen-ring {
+.fullscreen-content[data-style="linear"] .fullscreen-tank {
     display: none;
 }
 
@@ -1556,7 +1637,7 @@ input:checked+.theme-slider:before {
     display: block;
 }
 
-.fullscreen-content[data-style="circular"] .fullscreen-ring {
+.fullscreen-content[data-style="circular"] .fullscreen-tank {
     display: block;
 }
 
@@ -1625,7 +1706,7 @@ input:checked+.theme-slider:before {
         font-size: var(--font-size-base);
     }
 
-    .fullscreen-ring {
+    .fullscreen-tank {
         width: 80vw;
         height: 80vw;
     }
