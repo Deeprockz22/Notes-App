@@ -2,7 +2,7 @@
   "name": "Focus - Productivity Tool",
   "short_name": "Focus",
   "description": "A minimalist black and white productivity tool with Pomodoro timer, task manager, and rich notes",
-  "start_url": "/index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",

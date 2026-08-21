@@ -25,6 +25,10 @@ const Storage = {
     }
 };
 
+function uid() {
+    return Date.now() * 1000 + Math.floor(Math.random() * 1000);
+}
+
 // ===================================
 // THEME MANAGER
 // ===================================
@@ -70,7 +74,7 @@ const ThemeManager = {
         // Update meta theme-color for mobile browsers
         const metaTheme = document.querySelector('meta[name="theme-color"]');
         if (metaTheme) {
-            metaTheme.setAttribute('content', theme === 'dark' ? '#000000' : '#000000');
+            metaTheme.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
         }
     },
 
@@ -171,7 +175,8 @@ const Timer = {
     interval: null,
     currentMode: 'work', // 'work', 'short-break', 'long-break'
     sessionsCompleted: Storage.get('sessionsCompleted', 0),
-    totalFocusTime: Storage.get('totalFocusTime', 0), // in minutes
+    totalFocusSeconds: Storage.get('totalFocusTimeSeconds', Storage.get('totalFocusTime', 0) * 60),
+    endAt: null,
 
     settings: {
         workDuration: Storage.get('workDuration', 25),
@@ -272,6 +277,10 @@ const Timer = {
 
     setCustomTime(minutes) {
         this.timeLeft = minutes * 60;
+        if (this.currentMode === 'work') {
+            this.settings.workDuration = minutes;
+            Storage.set('workDuration', minutes);
+        }
         this.updateDisplay();
         this.updateProgress();
     },
@@ -297,20 +306,32 @@ const Timer = {
         // Add running class for animations
         document.querySelector('.timer-display').classList.add('running');
 
+        this.endAt = Date.now() + this.timeLeft * 1000;
         this.interval = setInterval(() => {
-            this.timeLeft--;
-            this.updateDisplay();
-            this.updateProgress();
+            const remaining = Math.max(0, Math.round((this.endAt - Date.now()) / 1000));
+            const elapsedDelta = this.timeLeft - remaining;
+
+            if (elapsedDelta > 0 && this.currentMode === 'work') {
+                this.totalFocusSeconds += elapsedDelta;
+                this.updateStats();
+            }
+
+            if (remaining !== this.timeLeft) {
+                this.timeLeft = remaining;
+                this.updateDisplay();
+                this.updateProgress();
+            }
 
             if (this.timeLeft <= 0) {
                 this.complete();
             }
-        }, 1000);
+        }, 250);
     },
 
     pause() {
         this.isRunning = false;
         clearInterval(this.interval);
+        Storage.set('totalFocusTimeSeconds', this.totalFocusSeconds);
         document.getElementById('timer-start').disabled = false;
         document.getElementById('timer-pause').disabled = true;
 
@@ -334,9 +355,8 @@ const Timer = {
 
         if (this.currentMode === 'work') {
             this.sessionsCompleted++;
-            this.totalFocusTime += this.settings.workDuration;
             Storage.set('sessionsCompleted', this.sessionsCompleted);
-            Storage.set('totalFocusTime', this.totalFocusTime);
+            Storage.set('totalFocusTimeSeconds', this.totalFocusSeconds);
             this.updateStats();
 
             // Determine next mode
@@ -454,8 +474,9 @@ const Timer = {
     updateStats() {
         document.getElementById('sessions-completed').textContent = this.sessionsCompleted;
 
-        const hours = Math.floor(this.totalFocusTime / 60);
-        const minutes = this.totalFocusTime % 60;
+        const totalMinutes = Math.floor(this.totalFocusSeconds / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
         let timeString = '';
         if (hours > 0) {
             timeString = `${hours}h ${minutes}m`;
@@ -530,7 +551,7 @@ const Tasks = {
         if (!text) return;
 
         const task = {
-            id: Date.now(),
+            id: uid(),
             text: text,
             completed: false,
             createdAt: new Date().toISOString()
@@ -613,6 +634,7 @@ const Notes = {
     notes: Storage.get('notes', []),
     currentNote: null,
     autoSaveTimeout: null,
+    searchQuery: '',
 
     init() {
         this.render();
@@ -648,7 +670,7 @@ const Notes = {
 
     createNote() {
         const note = {
-            id: Date.now(),
+            id: uid(),
             title: '',
             content: '',
             pinned: false,
@@ -676,7 +698,7 @@ const Notes = {
             this.saveCurrentNote();
 
             // Delete if empty
-            if (!this.currentNote.title && !this.currentNote.content) {
+            if (!this.currentNote.title && !this.getTextContent(this.currentNote.content).trim()) {
                 this.notes = this.notes.filter(n => n.id !== this.currentNote.id);
             }
         }
@@ -690,7 +712,7 @@ const Notes = {
     saveCurrentNote() {
         if (!this.currentNote) return;
 
-        this.currentNote.title = document.getElementById('note-title').value.trim() || 'Untitled';
+        this.currentNote.title = document.getElementById('note-title').value.trim();
         this.currentNote.content = document.getElementById('note-content').innerHTML;
         this.currentNote.updatedAt = new Date().toISOString();
 
@@ -724,7 +746,11 @@ const Notes = {
     },
 
     search(query) {
-        const lowerQuery = query.toLowerCase();
+        this.searchQuery = query.toLowerCase();
+        this.applyFilter();
+    },
+
+    applyFilter() {
         const cards = document.querySelectorAll('.note-card');
 
         cards.forEach(card => {
@@ -734,8 +760,8 @@ const Notes = {
             if (!note) return;
 
             const matchesSearch =
-                note.title.toLowerCase().includes(lowerQuery) ||
-                this.getTextContent(note.content).toLowerCase().includes(lowerQuery);
+                (note.title || '').toLowerCase().includes(this.searchQuery) ||
+                this.getTextContent(note.content).toLowerCase().includes(this.searchQuery);
 
             card.style.display = matchesSearch ? 'flex' : 'none';
         });
@@ -745,7 +771,11 @@ const Notes = {
         if (command === 'checklist') {
             this.insertChecklist();
         } else {
-            document.execCommand(command, false, null);
+            try {
+                document.execCommand(command, false, null);
+            } catch (e) {
+                console.log('Editor command failed:', command, e);
+            }
         }
         document.getElementById('note-content').focus();
     },
@@ -829,6 +859,8 @@ const Notes = {
                 this.togglePin(id);
             });
         });
+
+        this.applyFilter();
     },
 
     getTextContent(html) {
@@ -964,7 +996,7 @@ const FullscreenTimer = {
 
         // Sync animation intensity
         const animationIntensity = Timer.visualSettings?.animationIntensity || 'normal';
-        fullscreenTimeEl.setAttribute('data-animation', animationIntensity);
+        document.getElementById('fullscreen-time').setAttribute('data-animation', animationIntensity);
 
         // Sync with main timer
         this.syncFromMainTimer();
@@ -1032,7 +1064,7 @@ const FullscreenTimer = {
         const circle = document.querySelector('.fullscreen-progress');
         if (circle) {
             const circumference = 2 * Math.PI * 90;
-            const offset = circumference - (circumference * (percentage / 100));
+            const offset = circumference * (percentage / 100);
             circle.style.strokeDashoffset = offset;
 
             // Change color based on remaining time
@@ -1051,7 +1083,7 @@ const FullscreenTimer = {
         // Update linear progress bar
         const progressFill = document.querySelector('.fullscreen-progress-fill');
         if (progressFill) {
-            progressFill.style.width = `${percentage}%`;
+            progressFill.style.width = `${100 - percentage}%`;
 
             // Change color based on remaining time
             progressFill.classList.remove('low-time', 'critical-time');

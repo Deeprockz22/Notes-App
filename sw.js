@@ -1,12 +1,12 @@
 // Service Worker for Focus PWA
-const CACHE_NAME = 'focus-pwa-v2';
+const CACHE_NAME = 'focus-pwa-v3';
 const urlsToCache = [
-    '/index.html',
-    '/style.css',
-    '/script.js',
-    '/manifest.json',
-    '/icon-192.png',
-    '/icon-512.png'
+    './index.html',
+    './style.css',
+    './script.js',
+    './manifest.json',
+    './icon-192.png',
+    './icon-512.png'
 ];
 
 // Install event - cache essential files
@@ -72,7 +72,7 @@ self.addEventListener('fetch', (event) => {
                 }).catch((error) => {
                     console.log('Fetch failed:', error);
                     // Return offline page if available
-                    return caches.match('/index.html');
+                    return caches.match('./index.html');
                 });
             })
     );
