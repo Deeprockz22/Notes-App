@@ -633,6 +633,11 @@ body {
     height: 380px;
 }
 
+.timer-display.large-timer .dino-track {
+    width: 380px;
+    height: 380px;
+}
+
 /* Breathing Animation */
 @keyframes breathe {
 
@@ -1847,49 +1852,134 @@ input:checked+.theme-slider:before {
 /* ===================================
    PIXEL DINO
    =================================== */
+/* Same geometry as .water-tank: a centred square whose inscribed circle IS
+   the tank rim, so the orbit below laps the tank edge exactly. Any size
+   change here must be mirrored on the tank. */
 .dino-track {
+    --orbit-duration: 18.3s;
     position: absolute;
-    inset: 12px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+    height: 350px;
     z-index: 2;
     pointer-events: none;
+}
+
+/* Speed follows the session: 2*pi*175px at 60px/s idle, 150px/s running */
+.timer-display.running .dino-track {
+    --orbit-duration: 7.3s;
+}
+
+/* The lap is a pure CSS rotation so it advances on the compositor and keeps
+   true wall-clock time even when script-driven frames are throttled or
+   suspended. The sprite rides at twelve o'clock of the rotating layer, which
+   turns the rim into a loop-the-loop: the dino always faces its direction
+   of travel. */
+.dino-orbit {
+    position: absolute;
+    inset: 0;
+    animation: dino-orbit var(--orbit-duration) linear infinite;
+    will-change: transform;
+}
+
+@keyframes dino-orbit {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .dino-sprite {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 50%;
     width: 0;
     height: 0;
     color: var(--text-primary);
-    will-change: transform;
 }
 
 .dino-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
     display: block;
     width: 48px;
     height: 48px;
 }
 
+/* Leg cycle: the two frames swap by opacity so the animation also runs on
+   the compositor, same 130ms-per-frame cadence as before */
 .dino-frame-b {
-    display: none;
+    opacity: 0;
 }
 
-.dino-sprite.step .dino-frame-a {
-    display: none;
+@keyframes dino-legs-a {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
-.dino-sprite.step .dino-frame-b {
-    display: block;
+@keyframes dino-legs-b {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.dino-track:not(.static) .dino-frame-a {
+    animation: dino-legs-a 260ms steps(1, end) infinite;
+}
+
+.dino-track:not(.static) .dino-frame-b {
+    animation: dino-legs-b 260ms steps(1, end) infinite;
+}
+
+/* Reduced motion: freeze the orbit at twelve o'clock, where the tangent
+   orientation is upright, and keep the legs still. ?motion=full opts back
+   in; ?motion=reduced forces the same parked state on demand. */
+@media (prefers-reduced-motion: reduce) {
+    .dino-track:not(.motion-full) .dino-orbit,
+    .dino-track:not(.motion-full) .dino-frame-a,
+    .dino-track:not(.motion-full) .dino-frame-b {
+        animation: none;
+    }
+
+    .dino-track:not(.motion-full) .dino-frame-b {
+        opacity: 0;
+    }
+}
+
+.dino-track.motion-reduced .dino-orbit,
+.dino-track.motion-reduced .dino-frame-a,
+.dino-track.motion-reduced .dino-frame-b {
+    animation: none;
+}
+
+.dino-track.motion-reduced .dino-frame-b {
+    opacity: 0;
 }
 
 @media (max-width: 768px) {
     .dino-frame {
         width: 38px;
         height: 38px;
-    }
-
-    .dino-track {
-        inset: 8px;
     }
 
     .mini-timer {

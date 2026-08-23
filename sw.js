@@ -1,5 +1,5 @@
 // Service Worker for Focus PWA
-const VERSION = 'v6';
+const VERSION = 'v7';
 const SHELL_CACHE = `focus-shell-${VERSION}`;
 const ASSET_CACHE = `focus-assets-${VERSION}`;
 const FONT_CACHE = `focus-fonts-${VERSION}`;

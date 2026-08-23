@@ -1769,20 +1769,15 @@ const MiniTimer = {
 // ===================================
 // PIXEL DINO
 // ===================================
-// A tiny T-Rex that jogs clockwise around the timer display, rendered from
-// pixel maps as SVG rects. Two leg frames alternate for a run cycle; the
-// sprite speeds up while a session is running.
+// A tiny T-Rex jogging laps around the water-tank rim, rendered from pixel
+// maps as SVG rects. The orbit, leg cycle and reduced-motion parking all
+// live in CSS (see .dino-orbit in style.css) so the run keeps true time on
+// the compositor even while script frames are throttled, and simply speeds
+// up while a session is running. Script only builds the two frames and
+// applies the ?motion=full|reduced override (testing aid).
 const DinoRun = {
     track: null,
     sprite: null,
-    distance: 0,
-    lastTs: null,
-    lastFrameSwitch: 0,
-    frameAlt: false,
-    width: 0,
-    height: 0,
-    SPEED_IDLE: 60,
-    SPEED_RUNNING: 150,
 
     FRAME_A: [
         '..........########..',
@@ -1831,8 +1826,6 @@ const DinoRun = {
     ],
 
     init() {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
         this.track = document.getElementById('dino-track');
         this.sprite = document.getElementById('dino-sprite');
         if (!this.track || !this.sprite) return;
@@ -1840,7 +1833,12 @@ const DinoRun = {
         this.sprite.appendChild(this.buildFrame(this.FRAME_A, 'a'));
         this.sprite.appendChild(this.buildFrame(this.FRAME_B, 'b'));
 
-        requestAnimationFrame((ts) => this.tick(ts));
+        const motionOverride = new URLSearchParams(location.search).get('motion');
+        if (motionOverride === 'full') {
+            this.track.classList.add('motion-full');
+        } else if (motionOverride === 'reduced') {
+            this.track.classList.add('motion-reduced');
+        }
     },
 
     buildFrame(map, suffix) {
@@ -1864,56 +1862,6 @@ const DinoRun = {
         });
 
         return svg;
-    },
-
-    pointAt(t) {
-        const w = this.width;
-        const h = this.height;
-
-        if (t < w) return { x: t, y: h, face: 1 };
-        t -= w;
-        if (t < h) return { x: w, y: h - t, face: 1 };
-        t -= h;
-        if (t < w) return { x: w - t, y: 0, face: -1 };
-        t -= w;
-        return { x: 0, y: h - t, face: 1 };
-    },
-
-    tick(ts) {
-        requestAnimationFrame((next) => this.tick(next));
-
-        const w = this.track.offsetWidth;
-        const h = this.track.offsetHeight;
-        if (w !== this.width || h !== this.height) {
-            this.width = w;
-            this.height = h;
-        }
-
-        // Timer section hidden behind another tab: freeze instead of
-        // accumulating distance against a zero-size box
-        if (w < 40 || h < 40) {
-            this.lastTs = ts;
-            return;
-        }
-
-        if (this.lastTs === null) this.lastTs = ts;
-        const dt = Math.min(0.05, (ts - this.lastTs) / 1000);
-        this.lastTs = ts;
-
-        const perimeter = 2 * (w + h);
-        const speed = Timer.isRunning ? this.SPEED_RUNNING : this.SPEED_IDLE;
-        this.distance = (this.distance + speed * dt) % perimeter;
-
-        const p = this.pointAt(this.distance);
-        const bob = Math.sin(ts / 90) * 1.2;
-        this.sprite.style.transform =
-            `translate(${p.x}px, ${p.y + bob}px) translate(-50%, -50%) scaleX(${p.face})`;
-
-        if (ts - this.lastFrameSwitch > 130) {
-            this.lastFrameSwitch = ts;
-            this.frameAlt = !this.frameAlt;
-            this.sprite.classList.toggle('step', this.frameAlt);
-        }
     }
 };
 
