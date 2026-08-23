@@ -1,5 +1,7 @@
 # Focus - Productivity Tool
 
+### 🔗 [**Live Demo → deeprockz22.github.io/Notes-App**](https://deeprockz22.github.io/Notes-App/)
+
 A minimalist black and white productivity app with Pomodoro timer, task management, and rich note-taking capabilities. Now available as a **Progressive Web App** for mobile installation!
 
 ## ✨ Features
@@ -33,10 +35,14 @@ A minimalist black and white productivity app with Pomodoro timer, task manageme
 
 ## 🚀 Usage
 
-### Option 1: Use as Web App
-Simply open `index.html` in your browser.
+### Option 1: Open the Live Site
+Go to **https://deeprockz22.github.io/Notes-App/** — nothing to install, works right in the browser.
 
 ### Option 2: Install as PWA (Recommended)
+
+Open the [live site](https://deeprockz22.github.io/Notes-App/) and jump straight to **Step 3** below — it is already served over HTTPS, so PWA install works out of the box.
+
+### Option 3: Run It Locally
 
 **Step 1: Serve with HTTPS or localhost**
 
