@@ -1,81 +1,141 @@
 // Service Worker for Focus PWA
-const CACHE_NAME = 'focus-pwa-v4';
-const urlsToCache = [
+const VERSION = 'v6';
+const SHELL_CACHE = `focus-shell-${VERSION}`;
+const ASSET_CACHE = `focus-assets-${VERSION}`;
+const FONT_CACHE = `focus-fonts-${VERSION}`;
+const CURRENT_CACHES = [SHELL_CACHE, ASSET_CACHE, FONT_CACHE];
+
+// The app shell is served network-first, so these are the offline fallback
+// rather than the primary source. Bumping VERSION is no longer required to
+// ship an update — it only clears stale entries.
+const SHELL_URLS = [
+    './',
     './index.html',
     './style.css',
     './script.js',
-    './manifest.json',
-    './icon-192.png',
-    './icon-512.png'
+    './manifest.json'
 ];
 
-// Install event - cache essential files
+const ASSET_URLS = [
+    './icon-192.png',
+    './icon-512.png',
+    './icon-maskable-512.png'
+];
+
+const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+
+// Install event - prime the caches
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
-            .catch((error) => {
-                console.log('Cache install failed:', error);
-            })
+        Promise.all([
+            caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL_URLS)),
+            caches.open(ASSET_CACHE).then((cache) => cache.addAll(ASSET_URLS))
+        ]).catch((error) => {
+            console.log('Cache install failed:', error);
+        })
     );
     self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up caches from older versions
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
+                cacheNames
+                    .filter((cacheName) => !CURRENT_CACHES.includes(cacheName))
+                    .map((cacheName) => {
                         console.log('Deleting old cache:', cacheName);
                         return caches.delete(cacheName);
-                    }
-                })
+                    })
             );
-        })
+        }).then(() => self.clients.claim())
     );
-    self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+function isShellRequest(request, url) {
+    if (request.mode === 'navigate') return true;
+    if (url.origin !== self.location.origin) return false;
+    return /\.(html|css|js|json)$/.test(url.pathname) || url.pathname.endsWith('/');
+}
+
+function putInCache(cacheName, request, response) {
+    // Opaque and error responses are not worth storing; failures here are
+    // never fatal to the request itself.
+    if (!response || response.status === 0 || response.status === 206) return;
+
+    caches.open(cacheName)
+        .then((cache) => cache.put(request, response))
+        .catch((error) => console.log('Cache write failed:', error));
+}
+
+// Network-first: always try for a fresh shell, fall back to cache offline.
+async function networkFirst(request) {
+    try {
+        const response = await fetch(request);
+        if (response && response.ok && response.type === 'basic') {
+            putInCache(SHELL_CACHE, request, response.clone());
+        }
+        return response;
+    } catch (error) {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+
+        // Any navigation can fall back to the app shell
+        if (request.mode === 'navigate') {
+            const shell = await caches.match('./index.html');
+            if (shell) return shell;
+        }
+        throw error;
+    }
+}
+
+// Cache-first with background refresh: right for content-addressed assets.
+async function staleWhileRevalidate(request, cacheName, event) {
+    const cached = await caches.match(request);
+
+    const network = fetch(request)
+        .then((response) => {
+            if (response && (response.ok || response.type === 'opaque')) {
+                putInCache(cacheName, request, response.clone());
+            }
+            return response;
+        })
+        .catch(() => null);
+
+    if (cached) {
+        // Keep the worker alive until the refresh lands
+        event.waitUntil(network);
+        return cached;
+    }
+
+    const response = await network;
+    if (response) return response;
+    throw new Error(`Unavailable offline: ${request.url}`);
+}
+
 self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
+    const request = event.request;
 
-                // Clone the request
-                const fetchRequest = event.request.clone();
+    // cache.put() rejects on anything but GET
+    if (request.method !== 'GET') return;
 
-                return fetch(fetchRequest).then((response) => {
-                    // Check if valid response
-                    if (!response || response.status !== 200 || response.type !== 'basic') {
-                        return response;
-                    }
+    const url = new URL(request.url);
 
-                    // Clone the response
-                    const responseToCache = response.clone();
+    if (FONT_HOSTS.includes(url.hostname)) {
+        // Cached so an offline launch keeps its typography
+        event.respondWith(staleWhileRevalidate(request, FONT_CACHE, event));
+        return;
+    }
 
-                    caches.open(CACHE_NAME)
-                        .then((cache) => {
-                            cache.put(event.request, responseToCache);
-                        });
+    if (url.origin !== self.location.origin) return;
 
-                    return response;
-                }).catch((error) => {
-                    console.log('Fetch failed:', error);
-                    // Return offline page if available
-                    return caches.match('./index.html');
-                });
-            })
-    );
+    if (isShellRequest(request, url)) {
+        event.respondWith(networkFirst(request));
+        return;
+    }
+
+    event.respondWith(staleWhileRevalidate(request, ASSET_CACHE, event));
 });
 
 // Listen for messages from the app

@@ -28,7 +28,7 @@
 
     /* Water Tank */
     --water-color: #000000;
-    --bubble-color: rgba(255, 255, 255, 0.35);
+    --water-surface: rgba(255, 255, 255, 0.35);
 
     /* Status colors */
     --color-success: #10b981;
@@ -95,7 +95,7 @@
 
     /* Water Tank (inverted so it stays visible on dark bg) */
     --water-color: #ffffff;
-    --bubble-color: rgba(0, 0, 0, 0.3);
+    --water-surface: rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -484,112 +484,79 @@ body {
     background: var(--bg-primary);
 }
 
+/* The level is the whole point: height is driven by the timer, so nothing
+   may paint above the waterline. The previous rotating wave layers were
+   260% of the tank and centred on the surface, which covered the empty
+   space above it in water colour and made the tank look permanently full. */
+/* Transparent on purpose: the wave layers below are the water body, so the
+   surface can dip below the level as well as rise above it. A solid
+   background here would show as a flat edge that troughs can never cross. */
 .water {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--water-color);
-    transition: height 1s linear;
+    transition: height 1s cubic-bezier(0.445, 0.05, 0.55, 0.95);
 }
 
-/* Rotating wave layers create the undulating surface */
+/* Undulating surface.
+   Each layer is a rounded square whose CENTRE sits just below the waterline,
+   so rotating it sweeps only its edge across the surface. On a 40% radius the
+   centre-to-edge distance runs 0.500-0.541 of the side, and that 4% band is
+   the wave amplitude. Centring the shape ON the waterline instead - what the
+   old code did - buries the entire tank above the level in water colour. */
 .water-wave {
     position: absolute;
     top: 0;
     left: 50%;
-    width: 260%;
+    width: 200%;
     aspect-ratio: 1 / 1;
     background: var(--water-color);
-    animation: water-spin 9s linear infinite;
+    border-radius: 40%;
+    /* Base position must live here, not only in the keyframes, or disabling
+       the animation drops the centring and floods the tank.
+       No vertical offset: the shape's top edge rests ON the level and only
+       rises above it. Sinking it lower would make troughs dip below the level,
+       which forces the tank to be overfilled to hide the gap at the rim - and
+       an overfilled tank hides the whole surface until minutes into a session. */
+    transform: translate(-50%, 0);
+    animation: water-spin 7s linear infinite;
+    will-change: transform;
 }
 
-.water-wave.w1 {
-    border-radius: 43%;
-    transform: translate(-50%, -50%) rotate(0deg);
-}
-
+/* Second layer: shallower crests, slower, counter-rotating, so the two
+   surfaces beat against each other instead of moving as one */
 .water-wave.w2 {
-    border-radius: 46%;
-    opacity: 0.55;
-    animation-duration: 13s;
+    border-radius: 43%;
+    opacity: 0.5;
+    animation-duration: 11s;
     animation-direction: reverse;
 }
 
 @keyframes water-spin {
     from {
-        transform: translate(-50%, -50%) rotate(0deg);
+        transform: translate(-50%, 0) rotate(0deg);
     }
 
     to {
-        transform: translate(-50%, -50%) rotate(360deg);
+        transform: translate(-50%, 0) rotate(360deg);
     }
 }
 
-/* Bubbles rise through the water and pop at the surface */
-.bubbles {
+/* Animation Intensity: Off stops the surface too */
+.timer-display[data-intensity="off"] .water-wave {
+    animation: none;
+}
+
+/* Soft inner vignette reads as glass over either water colour */
+.water-tank::after {
+    content: '';
     position: absolute;
     inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-}
-
-.timer-display.running .bubbles,
-.fullscreen-timer.running .bubbles {
-    opacity: 1;
-}
-
-.bubble {
-    position: absolute;
-    bottom: -6px;
     border-radius: 50%;
-    background: var(--bubble-color);
-    box-shadow: inset 0 0 2px var(--bubble-color);
-    opacity: 0;
-    transform: scale(0.6);
-    animation: bubble-rise-pop var(--dur) ease-in infinite;
-    animation-delay: var(--delay);
-    animation-play-state: paused;
-    will-change: bottom, transform, opacity;
-}
-
-.timer-display.running .bubble,
-.fullscreen-timer.running .bubble {
-    animation-play-state: running;
-}
-
-.timer-display.critical .bubble,
-.fullscreen-timer.critical .bubble {
-    animation-duration: calc(var(--dur) * 0.45);
-}
-
-@keyframes bubble-rise-pop {
-    0% {
-        bottom: -6px;
-        transform: translateX(0) scale(calc(var(--s) * 0.7));
-        opacity: 0;
-    }
-
-    10% {
-        opacity: 1;
-    }
-
-    55% {
-        transform: translateX(var(--sway)) scale(var(--s));
-    }
-
-    80% {
-        opacity: 1;
-        transform: translateX(calc(var(--sway) * -0.4)) scale(calc(var(--s) * 1.1));
-    }
-
-    100% {
-        bottom: 96%;
-        transform: translateX(var(--sway)) scale(calc(var(--s) * 2));
-        opacity: 0;
-    }
+    box-shadow: inset 0 0 30px var(--water-surface);
+    pointer-events: none;
 }
 
 /* Linear Progress Bar */
@@ -734,9 +701,9 @@ body {
     animation: none;
 }
 
-/* Pulsing when time is critical */
-.timer-display.critical .timer-time {
-    animation: pulse 1s ease-in-out infinite !important;
+/* Pulsing when time is critical - still respects Animation Intensity: Off */
+.timer-display.critical:not([data-intensity="off"]) .timer-time {
+    animation: pulse 1s ease-in-out infinite;
 }
 
 /* Timer Style Variants */
@@ -914,9 +881,14 @@ body {
     box-shadow: var(--shadow-md);
 }
 
+/* A real button, so it is reachable and operable by keyboard */
 .task-checkbox {
     width: 24px;
     height: 24px;
+    padding: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
     border: 2px solid var(--accent-primary);
     border-radius: var(--radius-sm);
     display: flex;
@@ -967,7 +939,8 @@ body {
     transition: all var(--transition-fast);
 }
 
-.task-item:hover .task-delete {
+.task-item:hover .task-delete,
+.task-delete:focus-visible {
     opacity: 1;
 }
 
@@ -1366,6 +1339,13 @@ input:checked+.theme-slider:before {
     display: none !important;
 }
 
+/* Visible keyboard focus everywhere, without adding rings for mouse users */
+:focus-visible {
+    outline: 3px solid var(--accent-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
 /* ===================================
    RESPONSIVE
    =================================== */
@@ -1564,17 +1544,18 @@ input:checked+.theme-slider:before {
     background: #ff3b30;
 }
 
-/* Timer Container - Centered in Circle */
+/* Timer Container - Centered in Circle
+   NOTE: must NOT create a stacking context (no z-index, no transform)
+   or it would isolate the mix-blend-mode: difference text inside,
+   breaking theme/water inversion */
 .fullscreen-timer-center {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    inset: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    pointer-events: none;
 }
 
 /* Fullscreen Timer Display */
@@ -1682,8 +1663,8 @@ input:checked+.theme-slider:before {
     animation: none;
 }
 
-.fullscreen-timer.critical .fullscreen-time {
-    animation: pulse 1s ease-in-out infinite !important;
+.fullscreen-timer.critical .fullscreen-time:not([data-animation="off"]) {
+    animation: pulse 1s ease-in-out infinite;
 }
 
 /* Mobile Fullscreen */
@@ -1709,5 +1690,223 @@ input:checked+.theme-slider:before {
     .fullscreen-tank {
         width: 80vw;
         height: 80vw;
+    }
+}
+
+/* ===================================
+   REDUCED MOTION
+   ===================================
+   The breathe and pulse animations loop forever. Honour the OS-level
+   preference: keep the water level and progress readable, drop the
+   perpetual movement. */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Water level and progress still need to move, just without easing drama */
+    .water,
+    .timer-progress-fill,
+    .fullscreen-progress-fill {
+        transition-duration: 0.2s !important;
+    }
+
+    .task-item:hover,
+    .note-card:hover,
+    .timer-time:hover {
+        transform: none !important;
+    }
+}
+
+/* ===================================
+   HOVER MESSAGE BUBBLE
+   =================================== */
+.msg-bubble {
+    position: fixed;
+    top: 0;
+    left: 0;
+    max-width: 260px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    transform: translate(-50%, -100%);
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 12000;
+}
+
+.msg-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--text-primary);
+}
+
+.msg-bubble.visible {
+    opacity: 1;
+}
+
+/* ===================================
+   MUSIC TOGGLE
+   =================================== */
+.timer-controls #timer-music {
+    min-width: 0;
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+}
+
+/* ===================================
+   MINI TIMER PILL
+   =================================== */
+.mini-timer {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-xl);
+    border: 2px solid var(--border-dark);
+    border-radius: var(--radius-full);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    z-index: 800;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.mini-timer:hover {
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+#mini-timer-label {
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-secondary);
+}
+
+#mini-timer-time {
+    font-size: var(--font-size-lg);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+}
+
+.mini-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    animation: mini-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes mini-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.35;
+        transform: scale(0.75);
+    }
+}
+
+.mini-timer.critical .mini-dot {
+    background: var(--color-danger);
+    animation-duration: 0.6s;
+}
+
+.mini-timer.critical #mini-timer-time {
+    color: var(--color-danger);
+}
+
+/* ===================================
+   PIXEL DINO
+   =================================== */
+.dino-track {
+    position: absolute;
+    inset: 12px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.dino-sprite {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    color: var(--text-primary);
+    will-change: transform;
+}
+
+.dino-frame {
+    display: block;
+    width: 48px;
+    height: 48px;
+}
+
+.dino-frame-b {
+    display: none;
+}
+
+.dino-sprite.step .dino-frame-a {
+    display: none;
+}
+
+.dino-sprite.step .dino-frame-b {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .dino-frame {
+        width: 38px;
+        height: 38px;
+    }
+
+    .dino-track {
+        inset: 8px;
+    }
+
+    .mini-timer {
+        bottom: 14px;
+        padding: var(--spacing-sm) var(--spacing-lg);
+    }
+
+    .msg-bubble {
+        display: none;
+    }
+}
+
+@media print {
+
+    .dino-track,
+    .mini-timer,
+    .msg-bubble {
+        display: none !important;
     }
 }

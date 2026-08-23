@@ -46,17 +46,20 @@
                 <!-- Install button will be inserted here by PWA script -->
             </div>
 
-            <nav class="nav-tabs">
-                <button class="nav-tab active" data-tab="timer">
-                    <span class="tab-icon">⏱️</span>
+            <nav class="nav-tabs" role="tablist" aria-label="Sections">
+                <button class="nav-tab active" data-tab="timer" type="button" role="tab" id="tab-timer"
+                    aria-controls="timer-section" aria-selected="true">
+                    <span class="tab-icon" aria-hidden="true">⏱️</span>
                     <span class="tab-label">Timer</span>
                 </button>
-                <button class="nav-tab" data-tab="tasks">
-                    <span class="tab-icon">✓</span>
+                <button class="nav-tab" data-tab="tasks" type="button" role="tab" id="tab-tasks"
+                    aria-controls="tasks-section" aria-selected="false" tabindex="-1">
+                    <span class="tab-icon" aria-hidden="true">✓</span>
                     <span class="tab-label">Tasks</span>
                 </button>
-                <button class="nav-tab" data-tab="notes">
-                    <span class="tab-icon">📝</span>
+                <button class="nav-tab" data-tab="notes" type="button" role="tab" id="tab-notes"
+                    aria-controls="notes-section" aria-selected="false" tabindex="-1">
+                    <span class="tab-icon" aria-hidden="true">📝</span>
                     <span class="tab-label">Notes</span>
                 </button>
             </nav>
@@ -65,7 +68,8 @@
         <!-- Main Content -->
         <main class="app-main">
             <!-- Timer Section -->
-            <section class="section active" id="timer-section">
+            <section class="section active" id="timer-section" role="tabpanel" aria-labelledby="tab-timer"
+                tabindex="0">
                 <div class="timer-container" data-style="circular">
                     <!-- Quick Timer Presets -->
                     <div class="timer-presets">
@@ -76,13 +80,17 @@
                     </div>
 
                     <div class="timer-display">
-                        <!-- Boiling Water Tank (replaces progress ring) -->
+                        <!-- Water Tank: the level drains as the session runs -->
                         <div class="water-tank" id="main-water-tank">
                             <div class="water" id="main-water">
                                 <div class="water-wave w1"></div>
                                 <div class="water-wave w2"></div>
-                                <div class="bubbles" id="main-bubbles"></div>
                             </div>
+                        </div>
+
+                        <!-- Pixel dino jogging the perimeter -->
+                        <div class="dino-track" id="dino-track" aria-hidden="true">
+                            <div class="dino-sprite" id="dino-sprite"></div>
                         </div>
 
                         <!-- Time Display (Clickable to Edit) -->
@@ -96,9 +104,12 @@
                     </div>
 
                     <div class="timer-controls">
-                        <button class="btn btn-primary" id="timer-start">Start</button>
-                        <button class="btn btn-secondary" id="timer-pause" disabled>Pause</button>
+                        <button class="btn btn-primary" id="timer-start" data-hover-msg="start">Start</button>
+                        <button class="btn btn-secondary" id="timer-pause" data-hover-msg="pause"
+                            disabled>Pause</button>
                         <button class="btn btn-secondary" id="timer-reset">Reset</button>
+                        <button class="btn btn-secondary" id="timer-music" aria-pressed="true"
+                            title="Focus music: on">🎵</button>
                         <button class="btn btn-secondary" id="timer-fullscreen"
                             title="Fullscreen Focus Mode">🖥️</button>
                     </div>
@@ -162,7 +173,7 @@
             </section>
 
             <!-- Tasks Section -->
-            <section class="section" id="tasks-section">
+            <section class="section" id="tasks-section" role="tabpanel" aria-labelledby="tab-tasks" tabindex="0">
                 <div class="tasks-container">
                     <div class="section-header">
                         <h2>Tasks</h2>
@@ -173,7 +184,7 @@
                         <button class="btn btn-primary" id="add-task-btn">Add</button>
                     </div>
 
-                    <div class="tasks-list" id="tasks-list">
+                    <div class="tasks-list" id="tasks-list" role="list">
                         <!-- Tasks will be dynamically inserted here -->
                     </div>
 
@@ -184,7 +195,7 @@
             </section>
 
             <!-- Notes Section -->
-            <section class="section" id="notes-section">
+            <section class="section" id="notes-section" role="tabpanel" aria-labelledby="tab-notes" tabindex="0">
                 <div class="notes-container">
                     <div class="section-header">
                         <h2>Notes</h2>
@@ -286,12 +297,11 @@
             <button class="btn-close fullscreen-close" id="close-fullscreen" title="Exit Fullscreen (Esc)">✕</button>
 
             <div class="fullscreen-content">
-                <!-- Boiling Water Tank (replaces progress ring) -->
+                <!-- Water Tank: the level drains as the session runs -->
                 <div class="water-tank fullscreen-tank" id="fullscreen-water-tank">
                     <div class="water" id="fullscreen-water">
                         <div class="water-wave w1"></div>
                         <div class="water-wave w2"></div>
-                        <div class="bubbles" id="fullscreen-bubbles"></div>
                     </div>
                 </div>
 
@@ -311,12 +321,20 @@
 
                 <!-- Fullscreen Controls -->
                 <div class="fullscreen-controls">
-                    <button class="btn btn-primary" id="fullscreen-start">Start</button>
-                    <button class="btn btn-secondary" id="fullscreen-pause" disabled>Pause</button>
+                    <button class="btn btn-primary" id="fullscreen-start" data-hover-msg="start">Start</button>
+                    <button class="btn btn-secondary" id="fullscreen-pause" data-hover-msg="pause"
+                        disabled>Pause</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Persistent mini timer: follows you across tabs while a session runs -->
+    <button type="button" class="mini-timer hidden" id="mini-timer" title="Back to timer">
+        <span class="mini-dot" aria-hidden="true"></span>
+        <span id="mini-timer-label">Focus</span>
+        <span id="mini-timer-time">25:00</span>
+    </button>
 
     <audio id="timer-sound" preload="auto">
         <source
@@ -331,6 +349,9 @@
                 navigator.serviceWorker.register('sw.js')
                     .then((registration) => {
                         console.log('ServiceWorker registered:', registration.scope);
+                        // Actively check on every load, so a worker left over
+                        // from an older build cannot keep serving its cache
+                        registration.update();
                     })
                     .catch((error) => {
                         console.log('ServiceWorker registration failed:', error);

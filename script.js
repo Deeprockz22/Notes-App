@@ -20,6 +20,17 @@ const Storage = {
         }
     },
 
+    // Corrupt or hand-edited storage should not take the whole app down at init
+    getArray(key) {
+        const value = this.get(key, []);
+        return Array.isArray(value) ? value : [];
+    },
+
+    getNumber(key, defaultValue) {
+        const value = Number(this.get(key, defaultValue));
+        return Number.isFinite(value) ? value : defaultValue;
+    },
+
     remove(key) {
         localStorage.removeItem(key);
     }
@@ -28,6 +39,68 @@ const Storage = {
 function uid() {
     return Date.now() * 1000 + Math.floor(Math.random() * 1000);
 }
+
+// ===================================
+// WATER LEVEL
+// ===================================
+// An idle timer reads as a full tank, so the top of the band is just past 100%
+// - only far enough to clip the wave crests above the rim. Keep it tight: every
+// point above 100% is time at the start of a session where the surface is out
+// of sight and the tank looks frozen. At 102% the surface drops into view
+// within the first ~2% of the session.
+const WATER_LEVEL_MIN = 0;
+const WATER_LEVEL_MAX = 102;
+
+function waterLevelPercent(timeLeft, totalTime) {
+    if (!Number.isFinite(timeLeft) || !Number.isFinite(totalTime) || totalTime <= 0) {
+        return WATER_LEVEL_MAX;
+    }
+
+    const remaining = Math.min(1, Math.max(0, timeLeft / totalTime));
+    // Use square for physically realistic draining:
+    // water drains faster when high, slower when low (Torricelli's law)
+    const eased = Math.pow(remaining, 2);
+    return WATER_LEVEL_MIN + eased * (WATER_LEVEL_MAX - WATER_LEVEL_MIN);
+}
+
+// ===================================
+// HTML SANITIZER
+// ===================================
+// Note content round-trips through innerHTML, so anything pasted into the
+// editor is re-injected on every open. DOMParser builds an inert document,
+// so nothing runs while we strip it.
+const Sanitizer = {
+    FORBIDDEN_TAGS: new Set([
+        'SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'LINK', 'META', 'BASE', 'FORM'
+    ]),
+
+    URL_ATTRS: new Set(['href', 'src', 'xlink:href', 'action', 'formaction']),
+
+    clean(html) {
+        const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+
+        doc.body.querySelectorAll('*').forEach(el => {
+            if (this.FORBIDDEN_TAGS.has(el.tagName)) {
+                el.remove();
+                return;
+            }
+
+            Array.from(el.attributes).forEach(attr => {
+                const name = attr.name.toLowerCase();
+                // Strip whitespace/control chars so "java\tscript:" cannot slip through
+                const value = attr.value.replace(/[\s\u0000-\u001f]/g, '').toLowerCase();
+
+                if (name.startsWith('on')) {
+                    el.removeAttribute(attr.name);
+                } else if (this.URL_ATTRS.has(name) && value.startsWith('javascript:')) {
+                    el.removeAttribute(attr.name);
+                }
+            });
+        });
+
+        return doc.body.innerHTML;
+    }
+};
 
 // ===================================
 // THEME MANAGER
@@ -137,7 +210,8 @@ const GlobalSettings = {
 // ===================================
 const Navigation = {
     init() {
-        const navTabs = document.querySelectorAll('.nav-tab');
+        const navTabs = Array.from(document.querySelectorAll('.nav-tab'));
+
         navTabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const targetTab = tab.dataset.tab;
@@ -145,15 +219,43 @@ const Navigation = {
             });
         });
 
-        // Load last active tab
+        // Arrow-key navigation, as the tablist role implies
+        document.querySelector('.nav-tabs').addEventListener('keydown', (e) => {
+            const currentIndex = navTabs.indexOf(document.activeElement);
+            if (currentIndex === -1) return;
+
+            const offsets = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+            let nextIndex = null;
+
+            if (e.key in offsets) {
+                nextIndex = (currentIndex + offsets[e.key] + navTabs.length) % navTabs.length;
+            } else if (e.key === 'Home') {
+                nextIndex = 0;
+            } else if (e.key === 'End') {
+                nextIndex = navTabs.length - 1;
+            }
+
+            if (nextIndex === null) return;
+
+            e.preventDefault();
+            navTabs[nextIndex].focus();
+            this.switchTab(navTabs[nextIndex].dataset.tab);
+        });
+
+        // Load last active tab, ignoring anything that no longer exists
         const lastTab = Storage.get('activeTab', 'timer');
-        this.switchTab(lastTab);
+        const isKnown = navTabs.some(tab => tab.dataset.tab === lastTab);
+        this.switchTab(isKnown ? lastTab : 'timer');
     },
 
     switchTab(tabName) {
         // Update nav buttons
         document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.tab === tabName);
+            const isActive = tab.dataset.tab === tabName;
+            tab.classList.toggle('active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            // Roving tabindex: one stop for the whole tablist
+            tab.tabIndex = isActive ? 0 : -1;
         });
 
         // Update sections
@@ -163,6 +265,11 @@ const Navigation = {
 
         // Save active tab
         Storage.set('activeTab', tabName);
+
+        // Mini timer only shows when the big one is off-screen
+        if (typeof MiniTimer !== 'undefined') {
+            MiniTimer.sync();
+        }
     }
 };
 
@@ -174,15 +281,15 @@ const Timer = {
     isRunning: false,
     interval: null,
     currentMode: 'work', // 'work', 'short-break', 'long-break'
-    sessionsCompleted: Storage.get('sessionsCompleted', 0),
-    totalFocusSeconds: Storage.get('totalFocusTimeSeconds', Storage.get('totalFocusTime', 0) * 60),
+    sessionsCompleted: Storage.getNumber('sessionsCompleted', 0),
+    totalFocusSeconds: Storage.getNumber('totalFocusTimeSeconds', Storage.getNumber('totalFocusTime', 0) * 60),
     endAt: null,
 
     settings: {
-        workDuration: Storage.get('workDuration', 25),
-        breakDuration: Storage.get('breakDuration', 5),
-        longBreakDuration: Storage.get('longBreakDuration', 15),
-        sessionsBeforeLong: Storage.get('sessionsBeforeLong', 4)
+        workDuration: Storage.getNumber('workDuration', 25),
+        breakDuration: Storage.getNumber('breakDuration', 5),
+        longBreakDuration: Storage.getNumber('longBreakDuration', 15),
+        sessionsBeforeLong: Storage.getNumber('sessionsBeforeLong', 4)
     },
 
     visualSettings: {
@@ -195,9 +302,17 @@ const Timer = {
         this.updateDisplay();
         this.updateStats();
         this.updateProgress();
+        this.updatePresetButtons(this.getCurrentModeDuration());
         this.attachEvents();
         this.loadSettings();
         this.applyVisualSettings();
+    },
+
+    // Focus time accrues in memory between ticks; flush it whenever the page
+    // may be going away so a refresh or tab close cannot swallow the session.
+    persistStats() {
+        Storage.set('sessionsCompleted', this.sessionsCompleted);
+        Storage.set('totalFocusTimeSeconds', this.totalFocusSeconds);
     },
 
     attachEvents() {
@@ -245,6 +360,12 @@ const Timer = {
                 }
             });
         });
+
+        // Flush accumulated focus time before the page can disappear
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') this.persistStats();
+        });
+        window.addEventListener('pagehide', () => this.persistStats());
     },
 
     applyVisualSettings() {
@@ -267,10 +388,13 @@ const Timer = {
 
         const newMinutes = prompt(`Enter new time in minutes (currently ${currentMinutes}m):`, currentMinutes);
 
-        if (newMinutes !== null && !isNaN(newMinutes) && newMinutes > 0) {
-            const minutes = parseInt(newMinutes);
-            this.setCustomTime(minutes);
-            this.updatePresetButtons(minutes);
+        if (newMinutes !== null && newMinutes.trim() !== '') {
+            const minutes = parseInt(newMinutes, 10);
+            if (Number.isFinite(minutes) && minutes > 0) {
+                const clamped = Math.min(999, minutes);
+                this.setCustomTime(clamped);
+                this.updatePresetButtons(clamped);
+            }
         }
 
         timeDisplay.classList.remove('editable');
@@ -278,12 +402,29 @@ const Timer = {
 
     setCustomTime(minutes) {
         this.timeLeft = minutes * 60;
-        if (this.currentMode === 'work') {
-            this.settings.workDuration = minutes;
-            Storage.set('workDuration', minutes);
-        }
+        // Write back to whichever mode is active — storing a break length in
+        // workDuration left updateProgress() dividing by the wrong total.
+        this.setCurrentModeDuration(minutes);
+        this.loadSettings();
         this.updateDisplay();
         this.updateProgress();
+    },
+
+    setCurrentModeDuration(minutes) {
+        switch (this.currentMode) {
+            case 'work':
+                this.settings.workDuration = minutes;
+                Storage.set('workDuration', minutes);
+                break;
+            case 'short-break':
+                this.settings.breakDuration = minutes;
+                Storage.set('breakDuration', minutes);
+                break;
+            case 'long-break':
+                this.settings.longBreakDuration = minutes;
+                Storage.set('longBreakDuration', minutes);
+                break;
+        }
     },
 
     updatePresetButtons(activeDuration) {
@@ -300,12 +441,19 @@ const Timer = {
     start() {
         if (this.isRunning) return;
 
+        // Asking on load gets ignored (and penalised) without a user gesture
+        this.ensureNotificationPermission();
+
         this.isRunning = true;
         document.getElementById('timer-start').disabled = true;
         document.getElementById('timer-pause').disabled = false;
 
         // Add running class for animations
         document.querySelector('.timer-display').classList.add('running');
+
+        if (typeof FocusMusic !== 'undefined') {
+            FocusMusic.start();
+        }
 
         this.endAt = Date.now() + this.timeLeft * 1000;
         this.interval = setInterval(() => {
@@ -332,7 +480,10 @@ const Timer = {
     pause() {
         this.isRunning = false;
         clearInterval(this.interval);
-        Storage.set('totalFocusTimeSeconds', this.totalFocusSeconds);
+        if (typeof FocusMusic !== 'undefined') {
+            FocusMusic.stop();
+        }
+        this.persistStats();
         document.getElementById('timer-start').disabled = false;
         document.getElementById('timer-pause').disabled = true;
 
@@ -345,6 +496,7 @@ const Timer = {
         this.timeLeft = this.getCurrentModeDuration() * 60;
         this.updateDisplay();
         this.updateProgress();
+        this.updatePresetButtons(this.getCurrentModeDuration());
 
         // Remove critical class
         document.querySelector('.timer-display').classList.remove('critical');
@@ -356,8 +508,7 @@ const Timer = {
 
         if (this.currentMode === 'work') {
             this.sessionsCompleted++;
-            Storage.set('sessionsCompleted', this.sessionsCompleted);
-            Storage.set('totalFocusTimeSeconds', this.totalFocusSeconds);
+            this.persistStats();
             this.updateStats();
 
             // Determine next mode
@@ -373,6 +524,7 @@ const Timer = {
         this.timeLeft = this.getCurrentModeDuration() * 60;
         this.updateDisplay();
         this.updateProgress();
+        this.updatePresetButtons(this.getCurrentModeDuration());
 
         // Show notification
         this.showNotification();
@@ -410,6 +562,11 @@ const Timer = {
         if (typeof FullscreenTimer !== 'undefined') {
             FullscreenTimer.updateFromMainTimer();
         }
+
+        // Keep the cross-tab mini timer in step
+        if (typeof MiniTimer !== 'undefined') {
+            MiniTimer.sync();
+        }
     },
 
     updateTimerSize(timeString) {
@@ -434,7 +591,7 @@ const Timer = {
         // Update water level (drains as time passes)
         const water = document.getElementById('main-water');
         if (water) {
-            water.style.height = `${Math.max(0, 100 - percentage)}%`;
+            water.style.height = `${waterLevelPercent(this.timeLeft, totalTime)}%`;
         }
 
         // Update linear progress
@@ -481,6 +638,15 @@ const Timer = {
         sound.play().catch(e => console.log('Could not play sound:', e));
     },
 
+    ensureNotificationPermission() {
+        if (!('Notification' in window) || Notification.permission !== 'default') return;
+        try {
+            Notification.requestPermission();
+        } catch (e) {
+            console.log('Could not request notification permission:', e);
+        }
+    },
+
     showNotification() {
         if ('Notification' in window && Notification.permission === 'granted') {
             const message = this.currentMode === 'work' ? 'Time to focus!' : 'Take a break!';
@@ -500,11 +666,24 @@ const Timer = {
         document.getElementById('sessions-before-long').value = this.settings.sessionsBeforeLong;
     },
 
+    // Reads one numeric setting, honouring the input's own min/max and falling
+    // back to the current value — a blank field used to produce NaN:NaN.
+    readSetting(id, fallback) {
+        const input = document.getElementById(id);
+        const min = Number(input.min) || 1;
+        const max = Number(input.max) || Number.MAX_SAFE_INTEGER;
+        const parsed = parseInt(input.value, 10);
+        const value = Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : fallback;
+
+        input.value = value;
+        return value;
+    },
+
     saveSettings() {
-        this.settings.workDuration = parseInt(document.getElementById('work-duration').value);
-        this.settings.breakDuration = parseInt(document.getElementById('break-duration').value);
-        this.settings.longBreakDuration = parseInt(document.getElementById('long-break-duration').value);
-        this.settings.sessionsBeforeLong = parseInt(document.getElementById('sessions-before-long').value);
+        this.settings.workDuration = this.readSetting('work-duration', this.settings.workDuration);
+        this.settings.breakDuration = this.readSetting('break-duration', this.settings.breakDuration);
+        this.settings.longBreakDuration = this.readSetting('long-break-duration', this.settings.longBreakDuration);
+        this.settings.sessionsBeforeLong = this.readSetting('sessions-before-long', this.settings.sessionsBeforeLong);
 
         Storage.set('workDuration', this.settings.workDuration);
         Storage.set('breakDuration', this.settings.breakDuration);
@@ -520,17 +699,33 @@ const Timer = {
 // TASKS MODULE
 // ===================================
 const Tasks = {
-    tasks: Storage.get('tasks', []),
+    tasks: Storage.getArray('tasks'),
 
     init() {
-        this.render();
         this.attachEvents();
+        this.render();
     },
 
     attachEvents() {
         document.getElementById('add-task-btn').addEventListener('click', () => this.addTask());
         document.getElementById('task-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addTask();
+        });
+
+        // Delegated so rows keep working across re-renders, and so activating
+        // the checkbox by keyboard toggles exactly once instead of twice.
+        document.getElementById('tasks-list').addEventListener('click', (e) => {
+            const item = e.target.closest('.task-item');
+            if (!item) return;
+
+            const id = Number(item.dataset.id);
+            const action = e.target.closest('[data-action]');
+
+            if (action && action.dataset.action === 'delete') {
+                this.deleteTask(id);
+            } else {
+                this.toggleTask(id);
+            }
         });
     },
 
@@ -583,37 +778,30 @@ const Tasks = {
         }
 
         emptyState.classList.add('hidden');
-        container.innerHTML = this.tasks.map(task => `
-            <div class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
-                <div class="task-checkbox"></div>
-                <div class="task-text">${this.escapeHtml(task.text)}</div>
-                <button class="task-delete" data-id="${task.id}">×</button>
+        container.innerHTML = this.tasks.map(task => {
+            const label = this.escapeAttr(task.text);
+            return `
+            <div class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}" role="listitem">
+                <button type="button" class="task-checkbox" data-action="toggle"
+                    role="checkbox" aria-checked="${task.completed ? 'true' : 'false'}"
+                    aria-label="${task.completed ? 'Mark as not done' : 'Mark as done'}: ${label}"></button>
+                <span class="task-text">${this.escapeHtml(task.text)}</span>
+                <button type="button" class="task-delete" data-action="delete"
+                    aria-label="Delete task: ${label}">×</button>
             </div>
-        `).join('');
-
-        // Attach event listeners
-        container.querySelectorAll('.task-item').forEach(item => {
-            const id = parseInt(item.dataset.id);
-            item.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('task-delete')) {
-                    this.toggleTask(id);
-                }
-            });
-        });
-
-        container.querySelectorAll('.task-delete').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const id = parseInt(btn.dataset.id);
-                this.deleteTask(id);
-            });
-        });
+        `;
+        }).join('');
     },
 
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    },
+
+    // escapeHtml leaves quotes intact, which would break out of an attribute
+    escapeAttr(text) {
+        return this.escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 };
 
@@ -621,7 +809,7 @@ const Tasks = {
 // NOTES MODULE
 // ===================================
 const Notes = {
-    notes: Storage.get('notes', []),
+    notes: Storage.getArray('notes'),
     currentNote: null,
     autoSaveTimeout: null,
     searchQuery: '',
@@ -641,8 +829,14 @@ const Notes = {
         document.getElementById('note-title').addEventListener('input', () => this.scheduleAutoSave());
         document.getElementById('note-content').addEventListener('input', () => this.scheduleAutoSave());
 
+        // Ticking a checklist box fires `change`, not `input`
+        document.getElementById('note-content').addEventListener('change', () => this.scheduleAutoSave());
+
         // Toolbar events
         document.querySelectorAll('.toolbar-btn').forEach(btn => {
+            // Keep the editor's selection alive when the button takes focus,
+            // otherwise formatting has nothing to apply to
+            btn.addEventListener('mousedown', (e) => e.preventDefault());
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const command = btn.dataset.command;
@@ -654,6 +848,22 @@ const Notes = {
         document.getElementById('note-editor-modal').addEventListener('click', (e) => {
             if (e.target.id === 'note-editor-modal') {
                 this.closeEditor();
+            }
+        });
+
+        // Delegated so cards keep working across re-renders
+        document.getElementById('notes-list').addEventListener('click', (e) => {
+            const card = e.target.closest('.note-card');
+            if (!card) return;
+
+            const id = Number(card.dataset.id);
+            const note = this.notes.find(n => n.id === id);
+            if (!note) return;
+
+            if (e.target.closest('.note-pin')) {
+                this.togglePin(id);
+            } else {
+                this.openEditor(note);
             }
         });
     },
@@ -676,7 +886,7 @@ const Notes = {
         this.currentNote = note;
 
         document.getElementById('note-title').value = note.title;
-        document.getElementById('note-content').innerHTML = note.content;
+        document.getElementById('note-content').innerHTML = Sanitizer.clean(note.content);
         this.updateTimestamp();
 
         document.getElementById('note-editor-modal').classList.remove('hidden');
@@ -702,11 +912,27 @@ const Notes = {
     saveCurrentNote() {
         if (!this.currentNote) return;
 
+        this.syncCheckboxState();
+
         this.currentNote.title = document.getElementById('note-title').value.trim();
-        this.currentNote.content = document.getElementById('note-content').innerHTML;
+        this.currentNote.content = Sanitizer.clean(document.getElementById('note-content').innerHTML);
         this.currentNote.updatedAt = new Date().toISOString();
 
         this.updateTimestamp();
+    },
+
+    // Ticking a box sets the `checked` property, which innerHTML does not
+    // serialise — mirror it onto the attribute so it survives a save.
+    syncCheckboxState() {
+        document.getElementById('note-content')
+            .querySelectorAll('input[type="checkbox"]')
+            .forEach(box => {
+                if (box.checked) {
+                    box.setAttribute('checked', '');
+                } else {
+                    box.removeAttribute('checked');
+                }
+            });
     },
 
     scheduleAutoSave() {
@@ -758,21 +984,45 @@ const Notes = {
     },
 
     execCommand(command) {
+        const editor = document.getElementById('note-content');
+        editor.focus();
+
         if (command === 'checklist') {
             this.insertChecklist();
         } else {
+            // Re-anchor inside the editor if the caret had drifted elsewhere.
+            // getEditorRange returns the live range untouched when it is valid.
+            const selection = window.getSelection();
+            if (selection) {
+                const range = this.getEditorRange(editor, selection);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
             try {
                 document.execCommand(command, false, null);
             } catch (e) {
                 console.log('Editor command failed:', command, e);
             }
         }
-        document.getElementById('note-content').focus();
+
+        // Manual DOM insertion does not fire `input`, so save explicitly
+        this.scheduleAutoSave();
     },
 
     insertChecklist() {
+        const editor = document.getElementById('note-content');
+        editor.focus();
+
+        // Focus may still be leaving the title input. Inserting in the same
+        // tick lets the browser reset the selection afterwards and swallow the
+        // placeholder, so wait for the caret to settle first.
+        requestAnimationFrame(() => this.insertChecklistItem(editor));
+    },
+
+    insertChecklistItem(editor) {
         const selection = window.getSelection();
-        const range = selection.getRangeAt(0);
+        const range = this.getEditorRange(editor, selection);
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -786,11 +1036,29 @@ const Notes = {
         range.insertNode(text);
         range.insertNode(checkbox);
 
-        // Move cursor after the text
-        range.setStartAfter(text);
-        range.setEndAfter(text);
+        // Select the placeholder so typing replaces it
+        range.setStart(text, 1);
+        range.setEnd(text, text.length);
         selection.removeAllRanges();
         selection.addRange(range);
+
+        this.scheduleAutoSave();
+    },
+
+    // The caret may be in the title input, or nowhere at all, when a toolbar
+    // button is clicked. Never insert outside the editor; fall back to its end.
+    getEditorRange(editor, selection) {
+        if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            if (editor.contains(range.commonAncestorContainer)) {
+                return range;
+            }
+        }
+
+        const fallback = document.createRange();
+        fallback.selectNodeContents(editor);
+        fallback.collapse(false);
+        return fallback;
     },
 
     save() {
@@ -823,32 +1091,14 @@ const Notes = {
                 <div class="note-card ${note.pinned ? 'pinned' : ''}" data-id="${note.id}">
                     <div class="note-card-header">
                         <div class="note-card-title">${this.escapeHtml(note.title || 'Untitled')}</div>
-                        <button class="note-pin" data-id="${note.id}">${note.pinned ? '📌' : '📍'}</button>
+                        <button type="button" class="note-pin" aria-pressed="${note.pinned ? 'true' : 'false'}"
+                            aria-label="${note.pinned ? 'Unpin' : 'Pin'} note: ${this.escapeAttr(note.title || 'Untitled')}">${note.pinned ? '📌' : '📍'}</button>
                     </div>
                     <div class="note-card-preview">${this.escapeHtml(preview)}</div>
                     <div class="note-card-meta">Last edited ${formattedDate}</div>
                 </div>
             `;
         }).join('');
-
-        // Attach event listeners
-        container.querySelectorAll('.note-card').forEach(card => {
-            const id = parseInt(card.dataset.id);
-            card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('note-pin')) {
-                    const note = this.notes.find(n => n.id === id);
-                    if (note) this.openEditor(note);
-                }
-            });
-        });
-
-        container.querySelectorAll('.note-pin').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const id = parseInt(btn.dataset.id);
-                this.togglePin(id);
-            });
-        });
 
         this.applyFilter();
     },
@@ -863,6 +1113,11 @@ const Notes = {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    },
+
+    // escapeHtml leaves quotes intact, which would break out of an attribute
+    escapeAttr(text) {
+        return this.escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     },
 
     formatDate(dateString) {
@@ -965,9 +1220,11 @@ const FullscreenTimer = {
             }
         });
 
-        // Close on background click
+        // Close on background click. `.fullscreen-content` covers the overlay
+        // edge to edge, so testing only for the overlay itself never matched.
         document.getElementById('fullscreen-timer').addEventListener('click', (e) => {
-            if (e.target.id === 'fullscreen-timer') {
+            if (e.target.id === 'fullscreen-timer' ||
+                e.target.classList.contains('fullscreen-content')) {
                 this.close();
             }
         });
@@ -995,15 +1252,15 @@ const FullscreenTimer = {
         this.showRandomQuote();
         this.quoteInterval = setInterval(() => this.showRandomQuote(), 300000);
 
-        // If timer is running, sync that state
-        if (Timer.isRunning) {
-            document.getElementById('fullscreen-timer').classList.add('running');
-        }
+        // Toggle, not add — the class used to survive a close/pause/reopen and
+        // left a paused timer boiling and breathing
+        fullscreenEl.classList.toggle('running', Timer.isRunning);
     },
 
     close() {
         this.isOpen = false;
         document.getElementById('fullscreen-timer').classList.add('hidden');
+        document.getElementById('fullscreen-timer').classList.remove('running');
 
         // Stop quote rotation
         if (this.quoteInterval) {
@@ -1053,7 +1310,7 @@ const FullscreenTimer = {
         // Update water level (drains as time passes)
         const water = document.getElementById('fullscreen-water');
         if (water) {
-            water.style.height = `${Math.max(0, 100 - percentage)}%`;
+            water.style.height = `${waterLevelPercent(Timer.timeLeft, totalTime)}%`;
         }
 
         document.getElementById('fullscreen-timer').classList.toggle('critical', Timer.timeLeft < 60);
@@ -1137,39 +1394,6 @@ const FullscreenTimer = {
 };
 
 // ===================================
-// WATER TANK (boiling bubbles)
-// ===================================
-const WaterTank = {
-    BUBBLE_COUNT: 14,
-
-    init() {
-        this.fill('main-bubbles');
-        this.fill('fullscreen-bubbles');
-    },
-
-    fill(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        for (let i = 0; i < this.BUBBLE_COUNT; i++) {
-            const bubble = document.createElement('span');
-            bubble.className = 'bubble';
-
-            const size = 3 + Math.random() * 9;
-            bubble.style.width = `${size.toFixed(1)}px`;
-            bubble.style.height = `${size.toFixed(1)}px`;
-            bubble.style.left = `${(Math.random() * 92).toFixed(1)}%`;
-            bubble.style.setProperty('--s', (0.7 + Math.random() * 0.6).toFixed(2));
-            bubble.style.setProperty('--dur', `${(2.2 + Math.random() * 2.8).toFixed(2)}s`);
-            bubble.style.setProperty('--delay', `${(-Math.random() * 5).toFixed(2)}s`);
-            bubble.style.setProperty('--sway', `${((Math.random() - 0.5) * 26).toFixed(1)}px`);
-
-            container.appendChild(bubble);
-        }
-    }
-};
-
-// ===================================
 // PWA INSTALLATION
 // ===================================
 const PWAInstall = {
@@ -1230,6 +1454,470 @@ const PWAInstall = {
 };
 
 // ===================================
+// HOVER MESSAGES
+// ===================================
+const HoverMessages = {
+    bubble: null,
+
+    texts: {
+        start: [
+            'Deep work starts now.',
+            'Your future self says thanks.',
+            'One session. Zero distractions.',
+            'The tank is full. Time to drain.',
+            'Ready? The clock certainly is.',
+            'Small timer, big plans.'
+        ],
+        pause: [
+            'A pause is not a stop.',
+            'Stretch. Breathe. Return.',
+            'The water will wait for you.',
+            'Pausing counts as thinking.',
+            'Catch your breath, not a scroll.'
+        ]
+    },
+
+    init() {
+        // No hover capability (touch), no bubble
+        if (!window.matchMedia('(hover: hover)').matches) return;
+
+        this.bubble = document.createElement('div');
+        this.bubble.className = 'msg-bubble';
+        this.bubble.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(this.bubble);
+
+        document.querySelectorAll('[data-hover-msg]').forEach(btn => {
+            const kind = btn.dataset.hoverMsg;
+            if (!this.texts[kind]) return;
+
+            btn.addEventListener('mouseenter', () => this.show(btn, kind));
+            btn.addEventListener('mouseleave', () => this.hide());
+            btn.addEventListener('focus', () => this.show(btn, kind));
+            btn.addEventListener('blur', () => this.hide());
+        });
+    },
+
+    show(btn, kind) {
+        const pool = this.texts[kind];
+        this.bubble.textContent = pool[Math.floor(Math.random() * pool.length)];
+        this.bubble.classList.add('visible');
+
+        const rect = btn.getBoundingClientRect();
+        const half = this.bubble.offsetWidth / 2 + 8;
+        const x = Math.min(Math.max(rect.left + rect.width / 2, half), window.innerWidth - half);
+
+        this.bubble.style.left = `${x}px`;
+        this.bubble.style.top = `${rect.top - 10}px`;
+    },
+
+    hide() {
+        if (this.bubble) {
+            this.bubble.classList.remove('visible');
+        }
+    }
+};
+
+// ===================================
+// FOCUS MUSIC
+// ===================================
+// Generative lo-fi loop via Web Audio: a slow four-chord pad with a soft
+// bass and paper-thin hats. Starts with the timer, fades out on pause —
+// no audio files needed.
+const FocusMusic = {
+    ctx: null,
+    master: null,
+    noiseBuffer: null,
+    loopId: null,
+    nextStepTime: 0,
+    step: 0,
+    playing: false,
+    enabled: Storage.get('focusMusicEnabled', true),
+    BPM: 76,
+
+    chords: [
+        [220.00, 261.63, 329.63, 392.00],
+        [174.61, 220.00, 261.63, 349.23],
+        [130.81, 196.00, 261.63, 329.63],
+        [196.00, 246.94, 293.66, 392.00]
+    ],
+    roots: [55.00, 43.65, 65.41, 49.00],
+
+    init() {
+        const btn = document.getElementById('timer-music');
+        btn.addEventListener('click', () => this.toggle());
+        this.renderButton();
+    },
+
+    toggle() {
+        this.enabled = !this.enabled;
+        Storage.set('focusMusicEnabled', this.enabled);
+        this.renderButton();
+
+        if (!this.enabled) {
+            this.stop();
+        } else if (Timer.isRunning) {
+            this.start();
+        }
+    },
+
+    renderButton() {
+        const btn = document.getElementById('timer-music');
+        btn.textContent = this.enabled ? '🎵' : '🔇';
+        btn.setAttribute('aria-pressed', String(this.enabled));
+        btn.title = this.enabled ? 'Focus music: on' : 'Focus music: off';
+    },
+
+    start() {
+        if (!this.enabled || this.playing) return;
+        if (!('AudioContext' in window) && !('webkitAudioContext' in window)) return;
+
+        this.ensureContext();
+
+        this.playing = true;
+        this.step = 0;
+        this.nextStepTime = this.ctx.currentTime + 0.15;
+
+        // Gentle fade-in so starting never clicks
+        const now = this.ctx.currentTime;
+        this.master.gain.cancelScheduledValues(now);
+        this.master.gain.setValueAtTime(this.master.gain.value, now);
+        this.master.gain.linearRampToValueAtTime(0.9, now + 1.5);
+
+        // Wide lookahead: background tabs throttle setInterval hard, and the
+        // music must survive the timer being moved to another tab
+        this.loopId = setInterval(() => this.fillQueue(), 1000);
+        this.fillQueue();
+    },
+
+    stop() {
+        if (!this.playing) return;
+        this.playing = false;
+        clearInterval(this.loopId);
+        this.loopId = null;
+
+        if (this.ctx) {
+            const now = this.ctx.currentTime;
+            this.master.gain.cancelScheduledValues(now);
+            this.master.gain.setValueAtTime(this.master.gain.value, now);
+            this.master.gain.linearRampToValueAtTime(0, now + 0.6);
+        }
+    },
+
+    ensureContext() {
+        if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AC();
+            this.master = this.ctx.createGain();
+            this.master.gain.value = 0;
+            this.master.connect(this.ctx.destination);
+
+            const len = Math.floor(this.ctx.sampleRate * 0.08);
+            this.noiseBuffer = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+            const data = this.noiseBuffer.getChannelData(0);
+            for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+        }
+
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    },
+
+    fillQueue() {
+        const stepDur = 60 / this.BPM / 2; // eighth-note grid
+        while (this.nextStepTime < this.ctx.currentTime + 3) {
+            this.scheduleStep(this.step, this.nextStepTime);
+            this.step++;
+            this.nextStepTime += stepDur;
+        }
+    },
+
+    scheduleStep(step, t) {
+        const barDur = (60 / this.BPM) * 4;
+        const bar = Math.floor(step / 8) % 4;
+        const s = step % 8;
+        const chord = this.chords[bar];
+
+        if (s === 0) {
+            chord.forEach((freq, i) => this.pad(freq, t + i * 0.03, barDur));
+            this.bass(this.roots[bar], t, 1.4);
+        }
+        if (s === 4) {
+            this.bass(this.roots[bar] * 2, t, 0.9);
+        }
+        if (s % 2 === 1) {
+            this.hat(t, s === 7 ? 0.05 : 0.028);
+        }
+        if (s === 6 && Math.random() < 0.45) {
+            const tones = chord.map(f => f * 2);
+            this.pluck(tones[Math.floor(Math.random() * tones.length)], t, 0.5);
+        }
+    },
+
+    pad(freq, t, dur) {
+        const osc = this.ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 850;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.045, t + 0.9);
+        gain.gain.setValueAtTime(0.045, t + dur - 1.2);
+        gain.gain.linearRampToValueAtTime(0, t + dur);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.master);
+        osc.start(t);
+        osc.stop(t + dur + 0.05);
+    },
+
+    bass(freq, t, dur) {
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.09, t + 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+        osc.connect(gain);
+        gain.connect(this.master);
+        osc.start(t);
+        osc.stop(t + dur + 0.05);
+    },
+
+    hat(t, vol) {
+        const src = this.ctx.createBufferSource();
+        src.buffer = this.noiseBuffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 7000;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(vol, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.master);
+        src.start(t);
+    },
+
+    pluck(freq, t, dur) {
+        const osc = this.ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.05, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+        osc.connect(gain);
+        gain.connect(this.master);
+        osc.start(t);
+        osc.stop(t + dur + 0.05);
+    }
+};
+
+// ===================================
+// MINI TIMER
+// ===================================
+// A pill that follows the user across tabs while a session runs; tapping it
+// jumps back to the Timer tab.
+const MiniTimer = {
+    el: null,
+    timeEl: null,
+    labelEl: null,
+
+    init() {
+        this.el = document.getElementById('mini-timer');
+        this.timeEl = document.getElementById('mini-timer-time');
+        this.labelEl = document.getElementById('mini-timer-label');
+
+        this.el.addEventListener('click', () => Navigation.switchTab('timer'));
+
+        this.sync();
+    },
+
+    sync() {
+        if (!this.el) return;
+
+        const timerSection = document.getElementById('timer-section');
+        const isActiveTab = timerSection.classList.contains('active');
+        const show = Timer.isRunning && !isActiveTab;
+
+        this.el.classList.toggle('hidden', !show);
+        if (!show) return;
+
+        const minutes = Math.floor(Timer.timeLeft / 60);
+        const seconds = Timer.timeLeft % 60;
+        this.timeEl.textContent =
+            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        this.labelEl.textContent = Timer.currentMode === 'work' ? 'Focus' : 'Break';
+
+        this.el.classList.toggle('critical', Timer.timeLeft < 60);
+    }
+};
+
+// ===================================
+// PIXEL DINO
+// ===================================
+// A tiny T-Rex that jogs clockwise around the timer display, rendered from
+// pixel maps as SVG rects. Two leg frames alternate for a run cycle; the
+// sprite speeds up while a session is running.
+const DinoRun = {
+    track: null,
+    sprite: null,
+    distance: 0,
+    lastTs: null,
+    lastFrameSwitch: 0,
+    frameAlt: false,
+    width: 0,
+    height: 0,
+    SPEED_IDLE: 60,
+    SPEED_RUNNING: 150,
+
+    FRAME_A: [
+        '..........########..',
+        '..........##.#######',
+        '..........##########',
+        '..........####......',
+        '..........###.......',
+        '#.........####......',
+        '##........###.......',
+        '###......####.......',
+        '####....#####...##..',
+        '#####..######...#...',
+        '##############..#...',
+        '.#############..#...',
+        '..############..#...',
+        '...###########..##..',
+        '....##########...#..',
+        '.....########....#..',
+        '.....####.###.......',
+        '.....###..###.......',
+        '.....##....##.......',
+        '.....###...####.....'
+    ],
+
+    FRAME_B: [
+        '..........########..',
+        '..........##.#######',
+        '..........##########',
+        '..........####......',
+        '..........###.......',
+        '#.........####......',
+        '##........###.......',
+        '###......####.......',
+        '####....#####...##..',
+        '#####..######...#...',
+        '##############..#...',
+        '.#############..#...',
+        '..############..#...',
+        '...###########..##..',
+        '....##########...#..',
+        '.....########....#..',
+        '.....####.####......',
+        '.....###...###......',
+        '....###....##.......',
+        '....####...###......'
+    ],
+
+    init() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        this.track = document.getElementById('dino-track');
+        this.sprite = document.getElementById('dino-sprite');
+        if (!this.track || !this.sprite) return;
+
+        this.sprite.appendChild(this.buildFrame(this.FRAME_A, 'a'));
+        this.sprite.appendChild(this.buildFrame(this.FRAME_B, 'b'));
+
+        requestAnimationFrame((ts) => this.tick(ts));
+    },
+
+    buildFrame(map, suffix) {
+        const NS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(NS, 'svg');
+        svg.setAttribute('viewBox', '0 0 20 20');
+        svg.setAttribute('class', `dino-frame dino-frame-${suffix}`);
+        svg.setAttribute('shape-rendering', 'crispEdges');
+
+        map.forEach((row, y) => {
+            for (let x = 0; x < row.length; x++) {
+                if (row[x] !== '#') continue;
+                const rect = document.createElementNS(NS, 'rect');
+                rect.setAttribute('x', x);
+                rect.setAttribute('y', y);
+                rect.setAttribute('width', 1);
+                rect.setAttribute('height', 1);
+                rect.setAttribute('fill', 'currentColor');
+                svg.appendChild(rect);
+            }
+        });
+
+        return svg;
+    },
+
+    pointAt(t) {
+        const w = this.width;
+        const h = this.height;
+
+        if (t < w) return { x: t, y: h, face: 1 };
+        t -= w;
+        if (t < h) return { x: w, y: h - t, face: 1 };
+        t -= h;
+        if (t < w) return { x: w - t, y: 0, face: -1 };
+        t -= w;
+        return { x: 0, y: h - t, face: 1 };
+    },
+
+    tick(ts) {
+        requestAnimationFrame((next) => this.tick(next));
+
+        const w = this.track.offsetWidth;
+        const h = this.track.offsetHeight;
+        if (w !== this.width || h !== this.height) {
+            this.width = w;
+            this.height = h;
+        }
+
+        // Timer section hidden behind another tab: freeze instead of
+        // accumulating distance against a zero-size box
+        if (w < 40 || h < 40) {
+            this.lastTs = ts;
+            return;
+        }
+
+        if (this.lastTs === null) this.lastTs = ts;
+        const dt = Math.min(0.05, (ts - this.lastTs) / 1000);
+        this.lastTs = ts;
+
+        const perimeter = 2 * (w + h);
+        const speed = Timer.isRunning ? this.SPEED_RUNNING : this.SPEED_IDLE;
+        this.distance = (this.distance + speed * dt) % perimeter;
+
+        const p = this.pointAt(this.distance);
+        const bob = Math.sin(ts / 90) * 1.2;
+        this.sprite.style.transform =
+            `translate(${p.x}px, ${p.y + bob}px) translate(-50%, -50%) scaleX(${p.face})`;
+
+        if (ts - this.lastFrameSwitch > 130) {
+            this.lastFrameSwitch = ts;
+            this.frameAlt = !this.frameAlt;
+            this.sprite.classList.toggle('step', this.frameAlt);
+        }
+    }
+};
+
+// ===================================
 // APP INITIALIZATION
 // ===================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -1240,11 +1928,12 @@ document.addEventListener('DOMContentLoaded', () => {
     Tasks.init();
     Notes.init();
     FullscreenTimer.init();
-    WaterTank.init();
     PWAInstall.init();
+    HoverMessages.init();
+    FocusMusic.init();
+    MiniTimer.init();
+    DinoRun.init();
 
-    // Request notification permission
-    if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
-    }
+    // Notification permission is requested from Timer.start(), where there is
+    // a real user gesture behind it
 });
