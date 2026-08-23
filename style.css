@@ -1903,7 +1903,10 @@ input:checked+.theme-slider:before {
     position: absolute;
     top: 0;
     left: 0;
-    transform: translate(-50%, -50%);
+    /* Feet on the rim line, body fully outside the tank: -100% puts the
+       bottom edge on the orbit point, +2px sinks the toes into the 3px
+       rim stroke so contact reads as solid */
+    transform: translate(-50%, calc(-100% + 2px));
     display: block;
     width: 48px;
     height: 48px;
