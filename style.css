@@ -470,13 +470,16 @@ body {
 }
 
 /* Boiling Water Tank (replaces progress ring) */
+/* Fluid: fills narrow cards instead of overflowing them. The 24px reserve
+   keeps a gutter between the rim and the card border. aspect-ratio keeps it
+   a circle at any width. */
 .water-tank {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 350px;
-    height: 350px;
+    width: min(350px, calc(100% - 24px));
+    aspect-ratio: 1;
     border-radius: 50%;
     border: 3px solid var(--border-dark);
     overflow: hidden;
@@ -629,13 +632,13 @@ body {
 }
 
 .timer-display.large-timer .water-tank {
-    width: 380px;
-    height: 380px;
+    width: min(380px, calc(100% - 24px));
+    aspect-ratio: 1;
 }
 
 .timer-display.large-timer .dino-track {
-    width: 380px;
-    height: 380px;
+    width: min(380px, calc(100% - 24px));
+    aspect-ratio: 1;
 }
 
 /* Breathing Animation */
@@ -1852,24 +1855,23 @@ input:checked+.theme-slider:before {
 /* ===================================
    PIXEL DINO
    =================================== */
-/* Same geometry as .water-tank: a centred square whose inscribed circle IS
-   the tank rim, so the orbit below laps the tank edge exactly. Any size
-   change here must be mirrored on the tank. */
+/* Same geometry formula as .water-tank, so the inscribed circle IS the tank
+   rim at every viewport width - shrink one, you shrink both. */
+/* One revolution per minute, always. Timer.start() restarts the orbit so a
+   session's first lap begins at twelve o'clock. */
 .dino-track {
-    --orbit-duration: 18.3s;
+    --orbit-duration: 60s;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 350px;
-    height: 350px;
+    width: min(350px, calc(100% - 24px));
+    aspect-ratio: 1;
+    /* Container for cqw units: the dino frames below size themselves as a
+       fixed fraction of the rim, scaling with the circle */
+    container-type: inline-size;
     z-index: 2;
     pointer-events: none;
-}
-
-/* Speed follows the session: 2*pi*175px at 60px/s idle, 150px/s running */
-.timer-display.running .dino-track {
-    --orbit-duration: 7.3s;
 }
 
 /* The lap is a pure CSS rotation so it advances on the compositor and keeps
@@ -1910,6 +1912,15 @@ input:checked+.theme-slider:before {
     display: block;
     width: 48px;
     height: 48px;
+}
+
+/* Proportional dino: 48/350 of the rim diameter, so it shrinks and grows
+   with the circle instead of stepping at breakpoints */
+@supports (width: 1cqw) {
+    .dino-frame {
+        width: 13.7cqw;
+        height: 13.7cqw;
+    }
 }
 
 /* Leg cycle: the two frames swap by opacity so the animation also runs on
@@ -1980,11 +1991,6 @@ input:checked+.theme-slider:before {
 }
 
 @media (max-width: 768px) {
-    .dino-frame {
-        width: 38px;
-        height: 38px;
-    }
-
     .mini-timer {
         bottom: 14px;
         padding: var(--spacing-sm) var(--spacing-lg);

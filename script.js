@@ -451,6 +451,11 @@ const Timer = {
         // Add running class for animations
         document.querySelector('.timer-display').classList.add('running');
 
+        // First lap of the session starts from twelve o'clock
+        if (typeof DinoRun !== 'undefined') {
+            DinoRun.restart();
+        }
+
         if (typeof FocusMusic !== 'undefined') {
             FocusMusic.start();
         }
@@ -1553,9 +1558,11 @@ const FocusMusic = {
         Storage.set('focusMusicEnabled', this.enabled);
         this.renderButton();
 
+        // The toggle is a user gesture, so audio may start here even with
+        // the timer idle; pausing the timer still fades it out
         if (!this.enabled) {
             this.stop();
-        } else if (Timer.isRunning) {
+        } else {
             this.start();
         }
     },
@@ -1839,6 +1846,19 @@ const DinoRun = {
         } else if (motionOverride === 'reduced') {
             this.track.classList.add('motion-reduced');
         }
+    },
+
+    // Called on timer start: snaps the orbit back to twelve o'clock so every
+    // session begins its laps from the top. Toggling the animation off and
+    // on (with a reflow between) restarts it from its 0% keyframe.
+    restart() {
+        if (!this.track) return;
+        const orbit = this.track.querySelector('.dino-orbit');
+        if (!orbit) return;
+
+        orbit.style.animation = 'none';
+        void orbit.offsetWidth;
+        orbit.style.animation = '';
     },
 
     buildFrame(map, suffix) {
