@@ -2146,9 +2146,62 @@ input:checked+.theme-slider:before {
     }
 }
 
+/* Mode Select Pill Header Button */
+.mode-select-pill {
+    background: transparent;
+    border: 1px solid var(--border-medium);
+    color: var(--text-on-dark);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    font-family: var(--font-family);
+}
+
+.mode-select-pill option {
+    background: var(--bg-header);
+    color: var(--text-on-dark);
+}
+
 /* ===================================
    EXPERIENCE THEME MODES
    =================================== */
+
+/* Apply Mode Font Globally */
+[data-mode="retro"],
+[data-mode="retro"] body,
+[data-mode="retro"] button,
+[data-mode="retro"] input,
+[data-mode="retro"] select,
+[data-mode="retro"] textarea,
+[data-mode="retro"] .btn,
+[data-mode="retro"] .app-title {
+    font-family: 'Press Start 2P', monospace !important;
+}
+
+[data-mode="scary"],
+[data-mode="scary"] body,
+[data-mode="scary"] button,
+[data-mode="scary"] input,
+[data-mode="scary"] select,
+[data-mode="scary"] textarea,
+[data-mode="scary"] .btn {
+    font-family: 'VT323', monospace !important;
+    font-size: 1.15rem;
+}
+
+[data-mode="cyberpunk"],
+[data-mode="cyberpunk"] body,
+[data-mode="cyberpunk"] button,
+[data-mode="cyberpunk"] input,
+[data-mode="cyberpunk"] select,
+[data-mode="cyberpunk"] textarea,
+[data-mode="cyberpunk"] .btn {
+    font-family: 'VT323', monospace !important;
+    font-size: 1.2rem;
+}
 
 /* 🕹️ 8-BIT RETRO ARCADE MODE */
 [data-mode="retro"] {
@@ -2183,7 +2236,7 @@ input:checked+.theme-slider:before {
 }
 
 [data-mode="retro"] .app-title {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     color: #ffff00;
     text-shadow: 3px 3px 0px #ff0055;
 }
@@ -2196,7 +2249,7 @@ input:checked+.theme-slider:before {
     --bg-tertiary: #27272a;
     --bg-header: #030712;
     --text-primary: #ef4444;
-    --text-secondary: #a1a1aa;
+    --text-secondary: #f87171;
     --text-tertiary: #71717a;
     --text-on-dark: #dc2626;
     --border-light: #450a0a;
@@ -2211,7 +2264,7 @@ input:checked+.theme-slider:before {
 [data-mode="scary"] .app-title {
     font-family: 'Creepster', cursive !important;
     color: #ef4444;
-    text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
     letter-spacing: 2px;
 }
 

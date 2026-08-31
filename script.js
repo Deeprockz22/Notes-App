@@ -121,11 +121,16 @@ const ThemeManager = {
             this.setTheme(e.target.checked ? 'dark' : 'light');
         });
 
-        const modeSelect = document.getElementById('theme-mode-select');
-        if (modeSelect) {
-            modeSelect.value = this.currentMode;
-            modeSelect.addEventListener('change', (e) => this.setMode(e.target.value));
-        }
+        const modeSelects = [
+            document.getElementById('theme-mode-select'),
+            document.getElementById('header-mode-select')
+        ];
+        modeSelects.forEach(select => {
+            if (select) {
+                select.value = this.currentMode;
+                select.addEventListener('change', (e) => this.setMode(e.target.value));
+            }
+        });
 
         this.updateToggleButton();
     },
@@ -164,8 +169,10 @@ const ThemeManager = {
 
     applyMode(mode) {
         document.documentElement.setAttribute('data-mode', mode);
-        const modeSelect = document.getElementById('theme-mode-select');
-        if (modeSelect) modeSelect.value = mode;
+        const modeSelect1 = document.getElementById('theme-mode-select');
+        const modeSelect2 = document.getElementById('header-mode-select');
+        if (modeSelect1) modeSelect1.value = mode;
+        if (modeSelect2) modeSelect2.value = mode;
     },
 
     updateToggleButton() {
@@ -1390,7 +1397,7 @@ const Notes = {
         if (!select) return;
         select.innerHTML = this.folders
             .filter(f => f.id !== 'all' && f.id !== 'trash')
-            .map(f => `<option value="${f.id}">${f.icon} ${this.escapeHtml(f.name)}</option>`)
+            .map(f => `<option value="${f.id}">${this.escapeHtml(f.name)}</option>`)
             .join('');
     },
 

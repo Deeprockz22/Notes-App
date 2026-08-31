@@ -27,10 +27,17 @@
     <div class="app-container">
         <!-- Header -->
         <header class="app-header">
-            <div class="header-left">
+            <div class="header-left" style="gap: 10px;">
                 <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
                     <span class="theme-icon">🌙</span>
                 </button>
+                <select id="header-mode-select" class="mode-select-pill" title="Experience Mode">
+                    <option value="classic">Classic</option>
+                    <option value="retro">8-Bit Retro</option>
+                    <option value="scary">Scary Horror</option>
+                    <option value="cyberpunk">Cyberpunk</option>
+                    <option value="zen">Zen Studio</option>
+                </select>
             </div>
 
             <div class="header-center">
@@ -374,11 +381,11 @@
                         <div class="setting-item-row" style="margin-top: 15px;">
                             <label for="theme-mode-select">Experience Mode</label>
                             <select id="theme-mode-select" class="toolbar-select" style="min-width: 180px;">
-                                <option value="classic">⚡ Classic Minimalist</option>
-                                <option value="retro">🕹️ 8-Bit Retro Arcade</option>
-                                <option value="scary">🎃 Scary / Spooky Horror</option>
-                                <option value="cyberpunk">🌌 Cyberpunk Neon</option>
-                                <option value="zen">🌿 Zen Studio Ghibli</option>
+                                <option value="classic">Classic Minimalist</option>
+                                <option value="retro">8-Bit Retro Arcade</option>
+                                <option value="scary">Scary / Spooky Horror</option>
+                                <option value="cyberpunk">Cyberpunk Neon</option>
+                                <option value="zen">Zen Studio Ghibli</option>
                             </select>
                         </div>
                     </div>
