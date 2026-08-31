@@ -19,7 +19,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -40,9 +40,19 @@
                         <span class="logo-letter">F</span>
                     </button>
                 </h1>
+                <div class="streak-badge" id="streak-badge" title="Daily Productivity Streak! Keep the dopamine flowing!">
+                    <span class="streak-fire">🔥</span>
+                    <span class="streak-count" id="streak-count">0</span>
+                    <span class="streak-label">day streak</span>
+                </div>
             </div>
 
             <div class="header-right">
+                <!-- Character Avatar Companion -->
+                <div class="companion-widget" id="companion-widget">
+                    <div class="companion-bubble" id="companion-bubble">"Hey human! Let's conquer the universe today! 🚀"</div>
+                    <div class="companion-avatar" id="companion-avatar" title="Click for wisdom!">👾</div>
+                </div>
                 <!-- Install button will be inserted here by PWA script -->
             </div>
 
@@ -198,21 +208,41 @@
 
             <!-- Notes Section -->
             <section class="section" id="notes-section" role="tabpanel" aria-labelledby="tab-notes" tabindex="0">
-                <div class="notes-container">
-                    <div class="section-header">
-                        <h2>Notes</h2>
-                        <div class="header-actions">
-                            <input type="text" id="notes-search" class="search-input" placeholder="Search notes...">
-                            <button class="btn btn-primary" id="new-note-btn">+ New Note</button>
+                <div class="notes-layout">
+                    <!-- Apple Notes Sidebar / Folder list -->
+                    <aside class="notes-sidebar" id="notes-sidebar">
+                        <div class="sidebar-header">
+                            <h3>Folders</h3>
+                            <button class="btn-icon" id="add-folder-btn" title="New Folder">+</button>
                         </div>
-                    </div>
+                        <ul class="folder-list" id="folder-list" role="list">
+                            <!-- Folders inserted dynamically -->
+                        </ul>
+                    </aside>
 
-                    <div class="notes-list" id="notes-list">
-                        <!-- Notes will be dynamically inserted here -->
-                    </div>
+                    <div class="notes-container">
+                        <div class="section-header">
+                            <div class="header-left-group">
+                                <button class="btn-icon mobile-sidebar-toggle" id="toggle-sidebar-btn" title="Toggle Folders">📁</button>
+                                <h2 id="current-folder-title">All Notes</h2>
+                            </div>
+                            <div class="header-actions">
+                                <div class="view-toggle" role="radiogroup" aria-label="View Mode">
+                                    <button class="view-btn active" id="view-gallery-btn" title="Gallery View" aria-label="Gallery View">🔲 Grid</button>
+                                    <button class="view-btn" id="view-list-btn" title="List View" aria-label="List View">☰ List</button>
+                                </div>
+                                <input type="text" id="notes-search" class="search-input" placeholder="Search notes...">
+                                <button class="btn btn-primary" id="new-note-btn">+ New Note</button>
+                            </div>
+                        </div>
 
-                    <div class="notes-empty hidden" id="notes-empty">
-                        <p>No notes yet. Create one to start writing!</p>
+                        <div class="notes-list grid-view" id="notes-list">
+                            <!-- Notes will be dynamically inserted here -->
+                        </div>
+
+                        <div class="notes-empty hidden" id="notes-empty">
+                            <p id="notes-empty-msg">No notes yet. Create one to start writing!</p>
+                        </div>
                     </div>
                 </div>
 
@@ -221,32 +251,97 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <input type="text" id="note-title" class="note-title-input" placeholder="Note Title">
-                            <button class="btn-close" id="close-note-editor">✕</button>
+                            <div class="modal-header-actions">
+                                <button class="btn-icon" id="lock-note-toggle-btn" title="Lock/Unlock Note">🔒</button>
+                                <button class="btn-icon" id="duplicate-note-btn" title="Duplicate Note">📋</button>
+                                <button class="btn-icon" id="export-note-btn" title="Export as Markdown">📥</button>
+                                <button class="btn-close" id="close-note-editor">✕</button>
+                            </div>
                         </div>
 
                         <div class="editor-toolbar">
-                            <button class="toolbar-btn" data-command="bold"
-                                title="Bold (Ctrl+B)"><strong>B</strong></button>
-                            <button class="toolbar-btn" data-command="italic"
-                                title="Italic (Ctrl+I)"><em>I</em></button>
-                            <button class="toolbar-btn" data-command="underline"
-                                title="Underline (Ctrl+U)"><u>U</u></button>
+                            <select id="heading-select" class="toolbar-select" title="Headings">
+                                <option value="p">Paragraph</option>
+                                <option value="h1">Title (H1)</option>
+                                <option value="h2">Heading (H2)</option>
+                                <option value="h3">Subheading (H3)</option>
+                            </select>
                             <span class="toolbar-divider"></span>
-                            <button class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">•
-                                List</button>
-                            <button class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">1.
-                                List</button>
+                            <button class="toolbar-btn" data-command="bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
+                            <button class="toolbar-btn" data-command="italic" title="Italic (Ctrl+I)"><em>I</em></button>
+                            <button class="toolbar-btn" data-command="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                            <button class="toolbar-btn" data-command="strikeThrough" title="Strikethrough"><s>S</s></button>
+                            <button class="toolbar-btn" data-command="hiliteColor" title="Highlight Yellow"><span>✨</span></button>
+                            <span class="toolbar-divider"></span>
+                            <button class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">• List</button>
+                            <button class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">1. List</button>
                             <button class="toolbar-btn" data-command="checklist" title="Checklist">☑ Checklist</button>
+                            <span class="toolbar-divider"></span>
+                            <button class="toolbar-btn" data-command="quote" title="Blockquote">” Quote</button>
+                            <button class="toolbar-btn" data-command="code" title="Code Block">&lt;/&gt;</button>
+                            <button class="toolbar-btn" data-command="table" title="Insert Table">📊 Table</button>
+                            <button class="toolbar-btn" id="sketch-canvas-btn" title="Quick Sketch/Draw">🎨 Draw</button>
+                            <span class="toolbar-divider"></span>
+                            <select id="note-folder-select" class="toolbar-select" title="Move to Folder">
+                                <!-- Dynamically populated folders -->
+                            </select>
                         </div>
 
-                        <div class="note-editor" id="note-content" contenteditable="true"
-                            data-placeholder="Start typing..."></div>
+                        <div class="note-editor" id="note-content" contenteditable="true" data-placeholder="Start typing your awesome thoughts..."></div>
 
                         <div class="modal-footer">
                             <div class="note-meta">
                                 <span id="note-timestamp"></span>
+                                <span class="meta-separator">•</span>
+                                <span id="note-word-count">0 words</span>
+                                <span class="meta-separator">•</span>
+                                <span id="note-read-time">1 min read</span>
                             </div>
                             <button class="btn btn-danger" id="delete-note-btn">Delete Note</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sketch Canvas Modal -->
+                <div class="modal hidden" id="sketch-modal">
+                    <div class="modal-content sketch-modal-content">
+                        <div class="modal-header">
+                            <h2>Apple Sketch Pad</h2>
+                            <div class="modal-header-actions">
+                                <button class="btn btn-secondary" id="clear-canvas-btn">Clear</button>
+                                <button class="btn btn-primary" id="save-canvas-btn">Insert Sketch</button>
+                                <button class="btn-close" id="close-sketch-modal">✕</button>
+                            </div>
+                        </div>
+                        <div class="sketch-toolbar">
+                            <label>Color: <input type="color" id="sketch-color" value="#000000"></label>
+                            <label>Brush Size: <input type="range" id="sketch-size" min="1" max="30" value="4"></label>
+                            <button class="btn-icon active" id="tool-pen" title="Pen">✏️</button>
+                            <button class="btn-icon" id="tool-eraser" title="Eraser">🧹</button>
+                        </div>
+                        <div class="canvas-container">
+                            <canvas id="sketch-canvas" width="700" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Passcode Lock Modal -->
+                <div class="modal hidden" id="passcode-modal">
+                    <div class="modal-content passcode-modal-content">
+                        <div class="modal-header">
+                            <h2 id="passcode-title">Unlock Note</h2>
+                            <button class="btn-close" id="close-passcode-modal">✕</button>
+                        </div>
+                        <div class="passcode-body">
+                            <p id="passcode-prompt">Enter 4-digit passcode for locked note:</p>
+                            <div class="passcode-inputs">
+                                <input type="password" maxlength="1" class="pass-digit" id="pass-1">
+                                <input type="password" maxlength="1" class="pass-digit" id="pass-2">
+                                <input type="password" maxlength="1" class="pass-digit" id="pass-3">
+                                <input type="password" maxlength="1" class="pass-digit" id="pass-4">
+                            </div>
+                            <p class="passcode-error hidden" id="passcode-error">Incorrect passcode!</p>
+                            <button class="btn btn-primary" id="passcode-submit-btn">Submit</button>
                         </div>
                     </div>
                 </div>
@@ -263,7 +358,7 @@
 
                 <div class="settings-content">
                     <div class="settings-section">
-                        <h3>Appearance</h3>
+                        <h3>Appearance & Experience</h3>
                         <div class="setting-item-row">
                             <label>Theme</label>
                             <div class="theme-switch-container">
@@ -274,6 +369,17 @@
                                 </label>
                                 <span class="theme-label">🌙 Dark</span>
                             </div>
+                        </div>
+
+                        <div class="setting-item-row" style="margin-top: 15px;">
+                            <label for="theme-mode-select">Experience Mode</label>
+                            <select id="theme-mode-select" class="toolbar-select" style="min-width: 180px;">
+                                <option value="classic">⚡ Classic Minimalist</option>
+                                <option value="retro">🕹️ 8-Bit Retro Arcade</option>
+                                <option value="scary">🎃 Scary / Spooky Horror</option>
+                                <option value="cyberpunk">🌌 Cyberpunk Neon</option>
+                                <option value="zen">🌿 Zen Studio Ghibli</option>
+                            </select>
                         </div>
                     </div>
 

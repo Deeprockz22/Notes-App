@@ -107,19 +107,26 @@ const Sanitizer = {
 // ===================================
 const ThemeManager = {
     currentTheme: null,
+    currentMode: null,
 
     init() {
-        // Load saved theme or default to light
         this.currentTheme = Storage.get('theme', 'light');
-        this.applyTheme(this.currentTheme);
+        this.currentMode = Storage.get('themeMode', 'classic');
 
-        // Attach event listeners
+        this.applyTheme(this.currentTheme);
+        this.applyMode(this.currentMode);
+
         document.getElementById('theme-toggle').addEventListener('click', () => this.toggle());
         document.getElementById('theme-switch-input').addEventListener('change', (e) => {
             this.setTheme(e.target.checked ? 'dark' : 'light');
         });
 
-        // Update toggle button state
+        const modeSelect = document.getElementById('theme-mode-select');
+        if (modeSelect) {
+            modeSelect.value = this.currentMode;
+            modeSelect.addEventListener('change', (e) => this.setMode(e.target.value));
+        }
+
         this.updateToggleButton();
     },
 
@@ -135,20 +142,30 @@ const ThemeManager = {
         this.updateToggleButton();
     },
 
+    setMode(mode) {
+        this.currentMode = mode;
+        this.applyMode(mode);
+        Storage.set('themeMode', mode);
+        if (typeof PsychologyEngine !== 'undefined') {
+            PsychologyEngine.playDopamineSound('pop');
+        }
+    },
+
     applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
-
-        // Update theme switch in settings
         const switchInput = document.getElementById('theme-switch-input');
-        if (switchInput) {
-            switchInput.checked = theme === 'dark';
-        }
+        if (switchInput) switchInput.checked = theme === 'dark';
 
-        // Update meta theme-color for mobile browsers
         const metaTheme = document.querySelector('meta[name="theme-color"]');
         if (metaTheme) {
             metaTheme.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
         }
+    },
+
+    applyMode(mode) {
+        document.documentElement.setAttribute('data-mode', mode);
+        const modeSelect = document.getElementById('theme-mode-select');
+        if (modeSelect) modeSelect.value = mode;
     },
 
     updateToggleButton() {
@@ -759,6 +776,14 @@ const Tasks = {
             task.completed = !task.completed;
             this.save();
             this.render();
+            if (task.completed && typeof PsychologyEngine !== 'undefined') {
+                PsychologyEngine.playDopamineSound('chime');
+                PsychologyEngine.triggerConfetti();
+                PsychologyEngine.registerActivity();
+                if (typeof CompanionEngine !== 'undefined') {
+                    CompanionEngine.speakRandom('taskComplete');
+                }
+            }
         }
     },
 
@@ -811,17 +836,415 @@ const Tasks = {
 };
 
 // ===================================
-// NOTES MODULE
+// PSYCHOLOGY & SOUND SYNTH ENGINE
+// ===================================
+const PsychologyEngine = {
+    audioCtx: null,
+    streakCount: Storage.getNumber('productivityStreak', 0),
+    lastActiveDate: Storage.get('lastActiveDate', null),
+
+    init() {
+        this.updateStreak();
+    },
+
+    ensureAudio() {
+        if (!this.audioCtx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) this.audioCtx = new AC();
+        }
+        if (this.audioCtx && this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+    },
+
+    playDopamineSound(type = 'pop') {
+        try {
+            this.ensureAudio();
+            if (!this.audioCtx) return;
+            const t = this.audioCtx.currentTime;
+
+            if (type === 'pop') {
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, t);
+                osc.frequency.exponentialRampToValueAtTime(1200, t + 0.08);
+                gain.gain.setValueAtTime(0.15, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.09);
+            } else if (type === 'chime') {
+                const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                freqs.forEach((f, idx) => {
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, t + idx * 0.06);
+                    gain.gain.setValueAtTime(0.1, t + idx * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.06 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.start(t + idx * 0.06);
+                    osc.stop(t + idx * 0.06 + 0.32);
+                });
+            } else if (type === 'typewriter') {
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                const randomPitch = 800 + Math.random() * 400;
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(randomPitch, t);
+                gain.gain.setValueAtTime(0.03, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                osc.start(t);
+                osc.stop(t + 0.035);
+            }
+        } catch (e) {
+            console.log('Audio synth error:', e);
+        }
+    },
+
+    triggerConfetti() {
+        const canvas = document.createElement('canvas');
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '99999';
+        document.body.appendChild(canvas);
+
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = Array.from({ length: 50 }).map(() => ({
+            x: canvas.width / 2 + (Math.random() - 0.5) * 200,
+            y: canvas.height / 2,
+            vx: (Math.random() - 0.5) * 12,
+            vy: (Math.random() - 0.8) * 14,
+            size: Math.random() * 8 + 4,
+            color: `hsl(${Math.random() * 360}, 90%, 60%)`,
+            rotation: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 10
+        }));
+
+        let startTime = Date.now();
+        function render() {
+            const elapsed = Date.now() - startTime;
+            if (elapsed > 1800) {
+                canvas.remove();
+                return;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.4; // gravity
+                p.rotation += p.vRot;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+            });
+            requestAnimationFrame(render);
+        }
+        render();
+    },
+
+    registerActivity() {
+        const today = new Date().toDateString();
+        if (this.lastActiveDate !== today) {
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            if (this.lastActiveDate === yesterday) {
+                this.streakCount++;
+            } else if (!this.lastActiveDate) {
+                this.streakCount = 1;
+            } else {
+                this.streakCount = 1;
+            }
+            this.lastActiveDate = today;
+            Storage.set('productivityStreak', this.streakCount);
+            Storage.set('lastActiveDate', this.lastActiveDate);
+            this.updateStreak();
+        }
+    },
+
+    updateStreak() {
+        const countEl = document.getElementById('streak-count');
+        if (countEl) countEl.textContent = this.streakCount;
+    }
+};
+
+// ===================================
+// CRAZY COMPANIONS ENGINE
+// ===================================
+const CompanionEngine = {
+    avatars: ['👾', '👺', '🦕', '🐱', '🦉', '⚡', '🛸', '🧠'],
+    currentAvatarIdx: 0,
+    phrases: {
+        welcome: [
+            "Hey human! Let me stimulate your focus pathways today! 🚀",
+            "According to color theory, high contrast enhances cognitive focus! 🎨",
+            "Zeigarnik Effect alert: Unfinished tasks create mental tension! Finish them! 💡",
+            "Dopamine Goblin is hungry... Feed me task completions! 🤤⚡"
+        ],
+        taskComplete: [
+            "BOOM! Dopamine rush delivered straight to your nucleus accumbens! 🧠💥",
+            "YES! Another task bites the dust! You're unstoppable! 🔥",
+            "Productivity levels critical! Keep going super-human! 🚀",
+            "Scientific fact: Completing tasks lowers cortisol levels. Relax and conquer! 🧬"
+        ],
+        noteSave: [
+            "Ideas saved! Your brain thanks you for the external memory dump 📝✨",
+            "Archived into the digital neural network! Genius note detected 💡",
+            "Apple Notes precision achieved! Pure elegance 🍏"
+        ]
+    },
+
+    init() {
+        const avatarEl = document.getElementById('companion-avatar');
+        if (avatarEl) {
+            avatarEl.addEventListener('click', () => {
+                this.cycleAvatar();
+                this.speakRandom('welcome');
+                PsychologyEngine.playDopamineSound('pop');
+            });
+        }
+    },
+
+    cycleAvatar() {
+        this.currentAvatarIdx = (this.currentAvatarIdx + 1) % this.avatars.length;
+        const avatarEl = document.getElementById('companion-avatar');
+        if (avatarEl) avatarEl.textContent = this.avatars[this.currentAvatarIdx];
+    },
+
+    speak(text) {
+        const bubbleEl = document.getElementById('companion-bubble');
+        if (!bubbleEl) return;
+        bubbleEl.textContent = text;
+        bubbleEl.classList.add('show-talking');
+        setTimeout(() => bubbleEl.classList.remove('show-talking'), 4000);
+    },
+
+    speakRandom(category) {
+        const list = this.phrases[category] || this.phrases.welcome;
+        const text = list[Math.floor(Math.random() * list.length)];
+        this.speak(text);
+    }
+};
+
+// ===================================
+// SKETCH CANVAS TOOL
+// ===================================
+const SketchPad = {
+    canvas: null,
+    ctx: null,
+    isDrawing: false,
+    color: '#000000',
+    size: 4,
+    tool: 'pen',
+
+    init() {
+        this.canvas = document.getElementById('sketch-canvas');
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+
+        document.getElementById('sketch-canvas-btn').addEventListener('click', () => this.open());
+        document.getElementById('close-sketch-modal').addEventListener('click', () => this.close());
+        document.getElementById('clear-canvas-btn').addEventListener('click', () => this.clear());
+        document.getElementById('save-canvas-btn').addEventListener('click', () => this.saveToNote());
+
+        const colorPicker = document.getElementById('sketch-color');
+        const sizePicker = document.getElementById('sketch-size');
+        const toolPen = document.getElementById('tool-pen');
+        const toolEraser = document.getElementById('tool-eraser');
+
+        colorPicker.addEventListener('change', (e) => this.color = e.target.value);
+        sizePicker.addEventListener('change', (e) => this.size = parseInt(e.target.value));
+
+        toolPen.addEventListener('click', () => {
+            this.tool = 'pen';
+            toolPen.classList.add('active');
+            toolEraser.classList.remove('active');
+        });
+        toolEraser.addEventListener('click', () => {
+            this.tool = 'eraser';
+            toolEraser.classList.add('active');
+            toolPen.classList.remove('active');
+        });
+
+        // Drawing events
+        this.canvas.addEventListener('mousedown', (e) => this.start(e));
+        this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+        this.canvas.addEventListener('mouseup', () => this.stop());
+        this.canvas.addEventListener('mouseleave', () => this.stop());
+
+        // Touch events
+        this.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX, clientY: touch.clientY
+            });
+            this.canvas.dispatchEvent(mouseEvent);
+        });
+        this.canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX, clientY: touch.clientY
+            });
+            this.canvas.dispatchEvent(mouseEvent);
+        });
+        this.canvas.addEventListener('touchend', () => this.stop());
+    },
+
+    open() {
+        document.getElementById('sketch-modal').classList.remove('hidden');
+        this.clear();
+    },
+
+    close() {
+        document.getElementById('sketch-modal').classList.add('hidden');
+    },
+
+    clear() {
+        if (!this.ctx) return;
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+
+    getPos(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+    },
+
+    start(e) {
+        this.isDrawing = true;
+        const pos = this.getPos(e);
+        this.ctx.beginPath();
+        this.ctx.moveTo(pos.x, pos.y);
+    },
+
+    draw(e) {
+        if (!this.isDrawing) return;
+        const pos = this.getPos(e);
+        this.ctx.lineWidth = this.size;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+
+        if (this.tool === 'pen') {
+            this.ctx.strokeStyle = this.color;
+        } else {
+            this.ctx.strokeStyle = '#ffffff';
+        }
+
+        this.ctx.lineTo(pos.x, pos.y);
+        this.ctx.stroke();
+    },
+
+    stop() {
+        if (this.isDrawing) {
+            this.ctx.closePath();
+            this.isDrawing = false;
+        }
+    },
+
+    saveToNote() {
+        const dataUrl = this.canvas.toDataURL('image/png');
+        const img = `<img src="${dataUrl}" class="sketch-img" alt="Sketch" style="max-width:100%; border-radius:8px; margin: 10px 0;" />`;
+        Notes.insertHTMLAtCaret(img);
+        this.close();
+        PsychologyEngine.playDopamineSound('chime');
+    }
+};
+
+// ===================================
+// PASSCODE SYSTEM
+// ===================================
+const PasscodeModal = {
+    pendingNote: null,
+    storedPasscode: Storage.get('appPasscode', '1234'),
+
+    init() {
+        document.getElementById('close-passcode-modal').addEventListener('click', () => this.close());
+        document.getElementById('passcode-submit-btn').addEventListener('click', () => this.submit());
+
+        const inputs = Array.from(document.querySelectorAll('.pass-digit'));
+        inputs.forEach((input, idx) => {
+            input.addEventListener('input', () => {
+                if (input.value && idx < inputs.length - 1) {
+                    inputs[idx + 1].focus();
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value && idx > 0) {
+                    inputs[idx - 1].focus();
+                }
+            });
+        });
+    },
+
+    open(note) {
+        this.pendingNote = note;
+        document.querySelectorAll('.pass-digit').forEach(i => i.value = '');
+        document.getElementById('passcode-error').classList.add('hidden');
+        document.getElementById('passcode-modal').classList.remove('hidden');
+        document.getElementById('pass-1').focus();
+    },
+
+    close() {
+        document.getElementById('passcode-modal').classList.add('hidden');
+        this.pendingNote = null;
+    },
+
+    submit() {
+        const digits = Array.from(document.querySelectorAll('.pass-digit')).map(i => i.value).join('');
+        if (digits === this.storedPasscode) {
+            this.close();
+            if (this.pendingNote) {
+                Notes.openEditorUnlocked(this.pendingNote);
+            }
+        } else {
+            document.getElementById('passcode-error').classList.remove('hidden');
+            PsychologyEngine.playDopamineSound('pop');
+        }
+    }
+};
+
+// ===================================
+// APPLE NOTES ENHANCED MODULE
 // ===================================
 const Notes = {
     notes: Storage.getArray('notes'),
+    folders: Storage.getArray('folders', [
+        { id: 'all', name: 'All Notes', icon: '📝' },
+        { id: 'quick', name: 'Quick Notes', icon: '⚡' },
+        { id: 'work', name: 'Work & Projects', icon: '💼' },
+        { id: 'personal', name: 'Personal', icon: '👤' },
+        { id: 'trash', name: 'Recently Deleted', icon: '🗑️' }
+    ]),
+    activeFolder: 'all',
+    viewMode: Storage.get('notesViewMode', 'grid'), // 'grid' or 'list'
     currentNote: null,
     autoSaveTimeout: null,
     searchQuery: '',
 
     init() {
-        this.render();
         this.attachEvents();
+        this.renderFolders();
+        this.renderFolderDropdown();
+        this.render();
     },
 
     attachEvents() {
@@ -830,22 +1253,68 @@ const Notes = {
         document.getElementById('delete-note-btn').addEventListener('click', () => this.deleteCurrentNote());
         document.getElementById('notes-search').addEventListener('input', (e) => this.search(e.target.value));
 
-        // Editor events
-        document.getElementById('note-title').addEventListener('input', () => this.scheduleAutoSave());
-        document.getElementById('note-content').addEventListener('input', () => this.scheduleAutoSave());
+        // Note actions
+        document.getElementById('duplicate-note-btn').addEventListener('click', () => this.duplicateCurrentNote());
+        document.getElementById('export-note-btn').addEventListener('click', () => this.exportCurrentNoteMarkdown());
+        document.getElementById('lock-note-toggle-btn').addEventListener('click', () => this.toggleLockCurrentNote());
 
-        // Ticking a checklist box fires `change`, not `input`
-        document.getElementById('note-content').addEventListener('change', () => this.scheduleAutoSave());
+        // Heading & folder select
+        document.getElementById('heading-select').addEventListener('change', (e) => {
+            this.execCommand('formatBlock', `<${e.target.value}>`);
+        });
+
+        document.getElementById('note-folder-select').addEventListener('change', (e) => {
+            if (this.currentNote) {
+                this.currentNote.folderId = e.target.value;
+                this.saveCurrentNote();
+                this.save();
+                this.renderFolders();
+            }
+        });
+
+        // Folders & View Mode
+        document.getElementById('add-folder-btn').addEventListener('click', () => this.addNewFolder());
+        document.getElementById('view-gallery-btn').addEventListener('click', () => this.setViewMode('grid'));
+        document.getElementById('view-list-btn').addEventListener('click', () => this.setViewMode('list'));
+        document.getElementById('toggle-sidebar-btn').addEventListener('click', () => {
+            const sidebar = document.getElementById('notes-sidebar');
+            sidebar.classList.toggle('hidden');
+        });
+
+        // Editor events
+        const titleEl = document.getElementById('note-title');
+        const contentEl = document.getElementById('note-content');
+
+        titleEl.addEventListener('input', () => {
+            this.scheduleAutoSave();
+            this.updateMetaAnalytics();
+        });
+
+        contentEl.addEventListener('input', () => {
+            this.scheduleAutoSave();
+            this.updateMetaAnalytics();
+            PsychologyEngine.playDopamineSound('typewriter');
+        });
+
+        contentEl.addEventListener('change', () => this.scheduleAutoSave());
 
         // Toolbar events
-        document.querySelectorAll('.toolbar-btn').forEach(btn => {
-            // Keep the editor's selection alive when the button takes focus,
-            // otherwise formatting has nothing to apply to
+        document.querySelectorAll('.editor-toolbar .toolbar-btn').forEach(btn => {
             btn.addEventListener('mousedown', (e) => e.preventDefault());
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const command = btn.dataset.command;
-                this.execCommand(command);
+                if (command === 'quote') {
+                    this.execCommand('formatBlock', '<blockquote>');
+                } else if (command === 'code') {
+                    this.insertCodeBlock();
+                } else if (command === 'table') {
+                    this.insertTable();
+                } else if (command === 'hiliteColor') {
+                    this.execCommand('hiliteColor', '#fef08a'); // Soft yellow highlight
+                } else {
+                    this.execCommand(command);
+                }
             });
         });
 
@@ -856,7 +1325,7 @@ const Notes = {
             }
         });
 
-        // Delegated so cards keep working across re-renders
+        // Delegated note card clicks
         document.getElementById('notes-list').addEventListener('click', (e) => {
             const card = e.target.closest('.note-card');
             if (!card) return;
@@ -873,26 +1342,109 @@ const Notes = {
         });
     },
 
+    setViewMode(mode) {
+        this.viewMode = mode;
+        Storage.set('notesViewMode', mode);
+
+        document.getElementById('view-gallery-btn').classList.toggle('active', mode === 'grid');
+        document.getElementById('view-list-btn').classList.toggle('active', mode === 'list');
+
+        const listEl = document.getElementById('notes-list');
+        listEl.classList.toggle('grid-view', mode === 'grid');
+        listEl.classList.toggle('list-view', mode === 'list');
+    },
+
+    renderFolders() {
+        const list = document.getElementById('folder-list');
+        if (!list) return;
+
+        list.innerHTML = this.folders.map(f => {
+            let count = 0;
+            if (f.id === 'all') {
+                count = this.notes.filter(n => !n.inTrash).length;
+            } else if (f.id === 'trash') {
+                count = this.notes.filter(n => n.inTrash).length;
+            } else {
+                count = this.notes.filter(n => !n.inTrash && n.folderId === f.id).length;
+            }
+
+            return `
+                <li class="folder-item ${f.id === this.activeFolder ? 'active' : ''}" data-folder="${f.id}">
+                    <span>${f.icon} ${this.escapeHtml(f.name)}</span>
+                    <span class="folder-count">${count}</span>
+                </li>
+            `;
+        }).join('');
+
+        list.querySelectorAll('.folder-item').forEach(item => {
+            item.addEventListener('click', () => {
+                this.activeFolder = item.dataset.folder;
+                this.renderFolders();
+                this.render();
+            });
+        });
+    },
+
+    renderFolderDropdown() {
+        const select = document.getElementById('note-folder-select');
+        if (!select) return;
+        select.innerHTML = this.folders
+            .filter(f => f.id !== 'all' && f.id !== 'trash')
+            .map(f => `<option value="${f.id}">${f.icon} ${this.escapeHtml(f.name)}</option>`)
+            .join('');
+    },
+
+    addNewFolder() {
+        const name = prompt('Enter folder name:');
+        if (name && name.trim()) {
+            const folder = {
+                id: 'folder_' + Date.now(),
+                name: name.trim(),
+                icon: '📁'
+            };
+            this.folders.push(folder);
+            Storage.set('folders', this.folders);
+            this.renderFolders();
+            this.renderFolderDropdown();
+        }
+    },
+
     createNote() {
         const note = {
             id: uid(),
             title: '',
             content: '',
             pinned: false,
+            locked: false,
+            inTrash: false,
+            folderId: this.activeFolder === 'trash' || this.activeFolder === 'all' ? 'quick' : this.activeFolder,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
 
         this.notes.push(note);
         this.openEditor(note);
+        PsychologyEngine.registerActivity();
     },
 
     openEditor(note) {
+        if (note.locked) {
+            PasscodeModal.open(note);
+        } else {
+            this.openEditorUnlocked(note);
+        }
+    },
+
+    openEditorUnlocked(note) {
         this.currentNote = note;
 
-        document.getElementById('note-title').value = note.title;
-        document.getElementById('note-content').innerHTML = Sanitizer.clean(note.content);
+        document.getElementById('note-title').value = note.title || '';
+        document.getElementById('note-content').innerHTML = Sanitizer.clean(note.content || '');
+        document.getElementById('note-folder-select').value = note.folderId || 'quick';
+        document.getElementById('lock-note-toggle-btn').textContent = note.locked ? '🔒' : '🔓';
+
         this.updateTimestamp();
+        this.updateMetaAnalytics();
 
         document.getElementById('note-editor-modal').classList.remove('hidden');
         document.getElementById('note-title').focus();
@@ -902,7 +1454,6 @@ const Notes = {
         if (this.currentNote) {
             this.saveCurrentNote();
 
-            // Delete if empty
             if (!this.currentNote.title && !this.getTextContent(this.currentNote.content).trim()) {
                 this.notes = this.notes.filter(n => n.id !== this.currentNote.id);
             }
@@ -911,6 +1462,7 @@ const Notes = {
         document.getElementById('note-editor-modal').classList.add('hidden');
         this.currentNote = null;
         this.save();
+        this.renderFolders();
         this.render();
     },
 
@@ -926,8 +1478,46 @@ const Notes = {
         this.updateTimestamp();
     },
 
-    // Ticking a box sets the `checked` property, which innerHTML does not
-    // serialise — mirror it onto the attribute so it survives a save.
+    duplicateCurrentNote() {
+        if (!this.currentNote) return;
+        this.saveCurrentNote();
+        const clone = {
+            ...this.currentNote,
+            id: uid(),
+            title: (this.currentNote.title || 'Untitled') + ' (Copy)',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        this.notes.push(clone);
+        this.save();
+        this.closeEditor();
+        this.openEditor(clone);
+        PsychologyEngine.playDopamineSound('chime');
+    },
+
+    exportCurrentNoteMarkdown() {
+        if (!this.currentNote) return;
+        const title = this.currentNote.title || 'Untitled Note';
+        const text = this.getTextContent(this.currentNote.content);
+        const md = `# ${title}\n\n${text}`;
+        const blob = new Blob([md], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title.toLowerCase().replace(/[^a-z0-9]/g, '_')}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+    },
+
+    toggleLockCurrentNote() {
+        if (!this.currentNote) return;
+        this.currentNote.locked = !this.currentNote.locked;
+        document.getElementById('lock-note-toggle-btn').textContent = this.currentNote.locked ? '🔒' : '🔓';
+        this.saveCurrentNote();
+        this.save();
+        PsychologyEngine.playDopamineSound('pop');
+    },
+
     syncCheckboxState() {
         document.getElementById('note-content')
             .querySelectorAll('input[type="checkbox"]')
@@ -951,8 +1541,13 @@ const Notes = {
     deleteCurrentNote() {
         if (!this.currentNote) return;
 
-        if (confirm('Delete this note?')) {
-            this.notes = this.notes.filter(n => n.id !== this.currentNote.id);
+        if (this.currentNote.inTrash) {
+            if (confirm('Permanently delete this note?')) {
+                this.notes = this.notes.filter(n => n.id !== this.currentNote.id);
+                this.closeEditor();
+            }
+        } else {
+            this.currentNote.inTrash = true;
             this.closeEditor();
         }
     },
@@ -988,15 +1583,13 @@ const Notes = {
         });
     },
 
-    execCommand(command) {
+    execCommand(command, value = null) {
         const editor = document.getElementById('note-content');
         editor.focus();
 
         if (command === 'checklist') {
             this.insertChecklist();
         } else {
-            // Re-anchor inside the editor if the caret had drifted elsewhere.
-            // getEditorRange returns the live range untouched when it is valid.
             const selection = window.getSelection();
             if (selection) {
                 const range = this.getEditorRange(editor, selection);
@@ -1005,23 +1598,57 @@ const Notes = {
             }
 
             try {
-                document.execCommand(command, false, null);
+                document.execCommand(command, false, value);
             } catch (e) {
                 console.log('Editor command failed:', command, e);
             }
         }
 
-        // Manual DOM insertion does not fire `input`, so save explicitly
+        this.scheduleAutoSave();
+    },
+
+    insertCodeBlock() {
+        const editor = document.getElementById('note-content');
+        editor.focus();
+        const codeHtml = '<pre><code>// Type your code here</code></pre><br>';
+        this.insertHTMLAtCaret(codeHtml);
+    },
+
+    insertTable() {
+        const editor = document.getElementById('note-content');
+        editor.focus();
+        const tableHtml = `
+            <table>
+                <thead>
+                    <tr><th>Header 1</th><th>Header 2</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Item 1</td><td>Item 2</td></tr>
+                </tbody>
+            </table><br>
+        `;
+        this.insertHTMLAtCaret(tableHtml);
+    },
+
+    insertHTMLAtCaret(html) {
+        const editor = document.getElementById('note-content');
+        const selection = window.getSelection();
+        const range = this.getEditorRange(editor, selection);
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        const frag = document.createDocumentFragment();
+        let node;
+        while ((node = temp.firstChild)) {
+            frag.appendChild(node);
+        }
+        range.deleteContents();
+        range.insertNode(frag);
         this.scheduleAutoSave();
     },
 
     insertChecklist() {
         const editor = document.getElementById('note-content');
         editor.focus();
-
-        // Focus may still be leaving the title input. Inserting in the same
-        // tick lets the browser reset the selection afterwards and swallow the
-        // placeholder, so wait for the caret to settle first.
         requestAnimationFrame(() => this.insertChecklistItem(editor));
     },
 
@@ -1041,7 +1668,6 @@ const Notes = {
         range.insertNode(text);
         range.insertNode(checkbox);
 
-        // Select the placeholder so typing replaces it
         range.setStart(text, 1);
         range.setEnd(text, text.length);
         selection.removeAllRanges();
@@ -1050,8 +1676,6 @@ const Notes = {
         this.scheduleAutoSave();
     },
 
-    // The caret may be in the title input, or nowhere at all, when a toolbar
-    // button is clicked. Never insert outside the editor; fall back to its end.
     getEditorRange(editor, selection) {
         if (selection && selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
@@ -1073,9 +1697,23 @@ const Notes = {
     render() {
         const container = document.getElementById('notes-list');
         const emptyState = document.getElementById('notes-empty');
+        const folderTitle = document.getElementById('current-folder-title');
 
-        // Sort: pinned first, then by updated date
-        const sortedNotes = [...this.notes].sort((a, b) => {
+        const folderObj = this.folders.find(f => f.id === this.activeFolder) || { name: 'All Notes' };
+        if (folderTitle) folderTitle.textContent = folderObj.name;
+
+        // Filter by folder
+        let filteredNotes = this.notes;
+        if (this.activeFolder === 'trash') {
+            filteredNotes = this.notes.filter(n => n.inTrash);
+        } else if (this.activeFolder === 'all') {
+            filteredNotes = this.notes.filter(n => !n.inTrash);
+        } else {
+            filteredNotes = this.notes.filter(n => !n.inTrash && n.folderId === this.activeFolder);
+        }
+
+        // Sort: pinned first, then updated date
+        const sortedNotes = [...filteredNotes].sort((a, b) => {
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
             return new Date(b.updatedAt) - new Date(a.updatedAt);
@@ -1089,18 +1727,22 @@ const Notes = {
 
         emptyState.classList.add('hidden');
         container.innerHTML = sortedNotes.map(note => {
-            const preview = this.getTextContent(note.content).substring(0, 150);
+            const preview = note.locked ? '🔒 Locked Note (Enter passcode to open)' : this.getTextContent(note.content).substring(0, 140);
             const formattedDate = this.formatDate(note.updatedAt);
+            const folderName = (this.folders.find(f => f.id === note.folderId) || {}).name || 'Quick';
 
             return `
-                <div class="note-card ${note.pinned ? 'pinned' : ''}" data-id="${note.id}">
+                <div class="note-card ${note.pinned ? 'pinned' : ''} ${note.locked ? 'locked' : ''}" data-id="${note.id}">
                     <div class="note-card-header">
                         <div class="note-card-title">${this.escapeHtml(note.title || 'Untitled')}</div>
                         <button type="button" class="note-pin" aria-pressed="${note.pinned ? 'true' : 'false'}"
-                            aria-label="${note.pinned ? 'Unpin' : 'Pin'} note: ${this.escapeAttr(note.title || 'Untitled')}">${note.pinned ? '📌' : '📍'}</button>
+                            aria-label="${note.pinned ? 'Unpin' : 'Pin'} note">${note.pinned ? '📌' : '📍'}</button>
                     </div>
                     <div class="note-card-preview">${this.escapeHtml(preview)}</div>
-                    <div class="note-card-meta">Last edited ${formattedDate}</div>
+                    <div class="note-card-meta">
+                        <span>Last edited ${formattedDate}</span>
+                        <span class="note-folder-tag">${this.escapeHtml(folderName)}</span>
+                    </div>
                 </div>
             `;
         }).join('');
@@ -1120,7 +1762,6 @@ const Notes = {
         return div.innerHTML;
     },
 
-    // escapeHtml leaves quotes intact, which would break out of an attribute
     escapeAttr(text) {
         return this.escapeHtml(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     },
@@ -1145,6 +1786,19 @@ const Notes = {
         if (!this.currentNote) return;
         const formatted = this.formatDate(this.currentNote.updatedAt);
         document.getElementById('note-timestamp').textContent = `Last edited ${formatted}`;
+    },
+
+    updateMetaAnalytics() {
+        const content = document.getElementById('note-content');
+        const text = content ? (content.textContent || '').trim() : '';
+        const words = text ? text.split(/\s+/).length : 0;
+        const readTime = Math.max(1, Math.ceil(words / 200));
+
+        const wordEl = document.getElementById('note-word-count');
+        const readEl = document.getElementById('note-read-time');
+
+        if (wordEl) wordEl.textContent = `${words} words`;
+        if (readEl) readEl.textContent = `${readTime} min read`;
     }
 };
 
@@ -1889,6 +2543,11 @@ const DinoRun = {
 // APP INITIALIZATION
 // ===================================
 document.addEventListener('DOMContentLoaded', () => {
+    PsychologyEngine.init();
+    CompanionEngine.init();
+    SketchPad.init();
+    PasscodeModal.init();
+
     ThemeManager.init();
     GlobalSettings.init();
     Navigation.init();
