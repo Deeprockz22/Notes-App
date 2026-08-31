@@ -1354,10 +1354,146 @@ input:checked+.theme-slider:before {
     border-radius: var(--radius-sm);
 }
 
+/* Custom Toolbar & Typography Additions */
+.toolbar-select {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+}
+
+.modal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.meta-separator {
+    margin: 0 var(--spacing-xs);
+}
+
+/* Note Content Typography Enhancements */
+.note-editor h1 { font-size: 1.8rem; font-weight: 700; margin: 0.5rem 0; }
+.note-editor h2 { font-size: 1.4rem; font-weight: 700; margin: 0.4rem 0; }
+.note-editor h3 { font-size: 1.15rem; font-weight: 600; margin: 0.3rem 0; }
+.note-editor blockquote {
+    border-left: 4px solid var(--accent-primary);
+    padding-left: 1rem;
+    margin: 0.5rem 0;
+    font-style: italic;
+    color: var(--text-secondary);
+}
+.note-editor pre, .note-editor code {
+    background: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: monospace;
+    font-size: 0.9em;
+}
+.note-editor pre {
+    padding: 0.75rem;
+    overflow-x: auto;
+    display: block;
+    margin: 0.5rem 0;
+}
+.note-editor table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+}
+.note-editor th, .note-editor td {
+    border: 1px solid var(--border-medium);
+    padding: 6px 10px;
+}
+.note-editor img {
+    max-width: 100%;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-medium);
+    margin: 0.5rem 0;
+}
+
+/* Sketch Pad Modal */
+.sketch-modal-content {
+    max-width: 760px;
+}
+
+.sketch-toolbar {
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: var(--bg-secondary);
+    border-bottom: 2px solid var(--border-light);
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: center;
+}
+
+.canvas-container {
+    padding: var(--spacing-xl);
+    display: flex;
+    justify-content: center;
+    background: var(--bg-tertiary);
+}
+
+#sketch-canvas {
+    background: #ffffff;
+    border: 2px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    cursor: crosshair;
+}
+
+/* Passcode Modal */
+.passcode-modal-content {
+    max-width: 400px;
+    text-align: center;
+}
+
+.passcode-body {
+    padding: var(--spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.passcode-inputs {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.pass-digit {
+    width: 48px;
+    height: 56px;
+    font-size: var(--font-size-3xl);
+    text-align: center;
+    border: 2px solid var(--border-dark);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.passcode-error {
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
 /* ===================================
    RESPONSIVE
    =================================== */
 @media (max-width: 768px) {
+    .notes-layout {
+        flex-direction: column;
+    }
+    .mobile-sidebar-toggle {
+        display: inline-flex;
+    }
+    .notes-sidebar {
+        width: 100%;
+    }
+
     .app-main {
         padding: var(--spacing-xl) var(--spacing-md);
     }
@@ -2008,4 +2144,132 @@ input:checked+.theme-slider:before {
     .msg-bubble {
         display: none !important;
     }
+}
+
+/* ===================================
+   EXPERIENCE THEME MODES
+   =================================== */
+
+/* 🕹️ 8-BIT RETRO ARCADE MODE */
+[data-mode="retro"] {
+    --font-family: 'Press Start 2P', monospace;
+    --bg-primary: #121214;
+    --bg-secondary: #1a1a24;
+    --bg-tertiary: #2a2a3c;
+    --bg-header: #0d0d11;
+    --text-primary: #00ff66;
+    --text-secondary: #ff0055;
+    --text-tertiary: #00ccff;
+    --text-on-dark: #ffff00;
+    --border-light: #ff0055;
+    --border-medium: #00ff66;
+    --border-dark: #00ccff;
+    --accent-primary: #ffff00;
+    --water-color: #00ff66;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+}
+
+[data-mode="retro"] .btn,
+[data-mode="retro"] .note-card,
+[data-mode="retro"] .stat-item,
+[data-mode="retro"] .timer-display,
+[data-mode="retro"] .modal-content {
+    border: 3px solid var(--border-medium) !important;
+    box-shadow: 4px 4px 0px #ff0055 !important;
+    border-radius: 0px !important;
+}
+
+[data-mode="retro"] .app-title {
+    font-size: 1.6rem;
+    color: #ffff00;
+    text-shadow: 3px 3px 0px #ff0055;
+}
+
+/* 🎃 SCARY / SPOOKY HORROR MODE */
+[data-mode="scary"] {
+    --font-family: 'VT323', monospace;
+    --bg-primary: #09090b;
+    --bg-secondary: #18181b;
+    --bg-tertiary: #27272a;
+    --bg-header: #030712;
+    --text-primary: #ef4444;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --text-on-dark: #dc2626;
+    --border-light: #450a0a;
+    --border-medium: #7f1d1d;
+    --border-dark: #b91c1c;
+    --accent-primary: #dc2626;
+    --water-color: #991b1b;
+}
+
+[data-mode="scary"] h1,
+[data-mode="scary"] h2,
+[data-mode="scary"] .app-title {
+    font-family: 'Creepster', cursive !important;
+    color: #ef4444;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+    letter-spacing: 2px;
+}
+
+[data-mode="scary"] .timer-time {
+    color: #ef4444;
+    text-shadow: 0 0 12px #dc2626;
+}
+
+/* 🌌 CYBERPUNK NEON MODE */
+[data-mode="cyberpunk"] {
+    --font-family: 'VT323', monospace;
+    --bg-primary: #030712;
+    --bg-secondary: #0b0f19;
+    --bg-tertiary: #111827;
+    --bg-header: #020617;
+    --text-primary: #22d3ee;
+    --text-secondary: #f472b6;
+    --text-tertiary: #a78bfa;
+    --text-on-dark: #38bdf8;
+    --border-light: #1e1b4b;
+    --border-medium: #06b6d4;
+    --border-dark: #ec4899;
+    --accent-primary: #ec4899;
+    --water-color: #06b6d4;
+}
+
+[data-mode="cyberpunk"] .app-title {
+    font-size: 2.2rem;
+    color: #22d3ee;
+    text-shadow: 0 0 10px #06b6d4, 0 0 20px #ec4899;
+}
+
+[data-mode="cyberpunk"] .btn-primary {
+    background: #ec4899;
+    color: #030712;
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.5);
+}
+
+/* 🌿 ZEN STUDIO GHIBLI MODE */
+[data-mode="zen"] {
+    --font-family: 'Inter', sans-serif;
+    --bg-primary: #fdfbf7;
+    --bg-secondary: #f3efe6;
+    --bg-tertiary: #e6dfd3;
+    --bg-header: #2d3b36;
+    --text-primary: #2d3b36;
+    --text-secondary: #576b63;
+    --text-tertiary: #83978e;
+    --text-on-dark: #fdfbf7;
+    --border-light: #e6dfd3;
+    --border-medium: #c7bea9;
+    --border-dark: #2d3b36;
+    --accent-primary: #4ade80;
+    --water-color: #86efac;
+}
+
+[data-mode="zen"] .btn-primary {
+    background: #2d3b36;
+    color: #fdfbf7;
+    border-radius: var(--radius-full);
 }
