@@ -511,6 +511,9 @@ export default function App() {
         pauseTimer={pauseTimer}
         resetTimer={resetTimer}
         mode={mode}
+        theme={theme}
+        companionType={companionType}
+        setCompanionType={setCompanionType}
       />
 
       {/* Global Settings & Backup Modal */}

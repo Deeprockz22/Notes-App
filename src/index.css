@@ -3248,19 +3248,271 @@ body {
   line-height: 1;
 }
 
+/* ===================================
+   ZEN LINEAR CREW & PRODUCTIVITY SCENE
+   =================================== */
+.zen-linear-crew-scene {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 18px 0;
+}
+
+.zen-dialogue-bubble {
+  position: relative;
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.zen-dialogue-bubble:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-primary);
+}
+
+.dialogue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.dialogue-speaker {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dialogue-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.dialogue-refresh-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, transform 0.2s ease;
+}
+
+.dialogue-refresh-btn:hover {
+  color: var(--text-primary);
+  transform: rotate(90deg);
+}
+
+.dialogue-quote {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  font-style: italic;
+  margin: 0;
+}
+
+.dialogue-pointer {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: var(--bg-elevated);
+  border-right: 1px solid var(--border-active);
+  border-bottom: 1px solid var(--border-active);
+}
+
+/* Linear Track and Milestones */
+.zen-linear-track-wrapper {
+  position: relative;
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+}
+
 .zen-progress-bar-container {
   width: 100%;
-  max-width: 380px;
-  height: 4px;
+  height: 8px;
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
-  overflow: hidden;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: visible;
 }
 
 .zen-progress-bar-fill {
   height: 100%;
   background: var(--accent-primary);
+  box-shadow: 0 0 14px var(--accent-glow);
+  border-radius: var(--radius-full);
   transition: width 1s linear;
+}
+
+.track-milestone {
+  position: absolute;
+  top: 32px;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.milestone-25 { left: 25%; }
+.milestone-50 { left: 50%; }
+.milestone-75 { left: 75%; }
+
+.track-milestone::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 6px;
+  background: var(--border-subtle);
+  border-radius: 1px;
+}
+
+/* Moving Runner Mascot */
+.zen-runner-mascot {
+  position: absolute;
+  top: -16px;
+  transform: translateX(-50%);
+  cursor: pointer;
+  z-index: 10;
+  transition: left 1s linear;
+}
+
+.runner-sprite-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.runner-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  transition: transform 0.2s ease;
+}
+
+.zen-runner-mascot:hover .runner-icon {
+  transform: scale(1.25);
+}
+
+.zen-runner-mascot.cheering .runner-icon {
+  transform: scale(1.35) rotate(-10deg);
+}
+
+.runner-name-tag {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+/* Finish Mascot */
+.zen-finish-mascot {
+  position: absolute;
+  right: -8px;
+  top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 0.2s ease;
+}
+
+.zen-finish-mascot:hover {
+  transform: scale(1.18);
+}
+
+.finish-flag {
+  font-size: 1.4rem;
+}
+
+.finish-mentor {
+  font-size: 1.4rem;
+}
+
+/* Quick Crew Switcher */
+.zen-crew-switcher-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.crew-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.crew-avatars {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.crew-avatar-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-secondary);
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crew-avatar-btn:hover {
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+}
+
+.crew-avatar-btn.active-crew {
+  border-color: var(--accent-primary);
+  background: var(--bg-elevated);
+  transform: scale(1.15);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .zen-quote-container {
