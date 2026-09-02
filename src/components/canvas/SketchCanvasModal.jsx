@@ -150,7 +150,7 @@ export default function SketchCanvasModal({
         {/* Header */}
         <div className="modal-header">
           <div className="sketch-header-left">
-            <h3 className="modal-title">Apple Notes Sketchpad</h3>
+            <h3 className="modal-title">Brain Dump Sketchpad</h3>
             <span className="sketch-subtitle">Draw diagrams, flowcharts, or handwritten notes</span>
           </div>
 

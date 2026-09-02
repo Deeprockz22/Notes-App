@@ -188,7 +188,7 @@ export default function NotesHub({
           <div>
             <h2 className="view-title">
               <DecryptedText
-                text={currentFolder === 'trash' ? 'Recently Deleted' : 'Apple Notes Hub'}
+                text={currentFolder === 'trash' ? 'Recently Deleted' : 'Brain Dump Section'}
                 speed={30}
                 maxIterations={8}
               />

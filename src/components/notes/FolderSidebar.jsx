@@ -42,7 +42,7 @@ export default function FolderSidebar({
   };
 
   return (
-    <aside className="folder-sidebar" aria-label="Apple Notes Folders">
+    <aside className="folder-sidebar" aria-label="Brain Dump Folders">
       <div className="folder-sidebar-header">
         <span className="sidebar-title">Folders</span>
         <button

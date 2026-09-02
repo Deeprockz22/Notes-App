@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ FOCUS — Ultra-Aesthetic Productivity & Apple Notes Suite
+# ⚡ FOCUS — Ultra-Aesthetic Productivity & Brain Dump Suite
 
 ### *“Your mind is for having ideas, not holding them.”*
 
@@ -10,7 +10,7 @@
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.0-ff0055?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable-purple?style=for-the-badge&logo=pwa&logoColor=white)](https://deeprockz22.github.io/Notes-App/)
 
-**A gamified, hyper-aesthetic productivity suite fusing Apple Notes parity, Pomodoro flow states, 12 multi-experiential themes, 7 interactive focus pets, and cognitive neuroscience offloading.**
+**A gamified, hyper-aesthetic productivity suite fusing Brain Dump organization, Pomodoro flow states, 12 multi-experiential themes, 7 interactive focus pets, and cognitive neuroscience offloading.**
 
 ---
 
@@ -25,7 +25,7 @@
 ```
        ⚡ FOCUS PRODUCTIVITY ECOSYSTEM
  ├── ⏱️ Flow Engine     -> Pomodoro dials, liquid tanks, mini-pill timer, full-screen Zen mode
- ├── 🍏 Apple Notes Hub -> Hierarchical folders, Whiteboard sketchpad, 4-digit PIN lock, dynamic tables
+ ├── 🧠 Brain Dump Hub  -> Hierarchical folders, Whiteboard sketchpad, 4-digit PIN lock, dynamic tables
  ├── 🐾 Pet Wardrobe    -> 7 interactive mascots (Neo, Luna, Archimedes, Pyro, Cosmo, Byte, Spooky)
  ├── 🎨 12 Theme Modes  -> 8-Bit Arcade, Matcha Forest, Tokyo Drift, Bioluminescent Ocean, Saiyan Aura
  ├── 🎧 Ambient Audio   -> Procedural Web Audio binaural beats, rain synth, chiptune coin rewards
@@ -34,7 +34,7 @@
 
 ---
 
-## 🍏 1. Apple Notes Full Parity Suite
+## 🧠 1. Brain Dump Section (Advanced Note-Taking Suite)
 
 * 📁 **Hierarchical Folders**: *All Notes, Quick Notes, Work, Personal, Ideas & Drafts, Archive, and Recently Deleted (Trash Bin)* + Custom folder creation.
 * 🎨 **Whiteboard Drawing Canvas**: Embedded drawing pad with pen, highlighter, eraser, brush thickness sliders, and instant note embedding.
