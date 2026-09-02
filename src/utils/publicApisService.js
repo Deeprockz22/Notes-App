@@ -209,3 +209,116 @@ export async function fetchLocalWeather() {
     };
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// 5. 😂 RANDOM JOKE ENGINE (Official Joke API)
+// Setup + Punchline → maps perfectly to 2-animal banter
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_JOKES = [
+  { setup: "Why don't scientists trust atoms?", punchline: "Because they make up everything!" },
+  { setup: "What do you call a factory that makes okay products?", punchline: "A satisfactory!" },
+  { setup: "Why did the scarecrow win an award?", punchline: "Because he was outstanding in his field!" },
+  { setup: "I told my doctor I heard buzzing…", punchline: "He said it's just a bug going around!" },
+  { setup: "Why can't you trust an atom?", punchline: "They make up literally everything — even this joke!" }
+];
+
+export async function fetchRandomJoke() {
+  const cacheKey = `zencus_joke_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+
+  try {
+    const res = await fetch('https://official-joke-api.appspot.com/random_joke');
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.setup && data?.punchline) {
+        const joke = { setup: data.setup, punchline: data.punchline };
+        try { localStorage.setItem(cacheKey, JSON.stringify(joke)); } catch {}
+        return joke;
+      }
+    }
+  } catch (err) {
+    console.warn('[Zencus APIs] Joke API failed, using fallback:', err);
+  }
+
+  return FALLBACK_JOKES[Math.floor(Math.random() * FALLBACK_JOKES.length)];
+}
+
+// ─────────────────────────────────────────────────────────────
+// 6. 🌐 WIKIPEDIA RANDOM ARTICLE (Wikipedia REST API)
+// Returns a real article title + extract for animals to discuss
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_WIKI = [
+  { title: "The Great Wall of China", extract: "The Great Wall of China stretches over 21,000 km and was built to protect Chinese states from nomadic invasions over many centuries." },
+  { title: "Octopus", extract: "Octopuses have three hearts, blue blood, and can change colour in milliseconds — each arm has a mind of its own with two-thirds of their neurons!" },
+  { title: "Black Holes", extract: "A black hole's gravity is so extreme that even light cannot escape. Time passes more slowly near a black hole than far away from it." }
+];
+
+export async function fetchWikipediaFact() {
+  const cacheKey = `zencus_wiki_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+
+  try {
+    // Wikipedia redirects random/summary with a 303 — fetch follows redirects automatically
+    const res = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary', {
+      redirect: 'follow'
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.title && data?.extract) {
+        // Trim extract to ~200 chars for readable bubble text
+        const extract = data.extract.length > 200
+          ? data.extract.substring(0, 197) + '…'
+          : data.extract;
+        const result = { title: data.title, extract };
+        try { localStorage.setItem(cacheKey, JSON.stringify(result)); } catch {}
+        return result;
+      }
+    }
+  } catch (err) {
+    console.warn('[Zencus APIs] Wikipedia fetch failed, using fallback:', err);
+  }
+
+  return FALLBACK_WIKI[Math.floor(Math.random() * FALLBACK_WIKI.length)];
+}
+
+// ─────────────────────────────────────────────────────────────
+// 7. 🤔 USELESS FACTS (uselessfacts.jsph.pl)
+// Random bizarre facts for animals to react to
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_USELESS_FACTS = [
+  "A group of crows is called a murder. A group of owls is called a parliament.",
+  "Bananas are technically berries, but strawberries are not.",
+  "The average cloud weighs around 1.1 million pounds.",
+  "Honey never spoils. Edible honey was found in Egyptian tombs over 3,000 years old.",
+  "There are more possible chess games than atoms in the observable universe."
+];
+
+export async function fetchUselessFact() {
+  const cacheKey = `zencus_useless_fact_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+
+  try {
+    const res = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en');
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.text) {
+        const fact = data.text.replace(/`/g, "'");
+        try { localStorage.setItem(cacheKey, JSON.stringify(fact)); } catch {}
+        return fact;
+      }
+    }
+  } catch (err) {
+    console.warn('[Zencus APIs] Useless Facts fetch failed, using fallback:', err);
+  }
+
+  return FALLBACK_USELESS_FACTS[Math.floor(Math.random() * FALLBACK_USELESS_FACTS.length)];
+}

@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/companionConversations';
 import { fetchDailyTrendingSaga } from '../../utils/trendingTopicsService';
-import { fetchLiveAnimalFact } from '../../utils/publicApisService';
+import { fetchLiveAnimalFact, fetchRandomJoke, fetchWikipediaFact, fetchUselessFact } from '../../utils/publicApisService';
 
 // EXACTLY 20 mathematically collision-free, staggered clusters
 // Strictly clear zone: Entire area under the linear bar and controls is 100% free of conversations!
 const CLUSTER_ANCHORS = [
   // --- Outer Left Column (5 clusters, left: 2%, along far left wall) ---
   { id: 'c-l1-1', top: '6%', left: '2%', topic: 'planets' },
-  { id: 'c-l1-2', top: '28%', left: '2%', topic: 'funny' },
+  { id: 'c-l1-2', top: '28%', left: '2%', topic: 'funny', isJokeTarget: true },   // 😂 JOKE ZONE
   { id: 'c-l1-3', top: '50%', left: '2%', topic: 'cheating_husband' },
   { id: 'c-l1-4', top: '72%', left: '2%', topic: 'ghosts' },
   { id: 'c-l1-5', bottom: '3%', left: '2%', topic: 'ancient' },
@@ -28,13 +28,13 @@ const CLUSTER_ANCHORS = [
 
   // --- Inner Right Column (4 clusters, right: 17%, staggered to fill space without encroaching center) ---
   { id: 'c-r2-1', top: '17%', right: '17%', topic: 'cheating_husband' },
-  { id: 'c-r2-2', top: '39%', right: '17%', topic: 'space_mysteries' },
+  { id: 'c-r2-2', top: '39%', right: '17%', topic: 'space_mysteries', isWikiTarget: true },   // 🌐 WIKIPEDIA
   { id: 'c-r2-3', top: '61%', right: '17%', topic: 'food' },
   { id: 'c-r2-4', bottom: '6%', right: '17%', topic: 'ocean' },
 
   // --- Outer Right Column (5 clusters, right: 2%, along far right wall) ---
   { id: 'c-r1-1', top: '6%', right: '2%', topic: 'serious' },
-  { id: 'c-r1-2', top: '28%', right: '2%', topic: 'cheating_wife' },
+  { id: 'c-r1-2', top: '28%', right: '2%', topic: 'cheating_wife', isUselessFactTarget: true },  // 🤔 USELESS FACT
   { id: 'c-r1-3', top: '50%', right: '2%', topic: 'dreams' },
   { id: 'c-r1-4', top: '72%', right: '2%', topic: 'chill' },
   { id: 'c-r1-5', bottom: '3%', right: '2%', topic: 'funny' }
@@ -108,26 +108,88 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
             { speaker: 'B', text: "Time to focus and be wise like an owl!" }
           ]
         };
-
         setClusters((prev) =>
-          prev.map((cluster) => {
-            if (cluster.id === 'c-top-drama') {
-              return {
-                ...cluster,
-                saga: animalFactSaga,
-                turn: 0
-              };
-            }
-            return cluster;
-          })
+          prev.map((cluster) =>
+            cluster.id === 'c-top-drama' ? { ...cluster, saga: animalFactSaga, turn: 0 } : cluster
+          )
         );
       })
       .catch((err) => console.log('Animal facts notice:', err));
+
+    // 😂 Fetch a random joke (Official Joke API → c-l1-2 Joke Zone)
+    fetchRandomJoke()
+      .then((joke) => {
+        if (!isMounted || !joke) return;
+        const jokeSaga = {
+          id: 'live_joke_saga',
+          title: 'Joke Zone',
+          tag: '😂 JOKE ZONE',
+          dialogues: [
+            { speaker: 'A', text: `Hey, wanna hear one? "${joke.setup}"` },
+            { speaker: 'B', text: "Oof… okay, hit me!" },
+            { speaker: 'A', text: `${joke.punchline} 😄` },
+            { speaker: 'B', text: "Oh no. That's terrible. I love it." }
+          ]
+        };
+        setClusters((prev) =>
+          prev.map((cluster) =>
+            cluster.id === 'c-l1-2' ? { ...cluster, saga: jokeSaga, turn: 0 } : cluster
+          )
+        );
+      })
+      .catch((err) => console.log('Joke API notice:', err));
+
+    // 🌐 Fetch a random Wikipedia article (Wikipedia REST API → c-r2-2 Wiki)
+    fetchWikipediaFact()
+      .then((wiki) => {
+        if (!isMounted || !wiki) return;
+        const wikiSaga = {
+          id: 'live_wiki_saga',
+          title: `Wikipedia: ${wiki.title}`,
+          tag: '🌐 WIKIPEDIA',
+          dialogues: [
+            { speaker: 'A', text: `Let's look up "${wiki.title}" on Wikipedia!` },
+            { speaker: 'B', text: wiki.extract },
+            { speaker: 'A', text: "Wow, I didn't know that. The world is fascinating!" },
+            { speaker: 'B', text: "Every day is a school day! 📚" }
+          ]
+        };
+        setClusters((prev) =>
+          prev.map((cluster) =>
+            cluster.id === 'c-r2-2' ? { ...cluster, saga: wikiSaga, turn: 0 } : cluster
+          )
+        );
+      })
+      .catch((err) => console.log('Wikipedia notice:', err));
+
+    // 🤔 Fetch a useless fact (uselessfacts.jsph.pl → c-r1-2 Useless Fact)
+    fetchUselessFact()
+      .then((fact) => {
+        if (!isMounted || !fact) return;
+        const uselessSaga = {
+          id: 'live_useless_fact_saga',
+          title: 'Useless Fact of the Day',
+          tag: '🤔 USELESS FACT',
+          dialogues: [
+            { speaker: 'A', text: "Okay, random useless fact incoming —" },
+            { speaker: 'B', text: fact },
+            { speaker: 'A', text: "What?! How do people even discover these things?" },
+            { speaker: 'B', text: "Someone, somewhere, had too much free time. Respect." }
+          ]
+        };
+        setClusters((prev) =>
+          prev.map((cluster) =>
+            cluster.id === 'c-r1-2' ? { ...cluster, saga: uselessSaga, turn: 0 } : cluster
+          )
+        );
+      })
+      .catch((err) => console.log('Useless Facts notice:', err));
 
     return () => {
       isMounted = false;
     };
   }, []);
+
 
   // Continuous dialogue progression: Step line every 9.5s
   useEffect(() => {
@@ -219,7 +281,39 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
         const activeSpeaker = isLeftSpeaker ? cluster.animals[0] : cluster.animals[1];
         const speakerDisplayName = `${activeSpeaker.icon} ${activeSpeaker.name}`;
         const isLiveTrending = Boolean(cluster.saga.isLiveTrending);
-        const isLiveFact = Boolean(cluster.isAnimalFactTarget);
+        const isLiveFact    = Boolean(cluster.isAnimalFactTarget);
+        const isJoke        = Boolean(cluster.isJokeTarget);
+        const isWiki        = Boolean(cluster.isWikiTarget);
+        const isUseless     = Boolean(cluster.isUselessFactTarget);
+
+        // Derive bubble CSS modifier
+        const bubbleMod = isLiveTrending ? 'trending-bubble'
+          : isLiveFact  ? 'fact-bubble'
+          : isJoke      ? 'joke-bubble'
+          : isWiki      ? 'wiki-bubble'
+          : isUseless   ? 'useless-bubble'
+          : '';
+
+        // Derive tag CSS modifier
+        const tagMod = isLiveTrending ? 'trending-tag'
+          : isLiveFact  ? 'fact-tag'
+          : isJoke      ? 'joke-tag'
+          : isWiki      ? 'wiki-tag'
+          : isUseless   ? 'useless-tag'
+          : '';
+
+        // Derive center spark emoji
+        const sparkEmoji = isLiveTrending ? '🔥'
+          : isLiveFact  ? '🐾'
+          : isJoke      ? '😂'
+          : isWiki      ? '🌐'
+          : isUseless   ? '🤔'
+          : '💬';
+
+        // Derive node CSS modifier
+        const nodeMod = isLiveTrending ? 'trending-node'
+          : isLiveFact ? 'fact-node'
+          : '';
 
         const posStyle = {
           top: cluster.top,
@@ -231,9 +325,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
         return (
           <motion.div
             key={cluster.id}
-            className={`ambient-cluster-node ${isLeftSpeaker ? 'speaker-left' : 'speaker-right'} ${
-              isLiveTrending ? 'trending-node' : isLiveFact ? 'fact-node' : ''
-            }`}
+            className={`ambient-cluster-node ${isLeftSpeaker ? 'speaker-left' : 'speaker-right'} ${nodeMod}`}
             style={posStyle}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -249,11 +341,11 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -5, scale: 0.96 }}
                 transition={{ duration: 0.25 }}
-                className={`ambient-tiny-bubble ${isLiveTrending ? 'trending-bubble' : isLiveFact ? 'fact-bubble' : ''}`}
+                className={`ambient-tiny-bubble ${bubbleMod}`}
               >
                 <div className="tiny-bubble-header">
                   <span className="tiny-speaker-name">{speakerDisplayName}</span>
-                  <span className={`tiny-topic-tag ${isLiveTrending ? 'trending-tag' : isLiveFact ? 'fact-tag' : ''}`}>
+                  <span className={`tiny-topic-tag ${tagMod}`}>
                     {cluster.saga.tag}
                   </span>
                 </div>
@@ -283,7 +375,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
               </motion.div>
 
               {/* Center Talking Spark */}
-              <span className="facing-gap-spark">{isLiveTrending ? '🔥' : isLiveFact ? '🐾' : '💬'}</span>
+              <span className="facing-gap-spark">{sparkEmoji}</span>
 
               {/* Right Animal (Faces Left towards Animal A) */}
               <motion.div

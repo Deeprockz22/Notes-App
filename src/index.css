@@ -3430,6 +3430,45 @@ body {
   letter-spacing: 0.06em;
 }
 
+/* 😂 JOKE ZONE bubble */
+.ambient-tiny-bubble.joke-bubble {
+  border-color: rgba(251, 191, 36, 0.45);
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.18);
+}
+.tiny-topic-tag.joke-tag {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.38);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* 🌐 WIKIPEDIA bubble */
+.ambient-tiny-bubble.wiki-bubble {
+  border-color: rgba(129, 216, 143, 0.45);
+  box-shadow: 0 4px 20px rgba(129, 216, 143, 0.15);
+}
+.tiny-topic-tag.wiki-tag {
+  background: rgba(129, 216, 143, 0.15);
+  color: #86efac;
+  border: 1px solid rgba(129, 216, 143, 0.35);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* 🤔 USELESS FACT bubble */
+.ambient-tiny-bubble.useless-bubble {
+  border-color: rgba(196, 148, 251, 0.45);
+  box-shadow: 0 4px 20px rgba(196, 148, 251, 0.15);
+}
+.tiny-topic-tag.useless-tag {
+  background: rgba(196, 148, 251, 0.16);
+  color: #c084fc;
+  border: 1px solid rgba(196, 148, 251, 0.35);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
 /* ===================================
    AUTO-HIDE IDLE BEHAVIOR (MOUSE INACTIVITY)
    =================================== */
