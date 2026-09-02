@@ -3,22 +3,34 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/companionConversations';
 
-// 10 simultaneous cluster anchors covering all 10 distinct 30-minute sagas
+// 14 simultaneous non-overlapping cluster anchors stationed in the safe perimeter
+// Strict Exclusion Zone: Center 30%-70% width and 20%-80% height is completely clear for the clock and linear bar!
 const CLUSTER_ANCHORS = [
-  { id: 'c-top-left', top: '12%', left: '6%', topic: 'planets' },
-  { id: 'c-top-mid-left', top: '10%', left: '28%', topic: 'funny' },
-  { id: 'c-top-mid-right', top: '10%', right: '28%', topic: 'dreams' },
-  { id: 'c-top-right', top: '12%', right: '6%', topic: 'ghosts' },
-  { id: 'c-mid-left', top: '44%', left: '5%', topic: 'serious' },
-  { id: 'c-mid-right', top: '44%', right: '5%', topic: 'food' },
-  { id: 'c-bottom-left', bottom: '14%', left: '7%', topic: 'chill' },
-  { id: 'c-bottom-mid-left', bottom: '10%', left: '28%', topic: 'space_mysteries' },
-  { id: 'c-bottom-mid-right', bottom: '10%', right: '28%', topic: 'ancient' },
-  { id: 'c-bottom-right', bottom: '14%', right: '7%', topic: 'ocean' }
+  // --- Left Outer Wing (Safe Corridor 2% - 18%) ---
+  { id: 'c-left-top', top: '7%', left: '2%', topic: 'planets' },
+  { id: 'c-left-upper', top: '26%', left: '3%', topic: 'funny' },
+  { id: 'c-left-mid', top: '46%', left: '2%', topic: 'dreams' },
+  { id: 'c-left-lower', top: '66%', left: '3%', topic: 'ghosts' },
+  { id: 'c-left-bottom', bottom: '4%', left: '2%', topic: 'ancient' },
+
+  // --- Right Outer Wing (Safe Corridor 82% - 98%) ---
+  { id: 'c-right-top', top: '7%', right: '2%', topic: 'serious' },
+  { id: 'c-right-upper', top: '26%', right: '3%', topic: 'food' },
+  { id: 'c-right-mid', top: '46%', right: '2%', topic: 'space_mysteries' },
+  { id: 'c-right-lower', top: '66%', right: '3%', topic: 'ocean' },
+  { id: 'c-right-bottom', bottom: '4%', right: '2%', topic: 'chill' },
+
+  // --- High Top Flanks (Well above central clock) ---
+  { id: 'c-top-flank-l', top: '5%', left: '17%', topic: 'funny' },
+  { id: 'c-top-flank-r', top: '5%', right: '17%', topic: 'dreams' },
+
+  // --- Low Bottom Flanks (Well below central controls) ---
+  { id: 'c-bot-flank-l', bottom: '3%', left: '17%', topic: 'planets' },
+  { id: 'c-bot-flank-r', bottom: '3%', right: '17%', topic: 'food' }
 ];
 
 export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
-  // 10 Simultaneous animal clusters: Each cluster has 2 dedicated companions facing each other
+  // 14 Simultaneous animal clusters: Each cluster has 2 dedicated companions facing each other
   const [clusters, setClusters] = useState(() => {
     return CLUSTER_ANCHORS.map((anchor, idx) => {
       const saga = getSagaForTopic(anchor.topic);
@@ -41,13 +53,13 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
-      size: Math.random() * 2.2 + 1,
+      size: Math.random() * 2 + 1,
       duration: Math.random() * 3 + 2.5,
       delay: Math.random() * 2.5
     }));
   });
 
-  // Continuous 30-minute dialogue progression: Step line every 9.5s between the two companions
+  // Continuous 30-minute dialogue progression: Step line every 9.5s
   useEffect(() => {
     const interval = setInterval(() => {
       setClusters((prevClusters) => {
@@ -61,7 +73,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
           };
         });
       });
-    }, 9500); // Exactly 9.5 seconds per line for calm, readable 30-minute flow
+    }, 9500); // 9.5 seconds per line for relaxing, readable pace
 
     return () => clearInterval(interval);
   }, []);
@@ -124,10 +136,10 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       {/* 🧭 Active Ambient Channel Header */}
       <div className="ambient-status-badge">
         <span className="ambient-pulse-dot" />
-        <span className="ambient-badge-label">ANIMAL UNIVERSE • 10 LIVE 30-MIN SAGAS</span>
+        <span className="ambient-badge-label">ANIMAL UNIVERSE • 14 LIVE CHANNELS</span>
       </div>
 
-      {/* 🐾 10 Simultaneous Animal Conversational Clusters */}
+      {/* 🐾 14 Simultaneous Non-Overlapping Animal Conversational Clusters */}
       {clusters.map((cluster) => {
         const currentDialogue = cluster.saga.dialogues[cluster.turn] || cluster.saga.dialogues[0];
 
@@ -155,7 +167,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
             onClick={(e) => handleClusterClick(cluster.id, e)}
             title={`Topic: ${cluster.saga.title} (Click to skip line)`}
           >
-            {/* 💬 Tiny, Crisp, Ultra-Readable Speech Bubble */}
+            {/* 💬 Tiny, Crisp, Compact Speech Bubble */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${cluster.saga.id}-${cluster.turn}`}
@@ -170,19 +182,19 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
                   <span className="tiny-topic-tag">{cluster.saga.tag}</span>
                 </div>
                 <p className="tiny-bubble-text">{currentDialogue.text}</p>
-                {/* Tail pointing toward whichever of the 2 animals is speaking */}
+                {/* Directional Tail pointing to active companion */}
                 <div className={`tiny-bubble-tail ${isLeftSpeaker ? 'tail-left' : 'tail-right'}`} />
               </motion.div>
             </AnimatePresence>
 
             {/* 🐾 The TWO Animals Facing Each Other Nose-to-Nose */}
             <div className="ambient-cluster-sprites facing-pair">
-              {/* Left Animal (Animal A: Faces Right) */}
+              {/* Left Animal (Faces Right) */}
               <motion.div
                 className={`ambient-sprite animal-left ${isLeftSpeaker ? 'active-speaking' : 'is-listening'}`}
                 animate={{
-                  y: isLeftSpeaker ? [0, -6, 0] : [0, -2, 0],
-                  scale: isLeftSpeaker ? 1.2 : 1
+                  y: isLeftSpeaker ? [0, -5, 0] : [0, -2, 0],
+                  scale: isLeftSpeaker ? 1.15 : 1
                 }}
                 transition={{
                   y: { repeat: Infinity, duration: 1.8, ease: 'easeInOut' },
@@ -197,12 +209,12 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
               {/* Center Talking Spark */}
               <span className="facing-gap-spark">💬</span>
 
-              {/* Right Animal (Animal B: Faces Left towards Animal A) */}
+              {/* Right Animal (Faces Left towards Animal A) */}
               <motion.div
                 className={`ambient-sprite animal-right ${!isLeftSpeaker ? 'active-speaking' : 'is-listening'}`}
                 animate={{
-                  y: !isLeftSpeaker ? [0, -6, 0] : [0, -2, 0],
-                  scale: !isLeftSpeaker ? 1.2 : 1
+                  y: !isLeftSpeaker ? [0, -5, 0] : [0, -2, 0],
+                  scale: !isLeftSpeaker ? 1.15 : 1
                 }}
                 transition={{
                   y: { repeat: Infinity, duration: 1.8, delay: 0.2, ease: 'easeInOut' },
