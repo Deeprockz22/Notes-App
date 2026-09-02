@@ -1709,7 +1709,7 @@ const Notes = {
         const folderObj = this.folders.find(f => f.id === this.activeFolder) || { name: 'All Notes' };
         if (folderTitle) folderTitle.textContent = folderObj.name;
 
-        // Filter by folder
+        // Filter by folder and search query
         let filteredNotes = this.notes;
         if (this.activeFolder === 'trash') {
             filteredNotes = this.notes.filter(n => n.inTrash);
@@ -1717,6 +1717,13 @@ const Notes = {
             filteredNotes = this.notes.filter(n => !n.inTrash);
         } else {
             filteredNotes = this.notes.filter(n => !n.inTrash && n.folderId === this.activeFolder);
+        }
+
+        if (this.searchQuery) {
+            filteredNotes = filteredNotes.filter(note =>
+                (note.title || '').toLowerCase().includes(this.searchQuery) ||
+                this.getTextContent(note.content).toLowerCase().includes(this.searchQuery)
+            );
         }
 
         // Sort: pinned first, then updated date
@@ -2547,6 +2554,106 @@ const DinoRun = {
 };
 
 // ===================================
+// REACT BITS CREATIVE UI EFFECTS
+// ===================================
+const ReactBitsEffects = {
+    init() {
+        this.initSpotlight();
+        this.initDecryptText();
+        this.initAuroraCanvas();
+    },
+
+    initSpotlight() {
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.note-card, .task-item, .stat-item, .timer-display, .btn');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+                card.classList.add('spotlight-card');
+            });
+        });
+    },
+
+    initDecryptText() {
+        const chars = '!@#$%^&*()_+-=[]{}|;:,.<>?/1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const title = document.querySelector('.app-title');
+
+        if (title) {
+            title.addEventListener('mouseenter', () => {
+                const originalText = "FOCUS";
+                let iteration = 0;
+                const interval = setInterval(() => {
+                    title.childNodes[0].textContent = originalText
+                        .split('')
+                        .map((char, index) => {
+                            if (index < iteration) return originalText[index];
+                            return chars[Math.floor(Math.random() * chars.length)];
+                        })
+                        .join('');
+
+                    if (iteration >= originalText.length) {
+                        clearInterval(interval);
+                    }
+                    iteration += 1 / 3;
+                }, 30);
+            });
+        }
+    },
+
+    initAuroraCanvas() {
+        const canvas = document.getElementById('aurora-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        let step = 0;
+        function draw() {
+            step += 0.01;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const g1 = ctx.createRadialGradient(
+                canvas.width * 0.3 + Math.sin(step) * 100,
+                canvas.height * 0.3 + Math.cos(step) * 100,
+                50,
+                canvas.width * 0.3,
+                canvas.height * 0.3,
+                canvas.width * 0.6
+            );
+            g1.addColorStop(0, 'rgba(6, 182, 212, 0.4)');
+            g1.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+            const g2 = ctx.createRadialGradient(
+                canvas.width * 0.7 + Math.cos(step * 0.8) * 120,
+                canvas.height * 0.7 + Math.sin(step * 0.8) * 120,
+                50,
+                canvas.width * 0.7,
+                canvas.height * 0.7,
+                canvas.width * 0.6
+            );
+            g2.addColorStop(0, 'rgba(236, 72, 153, 0.3)');
+            g2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+            ctx.fillStyle = g1;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = g2;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+};
+
+// ===================================
 // APP INITIALIZATION
 // ===================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -2567,6 +2674,7 @@ document.addEventListener('DOMContentLoaded', () => {
     FocusMusic.init();
     MiniTimer.init();
     DinoRun.init();
+    ReactBitsEffects.init();
 
     // Notification permission is requested from Timer.start(), where there is
     // a real user gesture behind it
