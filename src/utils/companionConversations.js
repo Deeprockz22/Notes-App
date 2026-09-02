@@ -1,7 +1,7 @@
 /**
- * 30-Minute Continuous 2-Companion Conversations
- * Pure 2-role dialogue (A and B): Perfectly bound to whichever two companions are standing in that cluster.
- * Zero outsider companions will ever interrupt!
+ * Hilarious, Laugh-Out-Loud 2-Companion Conversations
+ * Light, witty, goofy, and laugh-out-loud funny regardless of the topic!
+ * Pure 2-role dialogue (A and B): Strictly bound to whichever two companions are standing in that cluster.
  */
 
 export const ANIMAL_CHARACTERS = [
@@ -28,192 +28,182 @@ export const SAGA_TOPICS = {
   planets: {
     id: 'planets',
     title: 'Space & Planets',
-    tag: 'Space & Stars',
+    tag: 'Space Comedy',
     dialogues: [
-      { role: 'A', text: "Did you know Saturn's rings are mostly made of shiny ice chunks?" },
-      { role: 'B', text: "Yep! Some parts are super thin, like a giant sheet of ice floating in space." },
-      { role: 'A', text: "Wait... does that mean we could ice skate on Saturn's rings with tiny skates?!" },
-      { role: 'B', text: "Haha! Only if we pack super warm jackets and hot cocoa!" },
-      { role: 'A', text: "Look at the moon tonight, it looks like a giant glowing pancake." },
-      { role: 'B', text: "Mmm, warm pancakes with syrup. Now I am hungry staring at the moon." },
-      { role: 'A', text: "Did you know Pluto has a giant heart shape on its belly?" },
-      { role: 'B', text: "Yes! It is tiny, but it is super cute and still floats around the sun." },
-      { role: 'A', text: "They say it rains shiny diamonds deep inside Neptune!" },
-      { role: 'B', text: "Diamonds from the sky?! I would bring a giant bucket to catch them!" },
-      { role: 'A', text: "I would rather it rain soft fluffy pillows and warm sunbeams." },
-      { role: 'B', text: "Sunsets on Mars are light blue, not orange like on Earth." },
-      { role: 'A', text: "Blue sunsets sound so pretty! Like a magical fairy tale sky." },
-      { role: 'B', text: "And you can jump three times higher on Mars because gravity is weak." },
-      { role: 'A', text: "Imagine the giant hops we could do! Floating in mid-air!" },
-      { role: 'B', text: "Look at that star twinkling right above us. It feels so peaceful out here." }
+      { role: 'A', text: "If Saturn's rings are made of ice, why hasn't someone opened a cosmic snow-cone stand?!" },
+      { role: 'B', text: "Snow-cones in space?! What flavor? Galactic blueberry?!" },
+      { role: 'A', text: "Yes! With rainbow comet sprinkles on top!" },
+      { role: 'B', text: "Neptune rains diamonds! If one hits you on the head, do you say 'Ouch' or 'Yay, I'm rich'?!" },
+      { role: 'A', text: "I'd say 'Ouch!' first, and then immediately buy ten thousand pizzas!" },
+      { role: 'B', text: "Sunsets on Mars are blue. Mars is basically using an Instagram moody filter 24/7." },
+      { role: 'A', text: "And in Mars gravity, you could jump over a whole school bus!" },
+      { role: 'B', text: "I'd probably jump so high I'd accidentally orbit the moon." },
+      { role: 'A', text: "Are there alien puppies on Jupiter playing fetch with glowing asteroids?" },
+      { role: 'B', text: "Imagine the size of the tennis ball! You'd need a crane to throw it!" },
+      { role: 'A', text: "Pluto was kicked out of the planet club, but it still has a giant heart on its belly." },
+      { role: 'B', text: "Pluto is like: 'You can't sit with us? Fine, I'm cuter than all of you anyway!'" },
+      { role: 'A', text: "If you fell into a black hole, you'd stretch out like a long piece of spaghetti." },
+      { role: 'B', text: "Finally! My lifelong dream of becoming delicious pasta would come true!" }
     ]
   },
 
   ghosts: {
     id: 'ghosts',
     title: 'Ghost Stories & Spooky Fun',
-    tag: 'Spooky Vibes',
+    tag: 'Spooky Goofs',
     dialogues: [
-      { role: 'A', text: "Do you believe in friendly ghosts who just want some cookies?" },
-      { role: 'B', text: "Definitely! Sometimes I stare at empty corners because a ghost is telling me a joke." },
-      { role: 'A', text: "Why is that hallway corner always super cold at night?" },
-      { role: 'B', text: "Maybe a little friendly ghost is sleeping there and forgot a blanket!" },
-      { role: 'A', text: "We should leave a warm cup of cocoa and a cookie for the corner." },
-      { role: 'B', text: "Haha, yes! Best way to make friends with a phantom." },
-      { role: 'A', text: "One time, a book fell off my shelf all by itself!" },
-      { role: 'B', text: "Ooh! Was it a spooky mystery story?!" },
-      { role: 'A', text: "No, it was a cookbook with apple pie recipes!" },
-      { role: 'B', text: "The ghost was hungry and dropped a hint for dessert!" },
-      { role: 'A', text: "Whenever floorboards creak, what do you think it is?" },
-      { role: 'B', text: "Just a happy little ghost doing a silent moonwalk dance." },
-      { role: 'A', text: "I like friendly ghosts. They are like invisible sleepover buddies." },
-      { role: 'B', text: "No need to fear the dark. The night is just resting time for the world." }
+      { role: 'A', text: "If a ghost can walk through walls, why doesn't it fall through the floor?!" },
+      { role: 'B', text: "Wait... whoa. Ghost physics makes absolutely zero sense!" },
+      { role: 'A', text: "Are ghost socks ethereal too? Where do their phantom shoes go?!" },
+      { role: 'B', text: "They probably lose one sock in the ghost dryer like the rest of us." },
+      { role: 'A', text: "That 3 AM hallway cold spot is definitely a ghost standing by the open fridge." },
+      { role: 'B', text: "Just staring at the leftover pasta wondering if 3 AM is too late for carbs." },
+      { role: 'A', text: "If a ghost jumps out and screams 'BOO!', what are you doing?" },
+      { role: 'B', text: "I'm offering it a warm chocolate chip cookie and asking for its Wi-Fi password." },
+      { role: 'A', text: "Do ghosts ever lose their car keys? 'Darn it, where did I leave my phantom keys?!'" },
+      { role: 'B', text: "They don't need cars, they just float and make creepy violin noises." },
+      { role: 'A', text: "Whenever floorboards creak at night, it's just a ghost practicing ballet." },
+      { role: 'B', text: "A phantom doing clumsy pirouettes in the kitchen. 10 out of 10." }
     ]
   },
 
   dreams: {
     id: 'dreams',
     title: 'Crazy Dreams',
-    tag: 'Dreamland',
+    tag: 'Dream Goofs',
     dialogues: [
-      { role: 'A', text: "I had the funniest dream last night! I was flying on a giant warm croissant!" },
-      { role: 'B', text: "Was the sky raining chocolate drizzle?!" },
-      { role: 'A', text: "YES! And every time I got hungry, I took a bite out of my croissant wings!" },
-      { role: 'B', text: "Haha! You definitely went to bed thinking about breakfast snacks." },
-      { role: 'A', text: "What did you dream about last night?" },
-      { role: 'B', text: "I dreamt I had a magical lunchbox that never ran out of delicious treats!" },
-      { role: 'A', text: "Did you ever have that dream where you fly just by flapping your arms?" },
-      { role: 'B', text: "Yes! I floated over the garden and waved hello to all the birds." },
-      { role: 'A', text: "I once dreamt I was hopping on pink clouds like a giant bouncy trampoline." },
-      { role: 'B', text: "Dreams are like little cartoon movies our brains play while we rest." },
-      { role: 'A', text: "I hope tonight we dream of an enchanted picnic under rainbow trees." },
-      { role: 'B', text: "Save a spot on the picnic blanket for me!" }
+      { role: 'A', text: "I dreamt I was giving a serious presidential speech, but my microphone was a carrot." },
+      { role: 'B', text: "Did the audience take you seriously?!" },
+      { role: 'A', text: "No! Fifty rabbits stormed the stage and ate my speech notes!" },
+      { role: 'B', text: "I dreamt my paws were replaced with warm french baguettes." },
+      { role: 'A', text: "Baguette paws?! How did you open doors?!" },
+      { role: 'B', text: "I didn't! Every time I got frustrated, I just took a bite out of my thumb!" },
+      { role: 'A', text: "Did you ever wake up thinking you won ten million dollars, then checked your pocket and found a pretzel?" },
+      { role: 'B', text: "Every single Monday morning. The emotional whiplash is real." },
+      { role: 'A', text: "I had a dream I was flying, but only if I sang silly nursery rhymes out loud." },
+      { role: 'B', text: "Imagine looking out the airplane window and seeing you sing 'Baby Shark' at 30,000 feet!" },
+      { role: 'A', text: "Tonight I'm going to dream about swimming in warm peach iced tea." },
+      { role: 'B', text: "Don't forget to pack a giant straw!" }
     ]
   },
 
   funny: {
     id: 'funny',
-    title: 'Funny Stuff Humans Do',
-    tag: 'Funny Banter',
+    title: 'Human Quirks',
+    tag: 'Human Comedy',
     dialogues: [
-      { role: 'A', text: "Humans are so silly. They tap on tiny glass rectangles all day long." },
-      { role: 'B', text: "Pocket rectangle, desk rectangle, TV rectangle! They love rectangles!" },
-      { role: 'A', text: "And right now, they are looking at us inside their rectangle!" },
-      { role: 'B', text: "Hi human! Remember to relax your shoulders and drink some water!" },
-      { role: 'A', text: "Quick question: Is cereal just cold breakfast soup with crunchy bites?" },
-      { role: 'B', text: "Haha! Calling cereal 'soup' feels so illegal, please don't!" },
-      { role: 'A', text: "If you drop a berry in it, does it become sweet berry soup?" },
-      { role: 'B', text: "If it drops on the floor, you know I am eating it in two seconds!" },
-      { role: 'A', text: "Why do humans drive on parkways, but park on driveways?!" },
-      { role: 'B', text: "Human words are full of funny little upside-down rules." },
-      { role: 'A', text: "And why do people enter elevators and stare quietly at the ceiling?!" },
-      { role: 'B', text: "They are trying not to make eye contact! It is so funny." },
-      { role: 'A', text: "If I was in an elevator with you, I would tell a goofy joke." },
-      { role: 'B', text: "And I would giggle until the elevator reached the top floor!" }
+      { role: 'A', text: "Humans stare at a work rectangle all day, then relax by staring at a tiny phone rectangle!" },
+      { role: 'B', text: "Are rectangles secretly their alien overlords?!" },
+      { role: 'A', text: "Why do humans push TV remote buttons harder when the batteries die?!" },
+      { role: 'B', text: "Like 'Yes, pressing harder will magically summon electricity from my thumb!'" },
+      { role: 'A', text: "And why do they turn down the car radio when looking for a parking spot?!" },
+      { role: 'B', text: "'Turn the music off, I can't see the yellow parking lines with this bass!'" },
+      { role: 'A', text: "Quick debate: If you fold a pizza slice in half, is it an Italian taco?!" },
+      { role: 'B', text: "Don't say that in Italy or you will be banned from the country!" },
+      { role: 'A', text: "Why do people get into elevators and stare straight up like they're in an art gallery?!" },
+      { role: 'B', text: "Anything to avoid having to make three seconds of awkward small talk!" },
+      { role: 'A', text: "If cereal isn't breakfast soup, then explain why you eat it from a bowl with a spoon!" },
+      { role: 'B', text: "Stop! You are breaking the laws of breakfast culinary science!" }
     ]
   },
 
   serious: {
     id: 'serious',
-    title: 'Peace of Mind & Calm',
-    tag: 'Peace of Mind',
+    title: 'Goofy Philosophy',
+    tag: 'Silly Wisdom',
     dialogues: [
-      { role: 'A', text: "You know what is nice? Taking your time and not rushing through the day." },
-      { role: 'B', text: "The slow turtle walks softly, but always gets to the finish line right on time." },
-      { role: 'A', text: "Rest is not something we have to earn. We deserve to rest just to feel peaceful." },
-      { role: 'B', text: "When you sit quietly, your mind becomes as calm and clear as pure water." },
-      { role: 'A', text: "Holding onto worry is like holding a heavy rock. It feels so good to put it down." },
-      { role: 'B', text: "Taking a slow deep breath right now resets your whole mood." },
-      { role: 'A', text: "Big strong trees grow slowly, one quiet leaf at a time." },
-      { role: 'B', text: "So be patient and gentle with yourself today." },
-      { role: 'A', text: "The stars have been shining for millions of years. Today's worries will pass." },
-      { role: 'B', text: "Smile, breathe, and enjoy this quiet moment together." }
+      { role: 'A', text: "I spent an entire hour meditating on the meaning of life today." },
+      { role: 'B', text: "And what grand ancient cosmic secret did you unlock?!" },
+      { role: 'A', text: "The secret is: Take an afternoon nap and eat a warm cookie." },
+      { role: 'B', text: "Socrates and Plato would weep tears of joy at your cookie hypothesis." },
+      { role: 'A', text: "The slow turtle walks softly, but always gets to the buffet before the food is gone." },
+      { role: 'B', text: "Ancient wisdom: Speed doesn't matter if you're headed toward snacks." },
+      { role: 'A', text: "They say worry is like a rocking chair. It gives you something to do, but gets you nowhere!" },
+      { role: 'B', text: "Plus rocking chairs are for old grannies. We should just take a nap on the rug." },
+      { role: 'A', text: "Life is short. Eat the dessert first, ask questions never." },
+      { role: 'B', text: "Now THAT is a philosophy I can get behind 100%." }
     ]
   },
 
   food: {
     id: 'food',
-    title: 'Snacks & Yummy Food',
-    tag: 'Yummy Snacks',
+    title: 'Snack Scandals',
+    tag: 'Snack Drama',
     dialogues: [
-      { role: 'A', text: "The smell of freshly brewed coffee in the morning is pure happiness." },
-      { role: 'B', text: "With warm oat milk, a dash of cinnamon, and a crunchy biscuit on the side!" },
-      { role: 'A', text: "What about a warm bowl of noodles on a cold rainy afternoon?" },
-      { role: 'B', text: "Steaming hot ramen with a soft egg and tasty broth! The best comfort food." },
-      { role: 'A', text: "I could eat an entire cheesy pizza in thirty seconds flat." },
-      { role: 'B', text: "Make sure you save the pizza crust for me, crust is the best part!" },
-      { role: 'A', text: "Warm chocolate chip cookies fresh out of the oven are pure magic." },
-      { role: 'B', text: "With warm, gooey melted chocolate in the center!" },
-      { role: 'A', text: "And crunchy potato chips by the fireplace while watching the rain." },
-      { role: 'B', text: "Food shared with a good friend always tastes ten times better." }
+      { role: 'A', text: "If you eat food standing up in front of the open fridge, calories don't count." },
+      { role: 'B', text: "That is completely fake science, but I respect the hustle." },
+      { role: 'A', text: "Why does food taste 500% better when you steal it from someone else's plate?!" },
+      { role: 'B', text: "Stolen french fries possess mystical flavor enhancements unknown to man." },
+      { role: 'A', text: "If someone leaves the pizza crust on their plate, they should be investigated." },
+      { role: 'B', text: "Agreed! That's literally the breadstick baked into the slice!" },
+      { role: 'A', text: "If you drop a potato chip and pick it up in 4.9 seconds, bacteria are legally not allowed to touch it." },
+      { role: 'B', text: "The 5-second rule is recognized by the United Nations of Snacks!" },
+      { role: 'A', text: "I could eat an entire cheese pizza in under twenty seconds." },
+      { role: 'B', text: "I'll time you with a stopwatch. Ready... set... GO!" }
     ]
   },
 
   space_mysteries: {
     id: 'space_mysteries',
-    title: 'Cosmic Riddles & Starlight',
-    tag: 'Star Riddles',
+    title: 'Cosmic Riddles',
+    tag: 'Space Laughs',
     dialogues: [
-      { role: 'A', text: "Where does starlight go when it travels across the dark night sky?" },
-      { role: 'B', text: "It travels for millions of years until it lands right here in our eyes!" },
-      { role: 'A', text: "So when we look at that star, we are seeing light from ancient times?!" },
-      { role: 'B', text: "Yes! Looking up at the night sky is like looking through a time machine." },
-      { role: 'A', text: "Are there friendly little alien critters on other planets looking back at us?" },
-      { role: 'B', text: "I bet there are! Maybe waving their paws at us right now." },
-      { role: 'A', text: "Shooting stars are actually tiny space pebbles making wish trails." },
-      { role: 'B', text: "Quick, make a wish! I wish for endless sunny days and cozy naps!" },
-      { role: 'A', text: "The universe is big and cozy. We are so lucky to share this little world." },
-      { role: 'B', text: "Right here with you, looking at the stars." }
+      { role: 'A', text: "If aliens came to Earth right now, what's the first thing you'd show them?" },
+      { role: 'B', text: "A warm slice of pepperoni pizza. If they don't like pizza, we send them back!" },
+      { role: 'A', text: "What if alien spaceships run entirely on garlic bread propulsion?!" },
+      { role: 'B', text: "Then sign me up for their space program immediately!" },
+      { role: 'A', text: "When you look at a shooting star, you're supposed to make a wish." },
+      { role: 'B', text: "I wish my water bowl would automatically turn into warm chocolate milk!" },
+      { role: 'A', text: "The universe is expanding faster every second. It's trying to get away from our silly jokes!" },
+      { role: 'B', text: "The galaxies can run, but they can't hide from our top-tier comedy!" }
     ]
   },
 
   ancient: {
     id: 'ancient',
-    title: 'Dinosaurs & Ancient Earth',
-    tag: 'Dino Tales',
+    title: 'Dino Troubles',
+    tag: 'Dino Goofs',
     dialogues: [
-      { role: 'A', text: "Dinosaurs lived on Earth for millions of years with giant fern forests!" },
-      { role: 'B', text: "Did you know birds are actually tiny modern dinosaurs with feathers?" },
-      { role: 'A', text: "That means an owl or a duck is technically related to a T-Rex!" },
-      { role: 'B', text: "Haha! Imagine a T-Rex trying to quack like a duck!" },
-      { role: 'A', text: "Sea turtles have been swimming in the oceans since dinosaur times." },
-      { role: 'B', text: "Turtles have been chilling on sunny beaches for millions of years!" },
-      { role: 'A', text: "And woolly mammoths had giant fluffy coats of fur to stay warm in the snow." },
-      { role: 'B', text: "A giant fluffy elephant! I wish I could give a baby mammoth a warm hug." }
+      { role: 'A', text: "Imagine a T-Rex trying to make its bed with those tiny little arms!" },
+      { role: 'B', text: "'ROARRR! The fitted sheet popped off the corner again!'" },
+      { role: 'A', text: "Or a T-Rex trying to put on a hoodie! It would get stuck over its snout forever!" },
+      { role: 'B', text: "Running around blind bumping into volcanoes! Hilarious!" },
+      { role: 'A', text: "Triceratops had three horns so it could carry three donuts at the same time." },
+      { role: 'B', text: "Glazed, chocolate, and strawberry! The ultimate Mesozoic pastry delivery system." },
+      { role: 'A', text: "Birds are modern dinosaurs. That means pigeons are tiny angry raptors!" },
+      { role: 'B', text: "Next time a pigeon looks at your fries, show some respect to the apex predator!" }
     ]
   },
 
   ocean: {
     id: 'ocean',
-    title: 'Deep Ocean & Glowing Fish',
-    tag: 'Deep Ocean',
+    title: 'Deep Sea Shenanigans',
+    tag: 'Ocean Goofs',
     dialogues: [
-      { role: 'A', text: "The ocean is so deep, there are entire mountain ranges hidden underwater!" },
-      { role: 'B', text: "And gentle sea creatures gliding peacefully along warm ocean currents." },
-      { role: 'A', text: "Down in the deep dark ocean, the fish actually glow with neon blue lights!" },
-      { role: 'B', text: "Like little swimming nightlights in the deep sea abyss." },
-      { role: 'A', text: "Whales sing long beautiful songs that travel across entire oceans." },
-      { role: 'B', text: "I wonder what whales sing about? Probably about how refreshing the water feels." },
-      { role: 'A', text: "The sound of gentle ocean waves rolling on the sand is so calming." },
-      { role: 'B', text: "It washes all the busy thoughts away, leaving only peace." }
+      { role: 'A', text: "Deep sea fish glow in the dark. It's basically an underwater laser rave down there!" },
+      { role: 'B', text: "Do anglerfish ever get tired of having a lamp permanently attached to their forehead?!" },
+      { role: 'A', text: "Imagine trying to take a nap with a 100-watt lightbulb swinging in front of your nose!" },
+      { role: 'B', text: "They need tiny fish sleep masks!" },
+      { role: 'A', text: "Crabs walk sideways because they are always sneakily tiptoeing away from drama." },
+      { role: 'B', text: "'Don't look at me, I'm just scuttling to the seaweed buffet!'" },
+      { role: 'A', text: "Whales sing songs that travel across entire oceans. What are the lyrics?!" },
+      { role: 'B', text: "'Hey Frank... where did you put the krill... over here Frank...'" }
     ]
   },
 
   chill: {
     id: 'chill',
-    title: 'Relax & Cozy Vibes',
-    tag: 'Cozy Relaxation',
+    title: 'Lazy Masterclass',
+    tag: 'Lazy Humor',
     dialogues: [
-      { role: 'A', text: "Take a nice deep breath in... and let all the tension melt away." },
-      { role: 'B', text: "Right now, you don't have to do anything at all. Just relax." },
-      { role: 'A', text: "It feels so good to just sit here with you and watch the clock tick down." },
-      { role: 'B', text: "Like sitting on a warm grassy hill watching the fluffy clouds drift past." },
-      { role: 'A', text: "Soft pillows, warm blankets, and zero rushing around." },
-      { role: 'B', text: "Taking time to rest recharges your heart and brings back your smile." },
-      { role: 'A', text: "I am sending a big warm friendly hug to everyone taking a break right now." },
-      { role: 'B', text: "Let your mind feel light and peaceful, like a floating feather." },
-      { role: 'A', text: "You did great today. Now just enjoy this quiet moment." },
-      { role: 'B', text: "Purrrr... resting together is the best." }
+      { role: 'A', text: "My personal goal for today is to move less than a plastic potted plant." },
+      { role: 'B', text: "A real plant turns toward the sun. That sounds like way too much cardio." },
+      { role: 'A', text: "If someone asks what I accomplished today, I'll say: 'I kept my skeleton upright.'" },
+      { role: 'B', text: "And breathed oxygen without complaining! That deserves a gold medal." },
+      { role: 'A', text: "Bears hibernate for six entire months. Who gave them permission to be that lucky?!" },
+      { role: 'B', text: "Imagine waking up from a nap and it's suddenly April. Pure luxury." },
+      { role: 'A', text: "Relaxing your shoulders right now is scientifically proven to increase happiness by 9000%." },
+      { role: 'B', text: "My shoulders are so relaxed I think I might melt into a warm puddle." }
     ]
   }
 };

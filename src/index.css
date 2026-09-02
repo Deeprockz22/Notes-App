@@ -4000,7 +4000,7 @@ body {
 
 .ambient-status-badge {
   position: absolute;
-  top: 72px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;

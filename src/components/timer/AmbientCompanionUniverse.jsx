@@ -3,34 +3,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/companionConversations';
 
-// 14 simultaneous non-overlapping cluster anchors stationed in the safe perimeter
-// Strict Exclusion Zone: Center 30%-70% width and 20%-80% height is completely clear for the clock and linear bar!
+// 16 simultaneous non-overlapping cluster anchors
+// Strict Exclusion Zone: Center 32%-68% width and 24%-76% height is 100% clear for clock & linear bar!
 const CLUSTER_ANCHORS = [
-  // --- Left Outer Wing (Safe Corridor 2% - 18%) ---
+  // --- Left Outer Wing (Safe Corridor 2% - 14%) ---
   { id: 'c-left-top', top: '7%', left: '2%', topic: 'planets' },
-  { id: 'c-left-upper', top: '26%', left: '3%', topic: 'funny' },
+  { id: 'c-left-upper', top: '26%', left: '2.5%', topic: 'funny' },
   { id: 'c-left-mid', top: '46%', left: '2%', topic: 'dreams' },
-  { id: 'c-left-lower', top: '66%', left: '3%', topic: 'ghosts' },
+  { id: 'c-left-lower', top: '66%', left: '2.5%', topic: 'ghosts' },
   { id: 'c-left-bottom', bottom: '4%', left: '2%', topic: 'ancient' },
 
-  // --- Right Outer Wing (Safe Corridor 82% - 98%) ---
+  // --- Right Outer Wing (Safe Corridor 86% - 98%) ---
   { id: 'c-right-top', top: '7%', right: '2%', topic: 'serious' },
-  { id: 'c-right-upper', top: '26%', right: '3%', topic: 'food' },
+  { id: 'c-right-upper', top: '26%', right: '2.5%', topic: 'food' },
   { id: 'c-right-mid', top: '46%', right: '2%', topic: 'space_mysteries' },
-  { id: 'c-right-lower', top: '66%', right: '3%', topic: 'ocean' },
+  { id: 'c-right-lower', top: '66%', right: '2.5%', topic: 'ocean' },
   { id: 'c-right-bottom', bottom: '4%', right: '2%', topic: 'chill' },
 
-  // --- High Top Flanks (Well above central clock) ---
-  { id: 'c-top-flank-l', top: '5%', left: '17%', topic: 'funny' },
-  { id: 'c-top-flank-r', top: '5%', right: '17%', topic: 'dreams' },
+  // --- Top Gallery Over the Timer (Safe High Elevation at top: 5.5%, well above clock digits) ---
+  { id: 'c-top-wing-l', top: '5.5%', left: '15%', topic: 'funny' },
+  { id: 'c-top-over-l', top: '5.5%', left: '29%', topic: 'food' },
+  { id: 'c-top-over-r', top: '5.5%', right: '29%', topic: 'dreams' },
+  { id: 'c-top-wing-r', top: '5.5%', right: '15%', topic: 'planets' },
 
-  // --- Low Bottom Flanks (Well below central controls) ---
-  { id: 'c-bot-flank-l', bottom: '3%', left: '17%', topic: 'planets' },
-  { id: 'c-bot-flank-r', bottom: '3%', right: '17%', topic: 'food' }
+  // --- Low Bottom Gallery (Safe Low Floor below buttons at bottom: 3.5%) ---
+  { id: 'c-bot-flank-l', bottom: '3.5%', left: '17%', topic: 'space_mysteries' },
+  { id: 'c-bot-flank-r', bottom: '3.5%', right: '17%', topic: 'ghosts' }
 ];
 
 export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
-  // 14 Simultaneous animal clusters: Each cluster has 2 dedicated companions facing each other
+  // 16 Simultaneous animal clusters: Each cluster has 2 dedicated companions facing each other
   const [clusters, setClusters] = useState(() => {
     return CLUSTER_ANCHORS.map((anchor, idx) => {
       const saga = getSagaForTopic(anchor.topic);
@@ -59,7 +61,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
     }));
   });
 
-  // Continuous 30-minute dialogue progression: Step line every 9.5s
+  // Continuous dialogue progression: Step line every 9.5s
   useEffect(() => {
     const interval = setInterval(() => {
       setClusters((prevClusters) => {
@@ -73,7 +75,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
           };
         });
       });
-    }, 9500); // 9.5 seconds per line for relaxing, readable pace
+    }, 9500); // Exactly 9.5 seconds per line for relaxing, hilarious pace
 
     return () => clearInterval(interval);
   }, []);
@@ -136,10 +138,10 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       {/* 🧭 Active Ambient Channel Header */}
       <div className="ambient-status-badge">
         <span className="ambient-pulse-dot" />
-        <span className="ambient-badge-label">ANIMAL UNIVERSE • 14 LIVE CHANNELS</span>
+        <span className="ambient-badge-label">ANIMAL UNIVERSE • 16 LIVE CHANNELS</span>
       </div>
 
-      {/* 🐾 14 Simultaneous Non-Overlapping Animal Conversational Clusters */}
+      {/* 🐾 16 Simultaneous Non-Overlapping Animal Conversational Clusters */}
       {clusters.map((cluster) => {
         const currentDialogue = cluster.saga.dialogues[cluster.turn] || cluster.saga.dialogues[0];
 
