@@ -21,7 +21,12 @@ export const ANIMAL_CHARACTERS = [
   { id: 'dino', name: 'Neo', icon: '🦖', label: 'Dino' },
   { id: 'bear', name: 'Barnaby', icon: '🐻', label: 'Bear' },
   { id: 'duck', name: 'Ducky', icon: '🦆', label: 'Duck' },
-  { id: 'squirrel', name: 'Nutty', icon: '🐿️', label: 'Squirrel' }
+  { id: 'squirrel', name: 'Nutty', icon: '🐿️', label: 'Squirrel' },
+  { id: 'hamster', name: 'Hammy', icon: '🐹', label: 'Hamster' },
+  { id: 'seal', name: 'Snooze', icon: '🦭', label: 'Seal' },
+  { id: 'deer', name: 'Bambi', icon: '🦌', label: 'Deer' },
+  { id: 'chick', name: 'Sunny', icon: '🐥', label: 'Chick' },
+  { id: 'mouse', name: 'Mickey', icon: '🐭', label: 'Mouse' }
 ];
 
 export const SAGA_TOPICS = {
