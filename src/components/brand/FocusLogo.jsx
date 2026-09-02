@@ -1,10 +1,10 @@
 import React from 'react';
 
 /**
- * Minimalist Vector Logo for FOCUS
- * Concept: Geometric continuous focal ring with precision crosshair F glyph
+ * Minimalist Vector Logo for FOCUS (Concept 2: Dual Overlapping Flow Rings)
+ * Represents dual-mode harmony: Pomodoro Deep Work + Brain Dump Cognitive Offloading
  */
-export default function FocusLogo({ size = 28, className = '', strokeWidth = 2.2 }) {
+export default function FocusLogo({ size = 26, className = '', strokeWidth = 2.4 }) {
   return (
     <svg
       width={size}
@@ -15,59 +15,36 @@ export default function FocusLogo({ size = 28, className = '', strokeWidth = 2.2
       className={`focus-brand-logo ${className}`}
       aria-label="FOCUS Logo"
     >
-      {/* Outer Focal Ring */}
+      {/* Top Flow Ring */}
       <circle
         cx="24"
-        cy="24"
-        r="18"
+        cy="17"
+        r="10"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
-        className="logo-outer-ring"
       />
 
-      {/* Precision Inner Crosshair Target */}
+      {/* Bottom Overlapping Flow Ring */}
       <circle
         cx="24"
-        cy="24"
-        r="7"
+        cy="28"
+        r="10"
         stroke="currentColor"
-        strokeWidth={strokeWidth * 0.8}
-        strokeDasharray="2 4"
-        className="logo-inner-ring"
-      />
-
-      {/* Minimalist Stem & Crossbars forming 'F' */}
-      <line
-        x1="18"
-        y1="14"
-        x2="18"
-        y2="34"
-        stroke="currentColor"
-        strokeWidth={strokeWidth * 1.2}
-        strokeLinecap="round"
-      />
-      <line
-        x1="18"
-        y1="16"
-        x2="32"
-        y2="16"
-        stroke="currentColor"
-        strokeWidth={strokeWidth * 1.2}
-        strokeLinecap="round"
-      />
-      <line
-        x1="18"
-        y1="24"
-        x2="28"
-        y2="24"
-        stroke="currentColor"
-        strokeWidth={strokeWidth * 1.2}
+        strokeWidth={strokeWidth}
         strokeLinecap="round"
       />
 
-      {/* Ambient Central Focus Core */}
-      <circle cx="24" cy="24" r="2.2" fill="currentColor" className="logo-center-dot" />
+      {/* Left Modernist Stem */}
+      <line
+        x1="14"
+        y1="17"
+        x2="14"
+        y2="41"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
