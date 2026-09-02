@@ -1,134 +1,125 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Sparkles, RefreshCw, Volume2 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { COMPANIONS } from '../../utils/companionPresets';
 
-const PRODUCTIVITY_DIALOGUES = [
+const SUBTLE_PRODUCTIVITY_CONVERSATIONS = [
   {
-    speaker: '🦉 Archimedes',
-    role: 'Cognitive Scientist',
-    quote: "Working memory can only hold 4 chunks of info. Offload thoughts to your Brain Dump section to free up creative RAM!",
-    tag: 'Neuroscience'
+    speakerA: { icon: '🦖', name: 'Neo' },
+    speakerB: { icon: '🦉', name: 'Archimedes' },
+    lineA: "How do we lock into flow?",
+    lineB: "Eliminate friction. Write the first small sentence."
   },
   {
-    speaker: '🦖 Neo',
-    role: 'Flow Sprint Champion',
-    quote: "Dopamine follows momentum, not motivation. Just focus for the first 2 minutes and the flow state takes over!",
-    tag: 'Flow State'
+    speakerA: { icon: '🐱', name: 'Luna' },
+    speakerB: { icon: '🦉', name: 'Archimedes' },
+    lineA: "Brain feeling overloaded...",
+    lineB: "Offload it to notes. Working memory only holds 4 items."
   },
   {
-    speaker: '🐱 Luna',
-    role: 'Zen Tactician',
-    quote: "The Zeigarnik effect causes mental drag for unfinished tasks. Writing them down closes the open loop in your brain.",
-    tag: 'Task Clarity'
+    speakerA: { icon: '🚀', name: 'Cosmo' },
+    speakerB: { icon: '🦖', name: 'Neo' },
+    lineA: "Distractions incoming at 3 o'clock!",
+    lineB: "Shields up. Monotasking executes 2.5x faster."
   },
   {
-    speaker: '🚀 Cosmo',
-    role: 'Orbit Commander',
-    quote: "Single-tasking executes 2.5x faster than multitasking. Zero context switching means pure lightspeed output.",
-    tag: 'Deep Work'
+    speakerA: { icon: '🤖', name: 'Byte' },
+    speakerB: { icon: '🐱', name: 'Luna' },
+    lineA: "Optimizing neural bandwidth...",
+    lineB: "25-min sprints synchronize with ultradian brain rhythms."
   },
   {
-    speaker: '🤖 Byte',
-    role: 'System Optimizer',
-    quote: "Pomodoro rhythm works because it synchronizes with your brain's natural 25-90 minute ultradian cycles.",
-    tag: 'Rhythm'
+    speakerA: { icon: '🐉', name: 'Pyro' },
+    speakerB: { icon: '🚀', name: 'Cosmo' },
+    lineA: "Ready to burn this backlog?",
+    lineB: "Starting is 80% of the battle. Warp speed ahead!"
   },
   {
-    speaker: '🐉 Pyro',
-    role: 'Momentum Beast',
-    quote: "Guard your deep work hours like a dragon guards gold. Turn off notifications and let nothing interrupt your fire!",
-    tag: 'Protection'
+    speakerA: { icon: '👻', name: 'Spooky' },
+    speakerB: { icon: '🦉', name: 'Archimedes' },
+    lineA: "Fear of starting the hard task?",
+    lineB: "Once you type the first word, fear dissolves."
   },
   {
-    speaker: '👻 Spooky',
-    role: 'Phantom Whisperer',
-    quote: "The fear of starting is an illusion. Once you type the first word, the deadline monster disappears into thin air.",
-    tag: 'Anti-Procrastination'
+    speakerA: { icon: '🦖', name: 'Neo' },
+    speakerB: { icon: '🐱', name: 'Luna' },
+    lineA: "Why write things down?",
+    lineB: "To close open mental loops and stop the Zeigarnik drag."
   }
 ];
 
 export default function ZenLinearCrewScene({
   progress = 0,
   activeCompanionId = 'dino',
-  onSelectCompanion,
-  mode = 'work'
+  onSelectCompanion
 }) {
-  const [dialogueIndex, setDialogueIndex] = useState(0);
-  const [isCheering, setIsCheering] = useState(false);
+  const [convoIndex, setConvoIndex] = useState(0);
+  const [turn, setTurn] = useState(0); // 0 = speaker A, 1 = speaker B
 
-  // Cycle dialogue automatically every 9 seconds
+  // Cycle conversation subtly
   useEffect(() => {
     const interval = setInterval(() => {
-      setDialogueIndex((prev) => (prev + 1) % PRODUCTIVITY_DIALOGUES.length);
-    }, 9000);
+      setTurn((prevTurn) => {
+        if (prevTurn === 0) {
+          return 1;
+        } else {
+          setConvoIndex((prev) => (prev + 1) % SUBTLE_PRODUCTIVITY_CONVERSATIONS.length);
+          return 0;
+        }
+      });
+    }, 4500);
+
     return () => clearInterval(interval);
   }, []);
 
-  const currentDialogue = PRODUCTIVITY_DIALOGUES[dialogueIndex];
+  const currentConvo = SUBTLE_PRODUCTIVITY_CONVERSATIONS[convoIndex];
   const activeCompanion = COMPANIONS.find((c) => c.id === activeCompanionId) || COMPANIONS[0];
 
-  const triggerNextDialogue = (e) => {
-    e?.stopPropagation();
-    setDialogueIndex((prev) => (prev + 1) % PRODUCTIVITY_DIALOGUES.length);
-    setIsCheering(true);
-    setTimeout(() => setIsCheering(false), 600);
+  // Secondary companion peer
+  const partnerCompanion = COMPANIONS.find((c) => c.id !== activeCompanionId) || COMPANIONS[2];
 
-    // Subtle celebration confetti
-    confetti({
-      particleCount: 18,
-      spread: 45,
-      origin: { y: 0.65, x: Math.max(0.2, Math.min(0.8, progress / 100)) },
-      colors: ['#22c55e', '#3b82f6', '#ec4899', '#f59e0b']
+  const speaker = turn === 0
+    ? { icon: activeCompanion.icon, name: activeCompanion.name, text: currentConvo.lineA }
+    : { icon: partnerCompanion.icon, name: partnerCompanion.name, text: currentConvo.lineB };
+
+  const handleNextDialogue = () => {
+    setTurn((prevTurn) => {
+      if (prevTurn === 0) {
+        return 1;
+      } else {
+        setConvoIndex((prev) => (prev + 1) % SUBTLE_PRODUCTIVITY_CONVERSATIONS.length);
+        return 0;
+      }
     });
   };
 
-  // Clamp runner position so sprite stays cleanly inside boundaries
-  const runnerLeftPercent = Math.min(96, Math.max(4, progress));
+  // Clamped position for track traveler
+  const runnerLeft = Math.min(94, Math.max(6, progress));
 
   return (
-    <div className="zen-linear-crew-scene" aria-label="Productivity Characters Scene">
-      {/* 💬 Productivity Dialogue Speech Bubble */}
+    <div className="zen-subtle-scene-container" aria-label="Subtle Companion Dialogue Scene">
+      {/* 💬 Subtle Mini Speech Pill */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={dialogueIndex}
-          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+          key={`${convoIndex}-${turn}`}
+          initial={{ opacity: 0, y: 4, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8, scale: 0.95 }}
-          transition={{ duration: 0.22 }}
-          className="zen-dialogue-bubble"
-          onClick={triggerNextDialogue}
-          title="Click for next productivity tip"
+          exit={{ opacity: 0, y: -4, scale: 0.97 }}
+          transition={{ duration: 0.18 }}
+          className="zen-subtle-bubble"
+          onClick={handleNextDialogue}
+          title="Click to next line"
         >
-          <div className="dialogue-header">
-            <span className="dialogue-speaker">{currentDialogue.speaker}</span>
-            <span className="dialogue-tag">{currentDialogue.tag}</span>
-            <button
-              className="dialogue-refresh-btn"
-              onClick={triggerNextDialogue}
-              aria-label="Next tip"
-            >
-              <RefreshCw size={12} />
-            </button>
-          </div>
-          <p className="dialogue-quote">“{currentDialogue.quote}”</p>
-          <div className="dialogue-pointer" />
+          <span className="bubble-speaker-avatar">{speaker.icon}</span>
+          <span className="bubble-text">{speaker.text}</span>
         </motion.div>
       </AnimatePresence>
 
-      {/* 🏃 Characters Walking on the Linear Track */}
-      <div className="zen-linear-track-wrapper">
-        {/* Milestone Flags */}
-        <div className="track-milestone milestone-25" title="25% - Warming Up">
-          <span>25%</span>
-        </div>
-        <div className="track-milestone milestone-50" title="50% - Halfway Peak Flow">
-          <span>50%</span>
-        </div>
-        <div className="track-milestone milestone-75" title="75% - Final Push">
-          <span>75%</span>
-        </div>
+      {/* 🏃 2 Companions Standing Next to Each Other on the Linear Track */}
+      <div className="zen-subtle-track-stage">
+        {/* Track Milestones */}
+        <div className="track-subtle-tick tick-25" title="25%">25%</div>
+        <div className="track-subtle-tick tick-50" title="50%">50%</div>
+        <div className="track-subtle-tick tick-75" title="75%">75%</div>
 
         {/* Linear Progress Bar */}
         <div className="zen-progress-bar-container">
@@ -138,56 +129,64 @@ export default function ZenLinearCrewScene({
           />
         </div>
 
-        {/* 🦖 Moving Runner Mascot Character on the progress front */}
+        {/* 🦖🦉 Two Companions Standing Side by Side riding the progress */}
         <motion.div
-          className={`zen-runner-mascot ${isCheering ? 'cheering' : ''}`}
-          style={{ left: `${runnerLeftPercent}%` }}
-          animate={{
-            y: [0, -6, 0],
-            rotate: isCheering ? [0, -10, 10, 0] : [0, 2, -2, 0]
-          }}
-          transition={{
-            y: { repeat: Infinity, duration: 1.4, ease: 'easeInOut' },
-            rotate: { repeat: Infinity, duration: 2.2, ease: 'easeInOut' }
-          }}
-          onClick={triggerNextDialogue}
-          title={`${activeCompanion.name} (Click to cheer!)`}
+          className="zen-duo-companions"
+          style={{ left: `${runnerLeft}%` }}
+          onClick={handleNextDialogue}
+          title={`${activeCompanion.name} & ${partnerCompanion.name} having a productivity chat`}
         >
-          <div className="runner-sprite-wrapper">
-            <span className="runner-icon">{activeCompanion.icon}</span>
-            <span className="runner-name-tag">{activeCompanion.name}</span>
-          </div>
+          {/* Companion A */}
+          <motion.div
+            className={`duo-sprite ${turn === 0 ? 'is-talking' : ''}`}
+            animate={{
+              y: [0, -3, 0],
+              scale: turn === 0 ? 1.08 : 1
+            }}
+            transition={{
+              y: { repeat: Infinity, duration: 1.8, ease: 'easeInOut' },
+              scale: { duration: 0.2 }
+            }}
+          >
+            <span className="duo-icon">{activeCompanion.icon}</span>
+            {turn === 0 && <span className="talking-dot" />}
+          </motion.div>
+
+          {/* Companion B (Standing next to Companion A) */}
+          <motion.div
+            className={`duo-sprite ${turn === 1 ? 'is-talking' : ''}`}
+            animate={{
+              y: [0, -3, 0],
+              scale: turn === 1 ? 1.08 : 1
+            }}
+            transition={{
+              y: { repeat: Infinity, duration: 1.8, delay: 0.3, ease: 'easeInOut' },
+              scale: { duration: 0.2 }
+            }}
+          >
+            <span className="duo-icon">{partnerCompanion.icon}</span>
+            {turn === 1 && <span className="talking-dot" />}
+          </motion.div>
         </motion.div>
 
-        {/* 🏁 Goal Line Mascot (Mentor / Goal Post) */}
-        <div
-          className="zen-finish-mascot"
-          title="Goal Finish Line • 100% Flow Victory"
-          onClick={triggerNextDialogue}
-        >
-          <span className="finish-flag">🏁</span>
-          <span className="finish-mentor">🦉</span>
+        {/* Goal Finish Post */}
+        <div className="track-finish-flag" title="100% Finish Goal">
+          <span>🏁</span>
         </div>
       </div>
 
-      {/* 👥 Quick Companion Switcher Crew Bar */}
-      <div className="zen-crew-switcher-row">
-        <span className="crew-label">CREW:</span>
-        <div className="crew-avatars">
-          {COMPANIONS.map((companion) => {
-            const isSelected = companion.id === activeCompanionId;
-            return (
-              <button
-                key={companion.id}
-                onClick={() => onSelectCompanion && onSelectCompanion(companion.id)}
-                className={`crew-avatar-btn ${isSelected ? 'active-crew' : ''}`}
-                title={`Switch runner to ${companion.name}`}
-              >
-                <span>{companion.icon}</span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Subtle Companion Picker Dots */}
+      <div className="zen-subtle-crew-dots">
+        {COMPANIONS.map((c) => (
+          <button
+            key={c.id}
+            className={`subtle-dot-btn ${c.id === activeCompanionId ? 'active' : ''}`}
+            onClick={() => onSelectCompanion && onSelectCompanion(c.id)}
+            title={`Switch to ${c.name}`}
+          >
+            {c.icon}
+          </button>
+        ))}
       </div>
     </div>
   );
