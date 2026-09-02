@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Minimize2, Play, Pause, RotateCcw, Sparkles } from 'lucide-react';
 import MagnetButton from '../react-bits/MagnetButton';
 import ShinyText from '../react-bits/ShinyText';
 import FogSphere from '../react-bits/FogSphere';
-import ZenLinearCrewScene from './ZenLinearCrewScene';
 import AmbientCompanionUniverse from './AmbientCompanionUniverse';
 import FocusLogo from '../brand/FocusLogo';
 
@@ -54,6 +53,10 @@ export default function FullscreenZenMode({
   // Automatically enable Ambient Living Universe for chill mode, or allow toggle
   const [showUniverse, setShowUniverse] = useState(mode === 'chill');
 
+  // Mouse activity tracking for auto-hiding all UI elements except time and bar
+  const [isMouseActive, setIsMouseActive] = useState(true);
+  const mouseTimerRef = useRef(null);
+
   // Background Scene Preset State (persisted)
   const [zenBg, setZenBg] = useState(() => {
     try {
@@ -82,15 +85,52 @@ export default function FullscreenZenMode({
     }
   }, [mode]);
 
+  // Auto-hide UI elements after 2.5 seconds of mouse inactivity
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const wakeUI = () => {
+      setIsMouseActive(true);
+      if (mouseTimerRef.current) {
+        clearTimeout(mouseTimerRef.current);
+      }
+      mouseTimerRef.current = setTimeout(() => {
+        setIsMouseActive(false);
+      }, 2500); // 2.5s idle threshold
+    };
+
+    // Initial wake & schedule hide
+    wakeUI();
+
+    window.addEventListener('mousemove', wakeUI, { passive: true });
+    window.addEventListener('mousedown', wakeUI, { passive: true });
+    window.addEventListener('keydown', wakeUI, { passive: true });
+    window.addEventListener('touchstart', wakeUI, { passive: true });
+
+    return () => {
+      window.removeEventListener('mousemove', wakeUI);
+      window.removeEventListener('mousedown', wakeUI);
+      window.removeEventListener('keydown', wakeUI);
+      window.removeEventListener('touchstart', wakeUI);
+      if (mouseTimerRef.current) clearTimeout(mouseTimerRef.current);
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
       }
+      // Space bar to toggle play/pause
+      if (e.key === ' ' && isOpen && e.target === document.body) {
+        e.preventDefault();
+        if (isRunning) pauseTimer();
+        else startTimer();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, isRunning, pauseTimer, startTimer]);
 
   if (!isOpen) return null;
 
@@ -107,7 +147,7 @@ export default function FullscreenZenMode({
     <div
       className={`fullscreen-zen-overlay zen-bg-${zenBg} mode-${mode} ${
         showUniverse ? 'ambient-universe-active' : ''
-      }`}
+      } ${!isMouseActive ? 'zen-idle' : 'zen-active'}`}
       data-mode={mode}
     >
       {/* 🔮 Volumetric Ray-Marched Fog Sphere (React Bits Component) */}
@@ -132,7 +172,8 @@ export default function FullscreenZenMode({
         <AmbientCompanionUniverse isRunning={isRunning} progress={progress} />
       )}
 
-      <div className="fullscreen-top-bar">
+      {/* Top Bar (Auto-hides on idle) */}
+      <div className="fullscreen-top-bar auto-hide-element">
         <div className="zen-brand">
           <FocusLogo size={22} className="brand-logo-icon" />
           <ShinyText text={mode === 'chill' ? 'CHILL LOUNGE' : 'PHOCUS ZEN'} speed={3} />
@@ -176,8 +217,9 @@ export default function FullscreenZenMode({
         </div>
       </div>
 
+      {/* Center Display: Time Digits & Clean Linear Progress Bar */}
       <div className="fullscreen-center-content">
-        <div className="zen-mode-tag">
+        <div className="zen-mode-tag auto-hide-element">
           {mode === 'chill'
             ? 'RELAX & CHILL • 30 MIN LOUNGE'
             : mode === 'work'
@@ -187,18 +229,30 @@ export default function FullscreenZenMode({
             : 'RESTORATIVE LONG BREAK'}
         </div>
 
-        <div className="zen-digits">{formattedTime}</div>
+        {/* The Time Digits (Always Visible) */}
+        <div
+          className="zen-digits"
+          onClick={isRunning ? pauseTimer : startTimer}
+          title="Click to Pause/Resume"
+        >
+          {formattedTime}
+        </div>
 
-        {/* 🏃 Duo Companions Subtle Conversation on the Linear Bar */}
-        <ZenLinearCrewScene
-          progress={progress}
-          activeCompanionId={companionType}
-          onSelectCompanion={setCompanionType}
-          mode={mode}
-        />
+        {/* ══ Clean Minimalist Linear Progress Bar (No Companions) ══ */}
+        <div className="zen-minimal-bar-container" aria-label="Timer progress">
+          <div className="zen-minimal-bar-track">
+            <div
+              className="zen-minimal-bar-fill"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="zen-minimal-bar-meta auto-hide-element">
+            <span>{Math.round(progress)}% COMPLETED</span>
+          </div>
+        </div>
 
-        {/* Controls */}
-        <div className="zen-controls">
+        {/* Controls: Pause & Reset (Auto-hides on idle, reveals on mouse move) */}
+        <div className="zen-controls auto-hide-element">
           <MagnetButton
             className="btn-action primary zen-main-btn"
             onClick={isRunning ? pauseTimer : startTimer}
