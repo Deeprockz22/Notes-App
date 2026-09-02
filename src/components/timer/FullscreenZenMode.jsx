@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Minimize2, Play, Pause, RotateCcw, Sparkles, Palette } from 'lucide-react';
+import { Minimize2, Play, Pause, RotateCcw, Sparkles } from 'lucide-react';
 import MagnetButton from '../react-bits/MagnetButton';
 import ShinyText from '../react-bits/ShinyText';
 import ZenLinearCrewScene from './ZenLinearCrewScene';
@@ -7,12 +7,12 @@ import AmbientCompanionUniverse from './AmbientCompanionUniverse';
 import FocusLogo from '../brand/FocusLogo';
 
 const ZEN_BG_PRESETS = [
-  { id: 'auto', label: 'Auto Mode', icon: '✨' },
-  { id: 'space', label: 'Cosmic Nebula', icon: '🌌' },
-  { id: 'forest', label: 'Zen Forest', icon: '🌲' },
-  { id: 'sunset', label: 'Sunset Dusk', icon: '🌅' },
-  { id: 'cafe', label: 'Cozy Cafe', icon: '☕' },
-  { id: 'oled', label: 'OLED Black', icon: '🖤' }
+  { id: 'auto', label: 'Auto', icon: '✨' },
+  { id: 'space', label: 'Cosmic', icon: '🌌' },
+  { id: 'forest', label: 'Forest', icon: '🌲' },
+  { id: 'sunset', label: 'Sunset', icon: '🌅' },
+  { id: 'cafe', label: 'Cafe', icon: '☕' },
+  { id: 'oled', label: 'OLED', icon: '🖤' }
 ];
 
 export default function FullscreenZenMode({
@@ -101,32 +101,39 @@ export default function FullscreenZenMode({
         </div>
 
         <div className="zen-top-actions">
-          {/* Background Scene Switcher */}
-          <button
-            className="icon-btn zen-bg-picker-btn"
-            onClick={cycleBackground}
-            title={`Current Scene: ${activeBgObj.label} (Click to switch)`}
-          >
-            <Palette size={15} />
-            <span className="zen-btn-label">{activeBgObj.icon} {activeBgObj.label}</span>
-          </button>
+          {/* Unified Glass Capsule Pill: Auto Background & Universe */}
+          <div className="zen-control-pill-group">
+            {/* Auto / Scene Switcher Button */}
+            <button
+              className={`zen-top-pill-btn zen-bg-picker-btn ${zenBg !== 'auto' ? 'custom-active' : ''}`}
+              onClick={cycleBackground}
+              title={`Background Scene: ${activeBgObj.label} (Click to switch)`}
+            >
+              <span className="zen-btn-icon">{activeBgObj.icon}</span>
+              <span className="zen-btn-label">{activeBgObj.label}</span>
+            </button>
 
-          {/* Ambient Universe Toggle */}
-          <button
-            className={`icon-btn zen-universe-toggle-btn ${showUniverse ? 'active-universe' : ''}`}
-            onClick={() => setShowUniverse((prev) => !prev)}
-            title={showUniverse ? 'Hide Companion Universe' : 'Show 20 Ambient Companion Chats'}
-          >
-            <Sparkles size={16} />
-            <span className="zen-btn-label">Universe</span>
-          </button>
+            <div className="zen-pill-divider" />
 
+            {/* Universe Toggle Button */}
+            <button
+              className={`zen-top-pill-btn zen-universe-toggle-btn ${showUniverse ? 'active-universe' : ''}`}
+              onClick={() => setShowUniverse((prev) => !prev)}
+              title={showUniverse ? 'Hide Companion Universe' : 'Show 20 Ambient Companion Chats'}
+            >
+              <Sparkles size={14} className="zen-sparkle-icon" />
+              <span className="zen-btn-label">Universe</span>
+              {showUniverse && <span className="zen-active-dot" />}
+            </button>
+          </div>
+
+          {/* Close / Minimize Button */}
           <button
             className="icon-btn zen-close-btn"
             onClick={onClose}
             title="Exit Fullscreen (Esc)"
           >
-            <Minimize2 size={20} />
+            <Minimize2 size={18} />
           </button>
         </div>
       </div>

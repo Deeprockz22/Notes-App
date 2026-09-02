@@ -3214,6 +3214,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  position: relative;
+  z-index: 50;
 }
 
 .zen-brand {
@@ -4358,27 +4361,98 @@ body {
   background: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.08) 0%, rgba(56, 189, 248, 0.05) 40%, transparent 70%), var(--bg-primary);
 }
 
-/* Scene Switcher Button */
-.zen-bg-picker-btn {
+/* Unified Glass Control Pill Group: Auto & Universe */
+.zen-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 50;
+}
+
+.zen-control-pill-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  gap: 2px;
+}
+
+.zen-top-pill-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
   border-radius: var(--radius-full);
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.zen-top-pill-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.zen-top-pill-btn.custom-active {
+  color: var(--accent-text);
+  background: var(--accent-primary);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.zen-top-pill-btn.active-universe {
+  color: var(--accent-text);
+  background: var(--accent-primary);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.zen-active-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  margin-left: 2px;
+}
+
+.zen-pill-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--border-subtle);
+  margin: 0 1px;
+}
+
+.zen-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
   cursor: pointer;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   transition: all 0.2s ease;
 }
 
-.zen-bg-picker-btn:hover {
-  border-color: var(--border-active);
+.zen-close-btn:hover {
   color: var(--text-primary);
-  transform: translateY(-1px);
+  border-color: var(--border-active);
+  transform: scale(1.05);
 }
 
 
