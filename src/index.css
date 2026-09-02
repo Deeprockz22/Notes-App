@@ -945,17 +945,134 @@ body {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .icon-btn:hover {
   color: var(--text-primary);
   border-color: var(--border-active);
   background: var(--bg-secondary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.icon-btn:active {
+  transform: translateY(1px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   👾 UIVERSE HEADER BUTTONS 1: 8-Bit Retro Arcade Rocker Buttons
+   ───────────────────────────────────────────────────────────── */
+[data-theme='retro-pixel'] .icon-btn,
+[data-theme='retro-pixel'] .theme-mode-trigger-btn {
+  border-radius: 0px !important;
+  border: 2px solid #ffd700 !important;
+  background: #0e0720 !important;
+  color: #ffd700 !important;
+  box-shadow: 2px 2px 0 #000000 !important;
+  font-family: 'Press Start 2P', monospace;
+}
+
+[data-theme='retro-pixel'] .icon-btn:hover,
+[data-theme='retro-pixel'] .theme-mode-trigger-btn:hover {
+  background: #1a0e38 !important;
+  color: #00ffff !important;
+  border-color: #00ffff !important;
+  box-shadow: 3px 3px 0 #000000, 0 0 10px rgba(0, 255, 255, 0.4) !important;
+  transform: translate(-1px, -1px);
+}
+
+[data-theme='retro-pixel'] .icon-btn:active,
+[data-theme='retro-pixel'] .theme-mode-trigger-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 #000000 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⚡ UIVERSE HEADER BUTTONS 2: Cyberpunk 2077 Visor Chips
+   ───────────────────────────────────────────────────────────── */
+[data-theme='cyberpunk'] .icon-btn,
+[data-theme='cyberpunk'] .theme-mode-trigger-btn {
+  border-radius: 0px !important;
+  background: rgba(18, 18, 28, 0.85) !important;
+  border: 1px solid rgba(0, 240, 255, 0.45) !important;
+  color: #00f0ff !important;
+  box-shadow: 2px 2px 0px rgba(255, 0, 127, 0.35) !important;
+  clip-path: polygon(6px 0%, 100% 0%, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0% 100%, 0% 6px);
+}
+
+[data-theme='cyberpunk'] .icon-btn:hover,
+[data-theme='cyberpunk'] .theme-mode-trigger-btn:hover {
+  background: rgba(0, 240, 255, 0.15) !important;
+  border-color: #00f0ff !important;
+  color: #ffffff !important;
+  box-shadow: 3px 3px 0px #ff007f, 0 0 15px rgba(0, 240, 255, 0.4) !important;
+  transform: translate(-1px, -1px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   🛰️ UIVERSE HEADER BUTTONS 3: NASA / Sci-Fi HUD Terminals
+   ───────────────────────────────────────────────────────────── */
+[data-theme='scifi-hud'] .icon-btn,
+[data-theme='scifi-hud'] .theme-mode-trigger-btn {
+  border-radius: 3px !important;
+  background: rgba(4, 18, 9, 0.9) !important;
+  border: 1px solid rgba(34, 197, 94, 0.4) !important;
+  color: #86efac !important;
+  box-shadow: inset 0 0 8px rgba(34, 197, 94, 0.12) !important;
+}
+
+[data-theme='scifi-hud'] .icon-btn:hover,
+[data-theme='scifi-hud'] .theme-mode-trigger-btn:hover {
+  background: rgba(34, 197, 94, 0.2) !important;
+  border-color: #22c55e !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   🍵 UIVERSE HEADER BUTTONS 4: Ghibli Matcha Soft Leaf Pebbles
+   ───────────────────────────────────────────────────────────── */
+[data-theme='matcha-forest'] .icon-btn,
+[data-theme='matcha-forest'] .theme-mode-trigger-btn {
+  border-radius: 12px 4px 12px 4px !important;
+  background: rgba(20, 48, 29, 0.75) !important;
+  border: 1px solid rgba(74, 222, 128, 0.25) !important;
+  color: #86efac !important;
+}
+
+[data-theme='matcha-forest'] .icon-btn:hover,
+[data-theme='matcha-forest'] .theme-mode-trigger-btn:hover {
+  background: rgba(74, 222, 128, 0.25) !important;
+  border-color: #4ade80 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(5, 46, 22, 0.2);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   💀 UIVERSE HEADER BUTTONS 5: Haunted Gothic Crypt Seals
+   ───────────────────────────────────────────────────────────── */
+[data-theme='haunted'] .icon-btn,
+[data-theme='haunted'] .theme-mode-trigger-btn {
+  border-radius: 6px !important;
+  background: rgba(26, 7, 10, 0.85) !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+  color: #fca5a5 !important;
+}
+
+[data-theme='haunted'] .icon-btn:hover,
+[data-theme='haunted'] .theme-mode-trigger-btn:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
 }
 
 .brand-container {
@@ -3492,11 +3609,62 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 2px;
+}
+
+.task-checkbox:hover {
+  transform: scale(1.15);
+  color: var(--text-primary);
 }
 
 .task-checkbox.checked {
   color: #22c55e;
+}
+
+/* 👾 Retro Pixel Checkbox */
+[data-theme='retro-pixel'] .task-checkbox {
+  color: #ffd700;
+}
+[data-theme='retro-pixel'] .task-checkbox.checked {
+  color: #00ff66;
+  filter: drop-shadow(0 0 6px #00ff66);
+}
+
+/* ⚡ Cyberpunk Neon Checkbox */
+[data-theme='cyberpunk'] .task-checkbox {
+  color: rgba(0, 240, 255, 0.5);
+}
+[data-theme='cyberpunk'] .task-checkbox.checked {
+  color: #00f0ff;
+  filter: drop-shadow(0 0 8px #00f0ff) drop-shadow(0 0 12px #ff007f);
+}
+
+/* 🛰️ Sci-Fi HUD Radar Checkbox */
+[data-theme='scifi-hud'] .task-checkbox {
+  color: rgba(34, 197, 94, 0.4);
+}
+[data-theme='scifi-hud'] .task-checkbox.checked {
+  color: #22c55e;
+  filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6));
+}
+
+/* 🍵 Ghibli Matcha Dewdrop Checkbox */
+[data-theme='matcha-forest'] .task-checkbox {
+  color: rgba(74, 222, 128, 0.4);
+}
+[data-theme='matcha-forest'] .task-checkbox.checked {
+  color: #4ade80;
+  filter: drop-shadow(0 0 6px rgba(74, 222, 128, 0.5));
+}
+
+/* 💀 Haunted Crimson Occult Checkbox */
+[data-theme='haunted'] .task-checkbox {
+  color: rgba(239, 68, 68, 0.4);
+}
+[data-theme='haunted'] .task-checkbox.checked {
+  color: #ef4444;
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.7));
 }
 
 .task-main {
