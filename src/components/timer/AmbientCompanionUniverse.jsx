@@ -3,41 +3,43 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/companionConversations';
 import { fetchDailyTrendingSaga } from '../../utils/trendingTopicsService';
-import { fetchLiveAnimalFact, fetchRandomJoke, fetchWikipediaFact, fetchUselessFact } from '../../utils/publicApisService';
+import {
+  fetchLiveAnimalFact, fetchRandomJoke, fetchWikipediaFact, fetchUselessFact,
+  fetchDadJoke, fetchChuckNorrisFact, fetchTriviaQuestion, fetchAffirmation, fetchZenQuote
+} from '../../utils/publicApisService';
 
 // EXACTLY 20 mathematically collision-free, staggered clusters
 // Strictly clear zone: Entire area under the linear bar and controls is 100% free of conversations!
 const CLUSTER_ANCHORS = [
-  // --- Outer Left Column (5 clusters, left: 2%, along far left wall) ---
-  { id: 'c-l1-1', top: '6%', left: '2%', topic: 'planets' },
-  { id: 'c-l1-2', top: '28%', left: '2%', topic: 'funny', isJokeTarget: true },   // 😂 JOKE ZONE
-  { id: 'c-l1-3', top: '50%', left: '2%', topic: 'cheating_husband' },
-  { id: 'c-l1-4', top: '72%', left: '2%', topic: 'ghosts' },
-  { id: 'c-l1-5', bottom: '3%', left: '2%', topic: 'ancient' },
+  // --- Outer Left Column ---
+  { id: 'c-l1-1', top: '6%',    left: '2%',   topic: 'planets',          isDadJokeTarget: true     }, // 😄 DAD JOKE
+  { id: 'c-l1-2', top: '28%',   left: '2%',   topic: 'funny',            isJokeTarget: true        }, // 😂 JOKE ZONE
+  { id: 'c-l1-3', top: '50%',   left: '2%',   topic: 'cheating_husband' },
+  { id: 'c-l1-4', top: '72%',   left: '2%',   topic: 'ghosts',           isChuckTarget: true       }, // 🥋 CHUCK NORRIS
+  { id: 'c-l1-5', bottom: '3%', left: '2%',   topic: 'ancient' },
 
-  // --- Inner Left Column (4 clusters, left: 17%, staggered to fill space without encroaching center) ---
-  { id: 'c-l2-1', top: '17%', left: '17%', topic: 'cheating_wife' },
-  { id: 'c-l2-2', top: '39%', left: '17%', topic: 'food' },
-  { id: 'c-l2-3', top: '61%', left: '17%', topic: 'dreams' },
-  { id: 'c-l2-4', bottom: '6%', left: '17%', topic: 'space_mysteries' },
+  // --- Inner Left Column ---
+  { id: 'c-l2-1', top: '17%',   left: '17%',  topic: 'cheating_wife',    isAffirmationTarget: true }, // 💬 AFFIRMATION
+  { id: 'c-l2-2', top: '39%',   left: '17%',  topic: 'food' },
+  { id: 'c-l2-3', top: '61%',   left: '17%',  topic: 'dreams' },
+  { id: 'c-l2-4', bottom: '6%', left: '17%',  topic: 'space_mysteries' },
 
-  // --- Top Sky Arc (2 clusters at top: 5%, safely high above clock digits) ---
-  // c-top-trending is the EXCLUSIVE SINGLE live daily trending topic!
-  { id: 'c-top-trending', top: '5%', left: '34%', topic: 'funny', isTrendingTarget: true },
-  { id: 'c-top-drama', top: '5%', right: '34%', topic: 'cheating_husband', isAnimalFactTarget: true },
+  // --- Top Sky Arc ---
+  { id: 'c-top-trending', top: '5%', left: '34%',  topic: 'funny',           isTrendingTarget: true    }, // 🔥 TRENDING
+  { id: 'c-top-drama',    top: '5%', right: '34%', topic: 'cheating_husband', isAnimalFactTarget: true  }, // 🐾 ANIMAL FACT
 
-  // --- Inner Right Column (4 clusters, right: 17%, staggered to fill space without encroaching center) ---
-  { id: 'c-r2-1', top: '17%', right: '17%', topic: 'cheating_husband' },
-  { id: 'c-r2-2', top: '39%', right: '17%', topic: 'space_mysteries', isWikiTarget: true },   // 🌐 WIKIPEDIA
-  { id: 'c-r2-3', top: '61%', right: '17%', topic: 'food' },
-  { id: 'c-r2-4', bottom: '6%', right: '17%', topic: 'ocean' },
+  // --- Inner Right Column ---
+  { id: 'c-r2-1', top: '17%',   right: '17%', topic: 'cheating_husband',  isTriviaTarget: true      }, // 🧠 TRIVIA
+  { id: 'c-r2-2', top: '39%',   right: '17%', topic: 'space_mysteries',   isWikiTarget: true        }, // 🌐 WIKIPEDIA
+  { id: 'c-r2-3', top: '61%',   right: '17%', topic: 'food' },
+  { id: 'c-r2-4', bottom: '6%', right: '17%', topic: 'ocean',             isZenQuoteTarget: true    }, // ☯️ ZEN QUOTE
 
-  // --- Outer Right Column (5 clusters, right: 2%, along far right wall) ---
-  { id: 'c-r1-1', top: '6%', right: '2%', topic: 'serious' },
-  { id: 'c-r1-2', top: '28%', right: '2%', topic: 'cheating_wife', isUselessFactTarget: true },  // 🤔 USELESS FACT
-  { id: 'c-r1-3', top: '50%', right: '2%', topic: 'dreams' },
-  { id: 'c-r1-4', top: '72%', right: '2%', topic: 'chill' },
-  { id: 'c-r1-5', bottom: '3%', right: '2%', topic: 'funny' }
+  // --- Outer Right Column ---
+  { id: 'c-r1-1', top: '6%',    right: '2%',  topic: 'serious' },
+  { id: 'c-r1-2', top: '28%',   right: '2%',  topic: 'cheating_wife',    isUselessFactTarget: true }, // 🤔 USELESS FACT
+  { id: 'c-r1-3', top: '50%',   right: '2%',  topic: 'dreams' },
+  { id: 'c-r1-4', top: '72%',   right: '2%',  topic: 'chill' },
+  { id: 'c-r1-5', bottom: '3%', right: '2%',  topic: 'funny' }
 ];
 
 export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
@@ -185,10 +187,106 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       })
       .catch((err) => console.log('Useless Facts notice:', err));
 
+    // 😄 Dad Joke (icanhazdadjoke → c-l1-1)
+    fetchDadJoke()
+      .then((joke) => {
+        if (!isMounted || !joke) return;
+        const dadSaga = {
+          id: 'live_dad_joke_saga', title: 'Dad Joke Zone', tag: '😄 DAD JOKE',
+          dialogues: [
+            { speaker: 'A', text: "Brace yourself — dad joke incoming!" },
+            { speaker: 'B', text: joke },
+            { speaker: 'A', text: "…I can't believe I laughed at that." },
+            { speaker: 'B', text: "You did. That's the power of the dad joke. 😤" }
+          ]
+        };
+        setClusters((prev) =>
+          prev.map((c) => c.id === 'c-l1-1' ? { ...c, saga: dadSaga, turn: 0 } : c)
+        );
+      })
+      .catch((err) => console.log('Dad joke notice:', err));
+
+    // 🥋 Chuck Norris Fact (api.chucknorris.io → c-l1-4)
+    fetchChuckNorrisFact()
+      .then((fact) => {
+        if (!isMounted || !fact) return;
+        const chuckSaga = {
+          id: 'live_chuck_saga', title: 'Chuck Norris Facts', tag: '🥋 CHUCK NORRIS',
+          dialogues: [
+            { speaker: 'A', text: "Okay, Chuck Norris fact of the day:" },
+            { speaker: 'B', text: fact },
+            { speaker: 'A', text: "…Should we be scared?" },
+            { speaker: 'B', text: "Always. The answer is always yes. 🥋" }
+          ]
+        };
+        setClusters((prev) =>
+          prev.map((c) => c.id === 'c-l1-4' ? { ...c, saga: chuckSaga, turn: 0 } : c)
+        );
+      })
+      .catch((err) => console.log('Chuck Norris notice:', err));
+
+    // 🧠 Trivia Question (opentdb.com → c-r2-1)
+    fetchTriviaQuestion()
+      .then((trivia) => {
+        if (!isMounted || !trivia) return;
+        const triviaSaga = {
+          id: 'live_trivia_saga', title: 'Trivia Challenge', tag: '🧠 TRIVIA',
+          dialogues: [
+            { speaker: 'A', text: `Trivia time! "${trivia.question}"` },
+            { speaker: 'B', text: "Hmm… okay, I give up. What's the answer?" },
+            { speaker: 'A', text: `It's "${trivia.answer}"! 🏆` },
+            { speaker: 'B', text: "I totally knew that. I was just testing you." }
+          ]
+        };
+        setClusters((prev) =>
+          prev.map((c) => c.id === 'c-r2-1' ? { ...c, saga: triviaSaga, turn: 0 } : c)
+        );
+      })
+      .catch((err) => console.log('Trivia notice:', err));
+
+    // 💬 Daily Affirmation (affirmations.dev → c-l2-1)
+    fetchAffirmation()
+      .then((affirmation) => {
+        if (!isMounted || !affirmation) return;
+        const affirmSaga = {
+          id: 'live_affirmation_saga', title: 'Daily Affirmation', tag: '💬 AFFIRMATION',
+          dialogues: [
+            { speaker: 'A', text: "Today's affirmation for both of us:" },
+            { speaker: 'B', text: `"${affirmation}"` },
+            { speaker: 'A', text: "I needed to hear that. Thank you." },
+            { speaker: 'B', text: "You've got this. Now go focus! ✨" }
+          ]
+        };
+        setClusters((prev) =>
+          prev.map((c) => c.id === 'c-l2-1' ? { ...c, saga: affirmSaga, turn: 0 } : c)
+        );
+      })
+      .catch((err) => console.log('Affirmation notice:', err));
+
+    // ☯️ Zen/Philosophical Quote (zenquotes.io → c-r2-4)
+    fetchZenQuote()
+      .then((zenQ) => {
+        if (!isMounted || !zenQ) return;
+        const zenSaga = {
+          id: 'live_zen_quote_saga', title: 'Zen Philosophy', tag: '☯️ ZEN QUOTE',
+          dialogues: [
+            { speaker: 'A', text: `"${zenQ.q}"` },
+            { speaker: 'B', text: `— ${zenQ.a}` },
+            { speaker: 'A', text: "That one actually hit deep. Let that sink in." },
+            { speaker: 'B', text: "Philosophy. It's just high-tier staring into the void. 🌌" }
+          ]
+        };
+        setClusters((prev) =>
+          prev.map((c) => c.id === 'c-r2-4' ? { ...c, saga: zenSaga, turn: 0 } : c)
+        );
+      })
+      .catch((err) => console.log('ZenQuote notice:', err));
+
     return () => {
       isMounted = false;
     };
   }, []);
+
 
 
   // Continuous dialogue progression: Step line every 9.5s
@@ -280,34 +378,54 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
         const isLeftSpeaker = currentDialogue.role === 'A';
         const activeSpeaker = isLeftSpeaker ? cluster.animals[0] : cluster.animals[1];
         const speakerDisplayName = `${activeSpeaker.icon} ${activeSpeaker.name}`;
-        const isLiveTrending = Boolean(cluster.saga.isLiveTrending);
-        const isLiveFact    = Boolean(cluster.isAnimalFactTarget);
-        const isJoke        = Boolean(cluster.isJokeTarget);
-        const isWiki        = Boolean(cluster.isWikiTarget);
-        const isUseless     = Boolean(cluster.isUselessFactTarget);
+        const isLiveTrending  = Boolean(cluster.saga.isLiveTrending);
+        const isLiveFact       = Boolean(cluster.isAnimalFactTarget);
+        const isJoke           = Boolean(cluster.isJokeTarget);
+        const isWiki           = Boolean(cluster.isWikiTarget);
+        const isUseless        = Boolean(cluster.isUselessFactTarget);
+        const isDadJoke        = Boolean(cluster.isDadJokeTarget);
+        const isChuck          = Boolean(cluster.isChuckTarget);
+        const isTrivia         = Boolean(cluster.isTriviaTarget);
+        const isAffirmation    = Boolean(cluster.isAffirmationTarget);
+        const isZenQuote       = Boolean(cluster.isZenQuoteTarget);
 
         // Derive bubble CSS modifier
         const bubbleMod = isLiveTrending ? 'trending-bubble'
-          : isLiveFact  ? 'fact-bubble'
-          : isJoke      ? 'joke-bubble'
-          : isWiki      ? 'wiki-bubble'
-          : isUseless   ? 'useless-bubble'
+          : isLiveFact    ? 'fact-bubble'
+          : isJoke        ? 'joke-bubble'
+          : isWiki        ? 'wiki-bubble'
+          : isUseless     ? 'useless-bubble'
+          : isDadJoke     ? 'dadjoke-bubble'
+          : isChuck       ? 'chuck-bubble'
+          : isTrivia      ? 'trivia-bubble'
+          : isAffirmation ? 'affirm-bubble'
+          : isZenQuote    ? 'zenq-bubble'
           : '';
 
         // Derive tag CSS modifier
         const tagMod = isLiveTrending ? 'trending-tag'
-          : isLiveFact  ? 'fact-tag'
-          : isJoke      ? 'joke-tag'
-          : isWiki      ? 'wiki-tag'
-          : isUseless   ? 'useless-tag'
+          : isLiveFact    ? 'fact-tag'
+          : isJoke        ? 'joke-tag'
+          : isWiki        ? 'wiki-tag'
+          : isUseless     ? 'useless-tag'
+          : isDadJoke     ? 'dadjoke-tag'
+          : isChuck       ? 'chuck-tag'
+          : isTrivia      ? 'trivia-tag'
+          : isAffirmation ? 'affirm-tag'
+          : isZenQuote    ? 'zenq-tag'
           : '';
 
         // Derive center spark emoji
         const sparkEmoji = isLiveTrending ? '🔥'
-          : isLiveFact  ? '🐾'
-          : isJoke      ? '😂'
-          : isWiki      ? '🌐'
-          : isUseless   ? '🤔'
+          : isLiveFact    ? '🐾'
+          : isJoke        ? '😂'
+          : isWiki        ? '🌐'
+          : isUseless     ? '🤔'
+          : isDadJoke     ? '😄'
+          : isChuck       ? '🥋'
+          : isTrivia      ? '🧠'
+          : isAffirmation ? '💬'
+          : isZenQuote    ? '☯️'
           : '💬';
 
         // Derive node CSS modifier

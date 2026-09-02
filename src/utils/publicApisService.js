@@ -1,10 +1,22 @@
 /**
  * 🌐 Zencus Public APIs Service
- * Integrates 4 curated keyless public APIs from public-apis/public-apis:
- * 1. 🧘 Advice Slip API (Daily Zen & Mindfulness Wisdom)
- * 2. 🐾 MeowFacts & Multi-species Trivia (Live Animal Facts)
- * 3. 🌌 NASA Open Image API (Deep Space Cosmic Imagery)
- * 4. 🌧️ Open-Meteo + ipwho.is (Real-time Local Weather & Temperature)
+ * 12 curated keyless public APIs — all Auth: No — from public-apis/public-apis:
+ *
+ * ATMOSPHERE & LIVE FEEDS
+ *  1. 🧘 Advice Slip API       — Daily Zen & Mindfulness Wisdom (Zen quote pill)
+ *  2. 🐾 MeowFacts              — Live Animal Facts (c-top-drama cluster)
+ *  3. 🌌 NASA Open Image API    — Deep Space Cosmic Imagery (Cosmic scene backdrop)
+ *  4. 🌧️ Open-Meteo + ipwho.is — Real-time Local Weather (weather capsule)
+ *
+ * CONVERSATION CLUSTERS
+ *  5. 😂 Official Joke API      — Setup + Punchline jokes (c-l1-2 Joke Zone)
+ *  6. 🌐 Wikipedia Random       — Random article extract (c-r2-2 Wikipedia)
+ *  7. 🤔 Useless Facts          — Bizarre daily facts (c-r1-2 Useless Fact)
+ *  8. 😄 icanhazdadjoke         — Dad jokes one-liner (c-l1-1 Dad Joke)
+ *  9. 🥋 Chuck Norris API       — Chuck Norris facts (c-l1-4 Chuck Norris)
+ * 10. 🧠 Open Trivia DB         — Q&A trivia (c-r1-1 Trivia)
+ * 11. 💬 Affirmations.dev       — Daily affirmations (c-l2-1 Affirmation)
+ * 12. ☯️ ZenQuotes              — Philosophical quotes (c-r2-4 Zen Quote)
  *
  * Fully resilient with localStorage caching and offline fallbacks.
  */
@@ -321,4 +333,193 @@ export async function fetchUselessFact() {
   }
 
   return FALLBACK_USELESS_FACTS[Math.floor(Math.random() * FALLBACK_USELESS_FACTS.length)];
+}
+
+// ─────────────────────────────────────────────────────────────
+// 8. 😄 ICANHAZDADJOKE (icanhazdadjoke.com)
+// One-liner dad jokes — perfect for a groaner reaction
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_DAD_JOKES = [
+  "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+  "Why don't eggs tell jokes? They'd crack each other up.",
+  "I used to hate facial hair, but then it grew on me.",
+  "Why did the bicycle fall over? Because it was two-tired!",
+  "I'm reading a book about anti-gravity. It's impossible to put down."
+];
+
+export async function fetchDadJoke() {
+  const cacheKey = `zencus_dad_joke_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+
+  try {
+    const res = await fetch('https://icanhazdadjoke.com/', {
+      headers: { Accept: 'application/json' }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.joke) {
+        try { localStorage.setItem(cacheKey, JSON.stringify(data.joke)); } catch {}
+        return data.joke;
+      }
+    }
+  } catch (err) {
+    console.warn('[Zencus APIs] Dad Joke fetch failed:', err);
+  }
+  return FALLBACK_DAD_JOKES[Math.floor(Math.random() * FALLBACK_DAD_JOKES.length)];
+}
+
+// ─────────────────────────────────────────────────────────────
+// 9. 🥋 CHUCK NORRIS FACTS (api.chucknorris.io)
+// Legendary Chuck Norris facts — always hilarious
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_CHUCK = [
+  "Chuck Norris counted to infinity — twice.",
+  "Chuck Norris can divide by zero.",
+  "Chuck Norris' keyboard has no escape key — nothing escapes Chuck Norris.",
+  "When Chuck Norris enters a room, he doesn't turn on the lights — he turns off the dark.",
+  "Chuck Norris once parallel parked a train."
+];
+
+export async function fetchChuckNorrisFact() {
+  const cacheKey = `zencus_chuck_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+
+  try {
+    const res = await fetch('https://api.chucknorris.io/jokes/random');
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.value) {
+        try { localStorage.setItem(cacheKey, JSON.stringify(data.value)); } catch {}
+        return data.value;
+      }
+    }
+  } catch (err) {
+    console.warn('[Zencus APIs] Chuck Norris fetch failed:', err);
+  }
+  return FALLBACK_CHUCK[Math.floor(Math.random() * FALLBACK_CHUCK.length)];
+}
+
+// ─────────────────────────────────────────────────────────────
+// 10. 🧠 OPEN TRIVIA DB (opentdb.com)
+// Real trivia Q&A — animals quiz each other!
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_TRIVIA = [
+  { question: "What is the capital of Australia?", answer: "Canberra (not Sydney!)" },
+  { question: "How many sides does a dodecahedron have?", answer: "12 faces!" },
+  { question: "What is the fastest land animal?", answer: "The cheetah — up to 120 km/h!" },
+  { question: "In what year did the Berlin Wall fall?", answer: "1989!" },
+  { question: "What element has the chemical symbol Au?", answer: "Gold!" }
+];
+
+function decodeHtml(text) {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&ldquo;/g, '"')
+    .replace(/&rdquo;/g, '"');
+}
+
+export async function fetchTriviaQuestion() {
+  const cacheKey = `zencus_trivia_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+
+  try {
+    const res = await fetch('https://opentdb.com/api.php?amount=1&type=multiple');
+    if (res.ok) {
+      const data = await res.json();
+      const r = data?.results?.[0];
+      if (r?.question && r?.correct_answer) {
+        const result = {
+          question: decodeHtml(r.question),
+          answer: decodeHtml(r.correct_answer)
+        };
+        try { localStorage.setItem(cacheKey, JSON.stringify(result)); } catch {}
+        return result;
+      }
+    }
+  } catch (err) {
+    console.warn('[Zencus APIs] Open Trivia fetch failed:', err);
+  }
+  return FALLBACK_TRIVIA[Math.floor(Math.random() * FALLBACK_TRIVIA.length)];
+}
+
+// ─────────────────────────────────────────────────────────────
+// 11. 💬 AFFIRMATIONS.DEV (affirmations.dev)
+// Positive daily affirmations for motivation
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_AFFIRMATIONS = [
+  "Small progress is still progress. Keep going!",
+  "You are capable of amazing things.",
+  "Every expert was once a beginner.",
+  "Your focus determines your reality.",
+  "Believe in your ability to figure things out."
+];
+
+export async function fetchAffirmation() {
+  const cacheKey = `zencus_affirmation_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+
+  try {
+    const res = await fetch('https://www.affirmations.dev/');
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.affirmation) {
+        try { localStorage.setItem(cacheKey, JSON.stringify(data.affirmation)); } catch {}
+        return data.affirmation;
+      }
+    }
+  } catch (err) {
+    console.warn('[Zencus APIs] Affirmations fetch failed:', err);
+  }
+  return FALLBACK_AFFIRMATIONS[Math.floor(Math.random() * FALLBACK_AFFIRMATIONS.length)];
+}
+
+// ─────────────────────────────────────────────────────────────
+// 12. ☯️ ZENQUOTES (zenquotes.io)
+// Philosophical & stoic quotes from famous thinkers
+// ─────────────────────────────────────────────────────────────
+const FALLBACK_ZENQUOTES = [
+  { q: "The present moment always will have been.", a: "Alan Watts" },
+  { q: "You have power over your mind, not outside events.", a: "Marcus Aurelius" },
+  { q: "Do not seek to have events happen as you want them to, but instead want them to happen as they do.", a: "Epictetus" },
+  { q: "The obstacle is the way.", a: "Marcus Aurelius" },
+  { q: "Simplicity is the ultimate sophistication.", a: "Leonardo da Vinci" }
+];
+
+export async function fetchZenQuote() {
+  const cacheKey = `zencus_zenquote_${getTodayKey()}`;
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch {}
+
+  try {
+    const res = await fetch('https://zenquotes.io/api/random');
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.[0]?.q) {
+        const result = { q: data[0].q, a: data[0].a };
+        try { localStorage.setItem(cacheKey, JSON.stringify(result)); } catch {}
+        return result;
+      }
+    }
+  } catch (err) {
+    console.warn('[Zencus APIs] ZenQuotes fetch failed:', err);
+  }
+  return FALLBACK_ZENQUOTES[Math.floor(Math.random() * FALLBACK_ZENQUOTES.length)];
 }
