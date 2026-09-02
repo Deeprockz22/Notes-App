@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Check, Trash2, Edit2, CheckCircle2, Circle } from 'lucide-react';
+import { Check, Trash2, Edit2 } from 'lucide-react';
 import SpotlightCard from '../react-bits/SpotlightCard';
+import AnimatedPathCheckbox from '../ui/AnimatedPathCheckbox';
 import confetti from 'canvas-confetti';
 
 const PRIORITY_COLORS = {
@@ -14,18 +15,18 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
   const [editTitle, setEditTitle] = useState(task.title);
 
   const handleToggle = (e) => {
-    e.stopPropagation();
+    e?.stopPropagation?.();
     if (!task.completed) {
       // Trigger tiny celebratory confetti burst
       try {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = (rect.left + rect.width / 2) / window.innerWidth;
-        const y = (rect.top + rect.height / 2) / window.innerHeight;
+        const rect = e?.currentTarget?.getBoundingClientRect?.();
+        const x = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5;
+        const y = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.5;
         confetti({
           particleCount: 25,
           spread: 45,
           origin: { x, y },
-          colors: ['#ffffff', '#a1a1aa', '#71717a']
+          colors: ['#22c55e', '#38bdf8', '#a855f7', '#ffd700']
         });
       } catch (err) {
         // Fallback gracefully
@@ -48,17 +49,11 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }) {
       spotlightColor="rgba(255, 255, 255, 0.08)"
     >
       <div className="task-item-content">
-        <button
-          className={`task-checkbox ${task.completed ? 'checked' : ''}`}
-          onClick={handleToggle}
-          aria-label={task.completed ? 'Mark task incomplete' : 'Mark task complete'}
-        >
-          {task.completed ? (
-            <CheckCircle2 size={20} className="check-icon-active" />
-          ) : (
-            <Circle size={20} className="check-icon-empty" />
-          )}
-        </button>
+        <AnimatedPathCheckbox
+          checked={task.completed}
+          onChange={(newChecked) => handleToggle()}
+          size="22px"
+        />
 
         <div className="task-main">
           {isEditing ? (
