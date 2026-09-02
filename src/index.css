@@ -3442,12 +3442,27 @@ body {
   cursor: none;
 }
 
+/* Hide .auto-hide-element in ALL modes on idle */
 .fullscreen-zen-overlay.zen-idle .auto-hide-element,
-.fullscreen-zen-overlay.zen-idle .ambient-universe-stage,
 .fullscreen-zen-overlay.zen-idle .ambient-status-badge {
   opacity: 0 !important;
   pointer-events: none !important;
   transform: translateY(6px);
+}
+
+/* Hide conversation clusters on idle — but NOT during Chill / Relax sessions */
+.fullscreen-zen-overlay.zen-idle:not(.mode-chill) .ambient-universe-stage,
+.fullscreen-zen-overlay.zen-idle:not(.mode-chill) .ambient-cluster-node {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(6px);
+}
+
+/* Chill mode: clusters stay fully visible and interactive even when idle */
+.fullscreen-zen-overlay.zen-idle.mode-chill .ambient-cluster-node {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
 }
 
 .fullscreen-zen-overlay.zen-idle .zen-controls {
