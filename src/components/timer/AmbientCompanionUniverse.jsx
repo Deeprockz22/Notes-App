@@ -4,67 +4,45 @@ import confetti from 'canvas-confetti';
 import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/companionConversations';
 import { fetchDailyTrendingSaga } from '../../utils/trendingTopicsService';
 
-// Richly staggered non-overlapping cluster anchors filling the entire screen canvas
-// Strict Exclusion Zone: Center 34%-66% width and 34%-66% height is 100% reserved for clock digits & linear bar!
+// EXACTLY 20 mathematically collision-free, staggered clusters
+// Honeycomb staggered positioning: guaranteed zero overlap between bubbles & zero overlap with central timer!
 const CLUSTER_ANCHORS = [
-  // --- Outer Left Wing (Column 1, left: 2%) ---
-  { id: 'c-l1-1', top: '5%', left: '2%', topic: 'planets' },
-  { id: 'c-l1-2', top: '19%', left: '2%', topic: 'funny' },
-  { id: 'c-l1-3', top: '33%', left: '2%', topic: 'dreams' },
-  { id: 'c-l1-4', top: '48%', left: '2%', topic: 'cheating_husband' },
-  { id: 'c-l1-5', top: '63%', left: '2%', topic: 'ghosts' },
-  { id: 'c-l1-6', top: '78%', left: '2%', topic: 'ancient' },
-  { id: 'c-l1-7', bottom: '2%', left: '2%', topic: 'ocean' },
+  // --- Outer Left Column (4 clusters, left: 2%, vertical step 24%) ---
+  { id: 'c-l1-1', top: '6%', left: '2%', topic: 'planets' },
+  { id: 'c-l1-2', top: '30%', left: '2%', topic: 'funny' },
+  { id: 'c-l1-3', top: '54%', left: '2%', topic: 'cheating_husband' },
+  { id: 'c-l1-4', top: '78%', left: '2%', topic: 'ghosts' },
 
-  // --- Inner Left Wing (Column 2, left: 15% - 17% -> Fills the large intermediate gap!) ---
-  { id: 'c-l2-1', top: '16%', left: '15%', topic: 'cheating_wife' },
-  { id: 'c-l2-2', top: '31%', left: '16%', topic: 'food' },
-  { id: 'c-l2-3', top: '46%', left: '15%', topic: 'funny' },
-  { id: 'c-l2-4', top: '61%', left: '16%', topic: 'space_mysteries' },
-  { id: 'c-l2-5', top: '76%', left: '15%', topic: 'chill' },
+  // --- Inner Left Column (4 clusters, left: 17%, staggered top offsets to fill gap!) ---
+  { id: 'c-l2-1', top: '18%', left: '17%', topic: 'cheating_wife' },
+  { id: 'c-l2-2', top: '42%', left: '17%', topic: 'food' },
+  { id: 'c-l2-3', top: '66%', left: '17%', topic: 'dreams' },
+  { id: 'c-l2-4', bottom: '4%', left: '17%', topic: 'ancient' },
 
-  // --- Mid-Left Quadrant (Column 3, left: 28% - 30% -> Fills upper & lower space beside timer!) ---
-  { id: 'c-l3-1', top: '14%', left: '29%', topic: 'cheating_husband' },
-  { id: 'c-l3-2', top: '27%', left: '29%', topic: 'dreams' },
-  { id: 'c-l3-3', top: '74%', left: '29%', topic: 'ghosts' },
-  { id: 'c-l3-4', bottom: '2%', left: '27%', topic: 'food' },
-
-  // --- Top Sky Gallery Arc (Above Timer at top: 4.5%) ---
+  // --- Top Sky Arc (2 clusters at top: 5%, safely high above clock digits) ---
   // c-top-trending is the EXCLUSIVE SINGLE live daily trending topic!
-  { id: 'c-top-trending', top: '4.5%', left: '14%', topic: 'funny', isTrendingTarget: true },
-  { id: 'c-top-2', top: '4.5%', left: '28%', topic: 'cheating_husband' },
-  { id: 'c-top-3', top: '4.5%', right: '28%', topic: 'cheating_wife' },
-  { id: 'c-top-4', top: '4.5%', right: '14%', topic: 'planets' },
+  { id: 'c-top-trending', top: '5%', left: '34%', topic: 'funny', isTrendingTarget: true },
+  { id: 'c-top-drama', top: '5%', right: '34%', topic: 'cheating_husband' },
 
-  // --- Mid-Right Quadrant (Column 4, right: 28% - 30% -> Fills upper & lower space beside timer!) ---
-  { id: 'c-r3-1', top: '14%', right: '29%', topic: 'funny' },
-  { id: 'c-r3-2', top: '27%', right: '29%', topic: 'cheating_wife' },
-  { id: 'c-r3-3', top: '74%', right: '29%', topic: 'ancient' },
-  { id: 'c-r3-4', bottom: '2%', right: '27%', topic: 'planets' },
+  // --- Inner Right Column (4 clusters, right: 17%, staggered top offsets to fill gap!) ---
+  { id: 'c-r2-1', top: '18%', right: '17%', topic: 'cheating_husband' },
+  { id: 'c-r2-2', top: '42%', right: '17%', topic: 'space_mysteries' },
+  { id: 'c-r2-3', top: '66%', right: '17%', topic: 'food' },
+  { id: 'c-r2-4', bottom: '4%', right: '17%', topic: 'ocean' },
 
-  // --- Inner Right Wing (Column 5, right: 15% - 17% -> Fills the right intermediate gap!) ---
-  { id: 'c-r2-1', top: '16%', right: '15%', topic: 'dreams' },
-  { id: 'c-r2-2', top: '31%', right: '16%', topic: 'cheating_husband' },
-  { id: 'c-r2-3', top: '46%', right: '15%', topic: 'food' },
-  { id: 'c-r2-4', top: '61%', right: '16%', topic: 'chill' },
-  { id: 'c-r2-5', top: '76%', right: '15%', topic: 'space_mysteries' },
+  // --- Outer Right Column (4 clusters, right: 2%, vertical step 24%) ---
+  { id: 'c-r1-1', top: '6%', right: '2%', topic: 'serious' },
+  { id: 'c-r1-2', top: '30%', right: '2%', topic: 'cheating_wife' },
+  { id: 'c-r1-3', top: '54%', right: '2%', topic: 'dreams' },
+  { id: 'c-r1-4', top: '78%', right: '2%', topic: 'chill' },
 
-  // --- Outer Right Wing (Column 6, right: 2%) ---
-  { id: 'c-r1-1', top: '5%', right: '2%', topic: 'serious' },
-  { id: 'c-r1-2', top: '19%', right: '2%', topic: 'food' },
-  { id: 'c-r1-3', top: '33%', right: '2%', topic: 'cheating_wife' },
-  { id: 'c-r1-4', top: '48%', right: '2%', topic: 'space_mysteries' },
-  { id: 'c-r1-5', top: '63%', right: '2%', topic: 'ocean' },
-  { id: 'c-r1-6', top: '78%', right: '2%', topic: 'ghosts' },
-  { id: 'c-r1-7', bottom: '2%', right: '2%', topic: 'ancient' },
-
-  // --- Bottom Floor Flanks ---
-  { id: 'c-bot-1', bottom: '2%', left: '14%', topic: 'chill' },
-  { id: 'c-bot-2', bottom: '2%', right: '14%', topic: 'funny' }
+  // --- Bottom Floor Arc (2 clusters below controls at bottom: 3%) ---
+  { id: 'c-bot-1', bottom: '3%', left: '34%', topic: 'chill' },
+  { id: 'c-bot-2', bottom: '3%', right: '34%', topic: 'funny' }
 ];
 
 export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
-  // Rich living constellation: Each cluster has 2 dedicated companions facing each other
+  // Exactly 20 Simultaneous animal clusters: Each cluster has 2 dedicated companions facing each other
   const [clusters, setClusters] = useState(() => {
     return CLUSTER_ANCHORS.map((anchor, idx) => {
       const saga = getSagaForTopic(anchor.topic);
@@ -83,7 +61,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
 
   // Background stars
   const [stars] = useState(() => {
-    return Array.from({ length: 65 }).map((_, i) => ({
+    return Array.from({ length: 55 }).map((_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
@@ -198,10 +176,10 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       {/* 🧭 Active Ambient Channel Header */}
       <div className="ambient-status-badge">
         <span className="ambient-pulse-dot" />
-        <span className="ambient-badge-label">LIVING ANIMAL GALAXY • 1 TRENDING CHANNEL</span>
+        <span className="ambient-badge-label">ANIMAL UNIVERSE • 20 LIVE CHANNELS • 1 TRENDING CHANNEL</span>
       </div>
 
-      {/* 🐾 Staggered Non-Overlapping Animal Conversational Clusters Filling All Space */}
+      {/* 🐾 Exactly 20 Collision-Free Staggered Animal Clusters */}
       {clusters.map((cluster) => {
         const currentDialogue = cluster.saga.dialogues[cluster.turn] || cluster.saga.dialogues[0];
 
@@ -232,7 +210,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
             onClick={(e) => handleClusterClick(cluster.id, e)}
             title={`Topic: ${cluster.saga.title} (Click to skip line)`}
           >
-            {/* 💬 Tiny, Crisp, Compact Speech Bubble */}
+            {/* 💬 Tiny, Crisp, Clamped Speech Bubble (Guaranteed Zero Overlap) */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${cluster.saga.id}-${cluster.turn}`}

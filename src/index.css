@@ -4055,7 +4055,7 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-  max-width: 175px;
+  max-width: 160px;
   position: relative;
   text-align: left;
   transition: all 0.2s ease;
@@ -4075,14 +4075,14 @@ body {
 
 .tiny-speaker-name {
   font-family: var(--font-display);
-  font-size: 0.65rem;
+  font-size: 0.64rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .tiny-topic-tag {
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.46rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -4104,10 +4104,15 @@ body {
 }
 
 .tiny-bubble-text {
-  font-size: 0.71rem;
-  line-height: 1.3;
+  font-size: 0.67rem;
+  line-height: 1.25;
   color: var(--text-secondary);
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tiny-bubble-tail {
