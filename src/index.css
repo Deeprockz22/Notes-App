@@ -4786,4 +4786,193 @@ body {
   transform: scale(1.05);
 }
 
+/* ===================================================
+   👾 8-BIT RETRO ARCADE HOME SCREEN SPRITES
+   =================================================== */
+
+.retro-arcade-stage {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1; /* Sits behind main cards, above background */
+  overflow: hidden;
+  user-select: none;
+}
+
+.arcade-sprite-runner {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.arcade-sprite-runner:hover {
+  transform: scale(1.25);
+  filter: drop-shadow(0 0 12px #ffd700);
+}
+
+/* 🚁 Helicopter Rotor Spin & Tail Flicker */
+.pixel-chopper-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.chopper-rotor-blade {
+  position: absolute;
+  top: -2px;
+  left: 6px;
+  width: 38px;
+  height: 2px;
+  background: #f8fafc;
+  transform-origin: center;
+  animation: rotorSpin 0.08s linear infinite;
+}
+
+@keyframes rotorSpin {
+  0% { transform: scaleX(1); opacity: 0.9; }
+  50% { transform: scaleX(0.1); opacity: 0.4; }
+  100% { transform: scaleX(1); opacity: 0.9; }
+}
+
+.chopper-tail-rotor {
+  animation: tailBlink 0.2s ease-in-out infinite alternate;
+}
+
+@keyframes tailBlink {
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
+/* 🟡 Pac-Man Mouth Chomp & Pellets */
+.pixel-pacman-duo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pacman-jaw {
+  transform-origin: 8px 8px;
+  animation: chompJaw 0.22s steps(2) infinite alternate;
+}
+
+@keyframes chompJaw {
+  0% { transform: scale(1); }
+  100% { transform: scale(0); }
+}
+
+.pacman-dot-stream {
+  display: flex;
+  gap: 8px;
+  margin-left: 6px;
+}
+
+.pacman-dot-stream .p-dot {
+  width: 4px;
+  height: 4px;
+  background: #fde047;
+  box-shadow: 0 0 4px #fde047;
+  animation: dotBlink 0.3s steps(2) infinite alternate;
+}
+
+@keyframes dotBlink {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* 🪖 Contra Commando Laser Projectile & Muzzle Flash */
+.contra-commando-container {
+  position: relative;
+  display: inline-block;
+  transform: scaleX(-1); /* Face left as it runs right to left */
+}
+
+.contra-muzzle-flash {
+  animation: muzzleFlash 0.18s steps(2) infinite;
+}
+
+@keyframes muzzleFlash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; fill: #facc15; }
+}
+
+.contra-laser-pellet {
+  position: absolute;
+  top: 17px;
+  right: -25px;
+  width: 14px;
+  height: 3px;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444, 0 0 14px #f59e0b;
+  animation: laserPulse 0.6s linear infinite;
+}
+
+@keyframes laserPulse {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(80px); opacity: 0; }
+}
+
+/* 🦆 Duck Hunt Wing Flap */
+.duck-wing {
+  transform-origin: top center;
+  animation: duckFlap 0.16s steps(2) infinite alternate;
+}
+
+@keyframes duckFlap {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(-0.7) translateY(-3px); }
+}
+
+/* 🐦 Flappy Bird Wing */
+.flappy-wing {
+  transform-origin: top left;
+  animation: birdFlap 0.18s steps(2) infinite alternate;
+}
+
+@keyframes birdFlap {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(-0.8) translateY(-2px); }
+}
+
+/* 🦍 King Kong Arm Pound */
+.kong-arm-left {
+  transform-origin: top center;
+  animation: kongLeftPound 0.4s steps(2) infinite alternate;
+}
+
+.kong-arm-right {
+  transform-origin: top center;
+  animation: kongRightPound 0.4s steps(2) infinite alternate-reverse;
+}
+
+@keyframes kongLeftPound {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(3px); }
+}
+
+@keyframes kongRightPound {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(3px); }
+}
+
+/* 🦖 Dino Running Legs */
+.dino-leg-left {
+  animation: dinoLegA 0.16s steps(2) infinite alternate;
+}
+
+.dino-leg-right {
+  animation: dinoLegB 0.16s steps(2) infinite alternate;
+}
+
+@keyframes dinoLegA {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+
+@keyframes dinoLegB {
+  0% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+
 

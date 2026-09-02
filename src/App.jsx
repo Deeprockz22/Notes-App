@@ -11,6 +11,7 @@ import CompanionPickerModal from './components/companion/CompanionPickerModal';
 import DynamicIslandModesDock from './components/modes/DynamicIslandModesDock';
 import ParticlesBackground from './components/react-bits/ParticlesBackground';
 import ClickSpark from './components/react-bits/ClickSpark';
+import RetroArcadeSprites from './components/ambient/RetroArcadeSprites';
 import { Storage, uid } from './utils/storage';
 import { themedAudio } from './utils/retroAudio';
 import confetti from 'canvas-confetti';
@@ -417,6 +418,9 @@ export default function App() {
         sparkCount={6}
         sparkSize={7}
       />
+
+      {/* 👾 8-Bit Retro Arcade Ambient Pixel Sprites (Only on Home Screen, Not Fullscreen) */}
+      {theme === 'retro-pixel' && !isFullscreen && <RetroArcadeSprites />}
 
       {/* Persistent App Header */}
       <Header
