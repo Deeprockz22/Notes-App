@@ -9,6 +9,8 @@
 [![Vite](https://img.shields.io/badge/Vite-6.0-646cff?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.0-ff0055?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable-purple?style=for-the-badge&logo=pwa&logoColor=white)](https://deeprockz22.github.io/Notes-App/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](CONTRIBUTING.md)
 
 **A gamified, hyper-aesthetic productivity suite fusing Brain Dump organization, Pomodoro flow states, Fullscreen Zen Mode with mouse-idle auto-hide, WebGL Fog Sphere ray-marching shaders, a Living Animal Universe with daily trending topics, and cognitive neuroscience offloading.**
 
@@ -121,6 +123,17 @@ Open [http://localhost:5173](http://localhost:5173) in your browser!
 ```bash
 npm run deploy
 ```
+
+---
+
+## 🤝 Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
+
+- Check out our **[Contributing Guidelines (CONTRIBUTING.md)](CONTRIBUTING.md)** to get started.
+- Have a funny idea for animal dialogue or a new companion? Open a **[Dialogue Proposal](https://github.com/Deeprockz22/Notes-App/issues/new?template=new_dialogue_or_animal.md)**!
+- Found a bug or want to suggest a feature? Submit an **[Issue](https://github.com/Deeprockz22/Notes-App/issues)**!
+- Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**.
 
 ---
 
