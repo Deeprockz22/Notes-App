@@ -476,6 +476,268 @@
 }
 
 /* ===================================
+   SOLID DUAL COLOR THEMES
+   =================================== */
+
+/* 🟦 Solid Dual: Cobalt & Cream */
+[data-theme='cobalt-cream'] {
+  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+
+  --bg-primary: #0a192f;
+  --bg-secondary: #112240;
+  --bg-tertiary: #1d3557;
+  --bg-elevated: rgba(17, 34, 64, 0.9);
+  --bg-glass: rgba(10, 25, 47, 0.85);
+
+  --border-subtle: rgba(251, 247, 238, 0.15);
+  --border-active: rgba(251, 247, 238, 0.4);
+  --border-focus: #fbf7ee;
+
+  --text-primary: #fdfbf7;
+  --text-secondary: #e2ded4;
+  --text-tertiary: #a8b2d1;
+  --text-muted: #64748b;
+
+  --accent-glow: rgba(251, 247, 238, 0.25);
+  --accent-primary: #fbf7ee;
+  --accent-text: #0a192f;
+
+  --badge-high-bg: rgba(239, 68, 68, 0.2);
+  --badge-high-text: #fca5a5;
+  --badge-med-bg: rgba(251, 247, 238, 0.2);
+  --badge-med-text: #fbf7ee;
+  --badge-low-bg: rgba(56, 189, 248, 0.2);
+  --badge-low-text: #7dd3fc;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 25px rgba(251, 247, 238, 0.15);
+}
+
+/* 🟧 Solid Dual: Bauhaus Tangerine & Pitch Ink */
+[data-theme='brutalist-tangerine'] {
+  --font-sans: 'Space Grotesk', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+  --font-display: 'Space Grotesk', sans-serif;
+
+  --bg-primary: #0a0a0c;
+  --bg-secondary: #141418;
+  --bg-tertiary: #1f1f26;
+  --bg-elevated: rgba(20, 20, 24, 0.95);
+  --bg-glass: rgba(10, 10, 12, 0.88);
+
+  --border-subtle: rgba(255, 85, 0, 0.25);
+  --border-active: rgba(255, 85, 0, 0.6);
+  --border-focus: #ff5500;
+
+  --text-primary: #ffffff;
+  --text-secondary: #ffb594;
+  --text-tertiary: #ff854d;
+  --text-muted: #8c360b;
+
+  --accent-glow: rgba(255, 85, 0, 0.4);
+  --accent-primary: #ff5500;
+  --accent-text: #0a0a0c;
+
+  --badge-high-bg: rgba(239, 68, 68, 0.3);
+  --badge-high-text: #ffffff;
+  --badge-med-bg: rgba(255, 85, 0, 0.3);
+  --badge-med-text: #ffb594;
+  --badge-low-bg: rgba(255, 255, 255, 0.15);
+  --badge-low-text: #ffffff;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.85);
+  --shadow-glow: 0 0 25px rgba(255, 85, 0, 0.25);
+}
+
+/* 🌿 Solid Dual: Botanical Olive & Oat Linen */
+[data-theme='sage-linen'] {
+  --font-sans: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+
+  --bg-primary: #151e12;
+  --bg-secondary: #1f2b1b;
+  --bg-tertiary: #2d3d27;
+  --bg-elevated: rgba(31, 43, 27, 0.9);
+  --bg-glass: rgba(21, 30, 18, 0.85);
+
+  --border-subtle: rgba(247, 243, 233, 0.18);
+  --border-active: rgba(247, 243, 233, 0.45);
+  --border-focus: #f7f3e9;
+
+  --text-primary: #fcf9f2;
+  --text-secondary: #ded6c3;
+  --text-tertiary: #b0a894;
+  --text-muted: #6b6659;
+
+  --accent-glow: rgba(247, 243, 233, 0.25);
+  --accent-primary: #f7f3e9;
+  --accent-text: #151e12;
+
+  --badge-high-bg: rgba(220, 38, 38, 0.25);
+  --badge-high-text: #fca5a5;
+  --badge-med-bg: rgba(247, 243, 233, 0.2);
+  --badge-med-text: #fcf9f2;
+  --badge-low-bg: rgba(134, 239, 172, 0.2);
+  --badge-low-text: #bbf7d0;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 25px rgba(247, 243, 233, 0.15);
+}
+
+/* 🔴 Solid Dual: Swiss Scarlet & Charcoal */
+[data-theme='swiss-scarlet'] {
+  --font-sans: 'Inter', 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Inter', sans-serif;
+
+  --bg-primary: #0f1319;
+  --bg-secondary: #171d26;
+  --bg-tertiary: #232c3a;
+  --bg-elevated: rgba(23, 29, 38, 0.92);
+  --bg-glass: rgba(15, 19, 25, 0.85);
+
+  --border-subtle: rgba(225, 29, 72, 0.25);
+  --border-active: rgba(225, 29, 72, 0.55);
+  --border-focus: #e11d48;
+
+  --text-primary: #ffffff;
+  --text-secondary: #fda4af;
+  --text-tertiary: #cbd5e1;
+  --text-muted: #64748b;
+
+  --accent-glow: rgba(225, 29, 72, 0.35);
+  --accent-primary: #e11d48;
+  --accent-text: #ffffff;
+
+  --badge-high-bg: rgba(225, 29, 72, 0.3);
+  --badge-high-text: #ffffff;
+  --badge-med-bg: rgba(251, 146, 60, 0.25);
+  --badge-med-text: #fed7aa;
+  --badge-low-bg: rgba(148, 163, 184, 0.2);
+  --badge-low-text: #e2e8f0;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.75);
+  --shadow-glow: 0 0 25px rgba(225, 29, 72, 0.2);
+}
+
+/* 🟣 Solid Dual: Velvet Royal Plum & Champagne */
+[data-theme='velvet-plum'] {
+  --font-sans: 'Urbanist', 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Urbanist', sans-serif;
+
+  --bg-primary: #170726;
+  --bg-secondary: #240b3c;
+  --bg-tertiary: #351257;
+  --bg-elevated: rgba(36, 11, 60, 0.9);
+  --bg-glass: rgba(23, 7, 38, 0.85);
+
+  --border-subtle: rgba(254, 240, 138, 0.2);
+  --border-active: rgba(254, 240, 138, 0.5);
+  --border-focus: #fef08a;
+
+  --text-primary: #fefce8;
+  --text-secondary: #fef08a;
+  --text-tertiary: #d8b4fe;
+  --text-muted: #7e22ce;
+
+  --accent-glow: rgba(254, 240, 138, 0.35);
+  --accent-primary: #fef08a;
+  --accent-text: #170726;
+
+  --badge-high-bg: rgba(239, 68, 68, 0.25);
+  --badge-high-text: #fca5a5;
+  --badge-med-bg: rgba(254, 240, 138, 0.25);
+  --badge-med-text: #fef08a;
+  --badge-low-bg: rgba(192, 132, 252, 0.25);
+  --badge-low-text: #e9d5ff;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.75);
+  --shadow-glow: 0 0 25px rgba(254, 240, 138, 0.2);
+}
+
+/* 🔷 Solid Dual: International Klein Blue & Chalk */
+[data-theme='klein-chalk'] {
+  --font-sans: 'Space Grotesk', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Space Grotesk', sans-serif;
+
+  --bg-primary: #00227a;
+  --bg-secondary: #002fa7;
+  --bg-tertiary: #003cc2;
+  --bg-elevated: rgba(0, 47, 167, 0.95);
+  --bg-glass: rgba(0, 34, 122, 0.88);
+
+  --border-subtle: rgba(255, 255, 255, 0.2);
+  --border-active: rgba(255, 255, 255, 0.5);
+  --border-focus: #ffffff;
+
+  --text-primary: #ffffff;
+  --text-secondary: #dbeafe;
+  --text-tertiary: #93c5fd;
+  --text-muted: #3b82f6;
+
+  --accent-glow: rgba(255, 255, 255, 0.4);
+  --accent-primary: #ffffff;
+  --accent-text: #002fa7;
+
+  --badge-high-bg: rgba(239, 68, 68, 0.35);
+  --badge-high-text: #ffffff;
+  --badge-med-bg: rgba(254, 240, 138, 0.3);
+  --badge-med-text: #ffffff;
+  --badge-low-bg: rgba(255, 255, 255, 0.25);
+  --badge-low-text: #ffffff;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.65);
+  --shadow-glow: 0 0 25px rgba(255, 255, 255, 0.25);
+}
+
+/* ===================================
    BASE RESET & CRT SCANLINES SHADER
    =================================== */
 * {
@@ -3439,6 +3701,16 @@ body {
 .dynamic-island-scroll-list::-webkit-scrollbar-thumb {
   background: var(--border-subtle);
   border-radius: 4px;
+}
+
+.island-category-label {
+  font-family: var(--font-mono);
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding: 6px 8px 2px 8px;
+  text-transform: uppercase;
 }
 
 .island-mode-item {

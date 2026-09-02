@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { THEME_MODES } from '../../utils/themePresets';
 
 export default function DynamicIslandModesDock({ currentTheme, setTheme }) {
@@ -8,7 +8,11 @@ export default function DynamicIslandModesDock({ currentTheme, setTheme }) {
 
   const activeTheme = THEME_MODES.find((t) => t.id === currentTheme) || THEME_MODES[0];
 
-  // Close when clicking outside (especially useful on mobile)
+  // Group modes by category
+  const solidDualModes = THEME_MODES.filter((m) => m.category === 'solid-dual');
+  const experientialModes = THEME_MODES.filter((m) => m.category === 'experiential');
+
+  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dockRef.current && !dockRef.current.contains(e.target)) {
@@ -18,6 +22,32 @@ export default function DynamicIslandModesDock({ currentTheme, setTheme }) {
     document.addEventListener('pointerdown', handleClickOutside);
     return () => document.removeEventListener('pointerdown', handleClickOutside);
   }, []);
+
+  const renderModeItem = (mode) => {
+    const isActive = currentTheme === mode.id;
+
+    return (
+      <button
+        key={mode.id}
+        onClick={() => {
+          setTheme(mode.id);
+        }}
+        className={`island-mode-item ${isActive ? 'active-mode' : ''}`}
+        aria-selected={isActive}
+      >
+        {isActive && (
+          <motion.div
+            layoutId="activeModeIslandHighlight"
+            className="island-mode-highlight"
+            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+          />
+        )}
+
+        <span className="island-mode-dot" />
+        <span className="island-mode-name">{mode.name}</span>
+      </button>
+    );
+  };
 
   return (
     <div
@@ -63,7 +93,7 @@ export default function DynamicIslandModesDock({ currentTheme, setTheme }) {
             transition={{ duration: 0.18 }}
           >
             <div className="dynamic-island-header">
-              <span className="island-header-title">EXPERIENCE MODES</span>
+              <span className="island-header-title">THEME PALETTES</span>
               <button
                 className="island-close-btn"
                 onClick={(e) => {
@@ -77,31 +107,15 @@ export default function DynamicIslandModesDock({ currentTheme, setTheme }) {
             </div>
 
             <div className="dynamic-island-scroll-list">
-              {THEME_MODES.map((mode) => {
-                const isActive = currentTheme === mode.id;
+              {/* Solid Dual Section */}
+              <div className="island-category-label">SOLID DUAL</div>
+              {solidDualModes.map(renderModeItem)}
 
-                return (
-                  <button
-                    key={mode.id}
-                    onClick={() => {
-                      setTheme(mode.id);
-                    }}
-                    className={`island-mode-item ${isActive ? 'active-mode' : ''}`}
-                    aria-selected={isActive}
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeModeIslandHighlight"
-                        className="island-mode-highlight"
-                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                      />
-                    )}
-
-                    <span className="island-mode-dot" />
-                    <span className="island-mode-name">{mode.name}</span>
-                  </button>
-                );
-              })}
+              {/* Experiential Section */}
+              <div className="island-category-label" style={{ marginTop: '8px' }}>
+                EXPERIENCES
+              </div>
+              {experientialModes.map(renderModeItem)}
             </div>
           </motion.div>
         )}
