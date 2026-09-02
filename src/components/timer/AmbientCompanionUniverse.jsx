@@ -50,11 +50,13 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       // Pair 2 unique animal companions strictly dedicated to this cluster
       const animalA = ANIMAL_CHARACTERS[(idx * 2) % ANIMAL_CHARACTERS.length];
       const animalB = ANIMAL_CHARACTERS[(idx * 2 + 1) % ANIMAL_CHARACTERS.length];
+      const maxPairs = Math.floor(saga.dialogues.length / 2) || 1;
+      const initialTurn = (Math.floor(Math.random() * maxPairs) * 2) % saga.dialogues.length;
 
       return {
         ...anchor,
         saga,
-        turn: 0,
+        turn: initialTurn,
         animals: [animalA, animalB]
       };
     });
