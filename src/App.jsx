@@ -137,9 +137,9 @@ export default function App() {
     const formatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
     if (isRunning) {
-      document.title = `(${formatted}) ${mode === 'work' ? 'Focus' : 'Break'} • phocus`;
+      document.title = `(${formatted}) ${mode === 'work' ? 'Focus' : 'Break'} • Zencus`;
     } else {
-      document.title = 'phocus • Minimalist Productivity Suite';
+      document.title = 'Zencus • Where Zen Meets Focus';
     }
   }, [timeLeft, isRunning, mode]);
 

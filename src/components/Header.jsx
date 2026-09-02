@@ -63,7 +63,7 @@ export default function Header({
       </div>
 
       <div className="header-center">
-        <div className="brand-container symbol-only" title="phocus">
+        <div className="brand-container symbol-only" title="Zencus">
           <FocusLogo size={28} className="brand-logo-icon" />
         </div>
       </div>

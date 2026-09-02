@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ phocus — Ultra-Aesthetic Productivity & Brain Dump Suite
+# ⚡ Zencus — Where Zen Meets Focus
 
 ### *“Your mind is for having ideas, not holding them.”*
 
@@ -12,7 +12,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](CONTRIBUTING.md)
 
-**A gamified, hyper-aesthetic productivity suite fusing Brain Dump organization, Pomodoro flow states, Fullscreen Zen Mode with mouse-idle auto-hide, WebGL Fog Sphere ray-marching shaders, a Living Animal Universe with daily trending topics, and cognitive neuroscience offloading.**
+**Zencus is a gamified, hyper-aesthetic productivity suite fusing Brain Dump organization, Pomodoro flow states, Fullscreen Zen Mode with mouse-idle auto-hide, WebGL Fog Sphere ray-marching shaders, a Living Animal Universe with daily trending topics, and cognitive neuroscience offloading.**
 
 ---
 
@@ -25,7 +25,7 @@
 ## 🌟 Highlights at a Glance
 
 ```
-       ⚡ PHOCUS PRODUCTIVITY ECOSYSTEM
+       ⚡ ZENCUS PRODUCTIVITY ECOSYSTEM
  ├── ⏱️ Flow Engine     -> Pomodoro dials, liquid tanks, mini-pill timer, full-screen Zen mode
  ├── 🔮 WebGL FogSphere -> Volumetric ray-marching shader with mode-adaptive atmospheric auroras
  ├── 🐾 Animal Universe -> 20 collision-free chit-chat clusters with automatic daily trending topics

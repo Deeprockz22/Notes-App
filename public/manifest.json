@@ -1,7 +1,7 @@
 {
-  "name": "phocus • Minimalist Productivity Suite",
-  "short_name": "phocus",
-  "description": "phocus — A minimalist productivity suite combining Pomodoro timer, priority task management, and Brain Dump notes",
+  "name": "Zencus • Where Zen Meets Focus",
+  "short_name": "Zencus",
+  "description": "Zencus — A minimalist Pomodoro flow suite combining Pomodoro timer, priority task management, and Brain Dump notes",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

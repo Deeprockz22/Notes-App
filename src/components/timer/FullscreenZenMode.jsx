@@ -176,7 +176,7 @@ export default function FullscreenZenMode({
       <div className="fullscreen-top-bar auto-hide-element">
         <div className="zen-brand">
           <FocusLogo size={22} className="brand-logo-icon" />
-          <ShinyText text={mode === 'chill' ? 'CHILL LOUNGE' : 'PHOCUS ZEN'} speed={3} />
+          <ShinyText text={mode === 'chill' ? 'CHILL LOUNGE' : 'ZENCUS ZEN'} speed={3} />
         </div>
 
         <div className="zen-top-actions">
