@@ -39,12 +39,12 @@ Setting up Phocus takes less than 2 minutes:
 
 ### Steps
 
-1. **Fork the repository** on GitHub by clicking the **Fork** button at the top right of [Deeprockz22/Notes-App](https://github.com/Deeprockz22/Notes-App).
+1. **Fork the repository** on GitHub by clicking the **Fork** button at the top right of [Deeprockz22/Zencus](https://github.com/Deeprockz22/Zencus).
 
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/Notes-App.git
-   cd Notes-App
+   git clone https://github.com/YOUR_USERNAME/Zencus.git
+   cd Zencus
    ```
 
 3. **Install dependencies**:
@@ -110,7 +110,7 @@ Notes-App/
    ```
 
 5. **Open a Pull Request (PR)**:
-   - Go to the original [Deeprockz22/Notes-App](https://github.com/Deeprockz22/Notes-App) repository on GitHub.
+   - Go to the original [Deeprockz22/Zencus](https://github.com/Deeprockz22/Zencus) repository on GitHub.
    - You'll see a banner prompting you to create a Pull Request from your branch.
    - Describe what you added or fixed, and include a screenshot or GIF if relevant!
 

@@ -4,11 +4,11 @@
 
 ### *“Your mind is for having ideas, not holding them.”*
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-deeprockz22.github.io%2FNotes--App-22c55e?style=for-the-badge&logo=githubpages&logoColor=white)](https://deeprockz22.github.io/Notes-App/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-deeprockz22.github.io%2FZencus-22c55e?style=for-the-badge&logo=githubpages&logoColor=white)](https://deeprockz22.github.io/Zencus/)
 [![React 19](https://img.shields.io/badge/React-19.0-61dafb?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6.0-646cff?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.0-ff0055?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
-[![PWA Ready](https://img.shields.io/badge/PWA-Installable-purple?style=for-the-badge&logo=pwa&logoColor=white)](https://deeprockz22.github.io/Notes-App/)
+[![PWA Ready](https://img.shields.io/badge/PWA-Installable-purple?style=for-the-badge&logo=pwa&logoColor=white)](https://deeprockz22.github.io/Zencus/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](CONTRIBUTING.md)
 
@@ -16,7 +16,7 @@
 
 ---
 
-### 🌐 [**Launch Live Web App → deeprockz22.github.io/Notes-App**](https://deeprockz22.github.io/Notes-App/)
+### 🌐 [**Launch Live Web App → deeprockz22.github.io/Zencus**](https://deeprockz22.github.io/Zencus/)
 
 </div>
 
@@ -105,10 +105,10 @@ Holding unwritten tasks consumes up to **40% of working memory bandwidth** (*Mil
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Deeprockz22/Notes-App.git
+git clone https://github.com/Deeprockz22/Zencus.git
 
 # 2. Navigate to project directory
-cd Notes-App
+cd Zencus
 
 # 3. Install dependencies
 npm install
@@ -131,8 +131,8 @@ npm run deploy
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**!
 
 - Check out our **[Contributing Guidelines (CONTRIBUTING.md)](CONTRIBUTING.md)** to get started.
-- Have a funny idea for animal dialogue or a new companion? Open a **[Dialogue Proposal](https://github.com/Deeprockz22/Notes-App/issues/new?template=new_dialogue_or_animal.md)**!
-- Found a bug or want to suggest a feature? Submit an **[Issue](https://github.com/Deeprockz22/Notes-App/issues)**!
+- Have a funny idea for animal dialogue or a new companion? Open a **[Dialogue Proposal](https://github.com/Deeprockz22/Zencus/issues/new?template=new_dialogue_or_animal.md)**!
+- Found a bug or want to suggest a feature? Submit an **[Issue](https://github.com/Deeprockz22/Zencus/issues)**!
 - Please read our **[Code of Conduct](CODE_OF_CONDUCT.md)**.
 
 ---

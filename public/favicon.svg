@@ -1,9 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
   <rect width="48" height="48" rx="12" fill="#09090b"/>
-  <!-- Top Flow Ring -->
-  <circle cx="24" cy="17" r="9" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
-  <!-- Bottom Overlapping Flow Ring -->
-  <circle cx="24" cy="27" r="9" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
-  <!-- Left Modernist Stem -->
-  <line x1="15" y1="27" x2="15" y2="42" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+  <!-- Outer Zen Ensō Flow Ring -->
+  <circle cx="24" cy="24" r="19" stroke="#38bdf8" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="105 14" opacity="0.85"/>
+  <!-- Modernist Z Track -->
+  <path d="M 16 16.5 H 32 L 16 31.5 H 32" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Central Focus Core Nexus -->
+  <circle cx="24" cy="24" r="4.2" fill="#38bdf8"/>
+  <circle cx="24" cy="24" r="2" fill="#09090b"/>
 </svg>
