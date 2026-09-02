@@ -22,13 +22,13 @@ const CLUSTER_ANCHORS = [
 
   // --- Top Gallery Over the Timer (Safe High Elevation at top: 5.5%, well above clock digits) ---
   { id: 'c-top-wing-l', top: '5.5%', left: '15%', topic: 'funny' },
-  { id: 'c-top-over-l', top: '5.5%', left: '29%', topic: 'food' },
-  { id: 'c-top-over-r', top: '5.5%', right: '29%', topic: 'dreams' },
+  { id: 'c-top-over-l', top: '5.5%', left: '29%', topic: 'cheating_husband' },
+  { id: 'c-top-over-r', top: '5.5%', right: '29%', topic: 'cheating_wife' },
   { id: 'c-top-wing-r', top: '5.5%', right: '15%', topic: 'planets' },
 
   // --- Low Bottom Gallery (Safe Low Floor below buttons at bottom: 3.5%) ---
-  { id: 'c-bot-flank-l', bottom: '3.5%', left: '17%', topic: 'space_mysteries' },
-  { id: 'c-bot-flank-r', bottom: '3.5%', right: '17%', topic: 'ghosts' }
+  { id: 'c-bot-flank-l', bottom: '3.5%', left: '17%', topic: 'cheating_wife' },
+  { id: 'c-bot-flank-r', bottom: '3.5%', right: '17%', topic: 'cheating_husband' }
 ];
 
 export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {

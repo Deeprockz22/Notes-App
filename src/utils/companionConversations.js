@@ -205,6 +205,46 @@ export const SAGA_TOPICS = {
       { role: 'A', text: "Relaxing your shoulders right now is scientifically proven to increase happiness by 9000%." },
       { role: 'B', text: "My shoulders are so relaxed I think I might melt into a warm puddle." }
     ]
+  },
+
+  cheating_husband: {
+    id: 'cheating_husband',
+    title: 'Husband Caught Red-Handed',
+    tag: 'Cheating Drama',
+    dialogues: [
+      { role: 'A', text: "Did you hear about Greg down the street?! His wife caught him cheating on his 'business trip'!" },
+      { role: 'B', text: "No way! How did she catch him?!" },
+      { role: 'A', text: "He said he was at an accounting conference in Chicago, but his location tag was 'Señor Frog's Cabo Beach Party'!" },
+      { role: 'B', text: "Cabo Beach Party?! Was he doing corporate audit spreadsheets in a sombrero?!" },
+      { role: 'A', text: "And he came home with glitter on his collar claiming it was 'dust from the photocopier'!" },
+      { role: 'B', text: "Photocopier glitter with strawberry scent?! Nice try, Greg!" },
+      { role: 'A', text: "And remember when Tom told his wife he was working late, but she caught his reflection texting?!" },
+      { role: 'B', text: "He was texting his 'personal trainer' with thirty heart emojis at midnight!" },
+      { role: 'A', text: "A personal trainer named 'Jessica' who only lifts weights at candlelit Italian restaurants!" },
+      { role: 'B', text: "His wife immediately changed the Netflix password and donated all his golf clubs to Goodwill!" },
+      { role: 'A', text: "Never lie to a suspicious wife with Wi-Fi and an afternoon to spare!" },
+      { role: 'B', text: "She will find your secret credit card and your middle school report card in twelve minutes flat!" }
+    ]
+  },
+
+  cheating_wife: {
+    id: 'cheating_wife',
+    title: 'Wife Secret Affairs & Soap Opera',
+    tag: 'Spouse Drama',
+    dialogues: [
+      { role: 'A', text: "Girl, did you hear about Brenda?! She told her husband she was at hot yoga for four hours!" },
+      { role: 'B', text: "Four hours of hot yoga?! Did she come home sweating?!" },
+      { role: 'A', text: "Zero sweat! She walked through the door with a fresh salon blowout and smelling like expensive French perfume!" },
+      { role: 'B', text: "She claimed it was 'spiritual meditation yoga where only your soul sweats, not your body'!" },
+      { role: 'A', text: "And then her husband checked the Ring doorbell camera footage!" },
+      { role: 'B', text: "What did the Ring camera see?!" },
+      { role: 'A', text: "The handsome tennis instructor dropped her off in a red convertible and blew her a kiss!" },
+      { role: 'B', text: "The tennis instructor?! Brenda doesn't even know how to hold a tennis racket!" },
+      { role: 'A', text: "And what about Linda?! She accidentally texted her husband: 'See you tonight babe, the idiot is watching football'!" },
+      { role: 'B', text: "OH NO! What excuse did she come up with?!" },
+      { role: 'A', text: "She blamed autocorrect! 'Honey, I meant please buy organic 2% milk from the grocery store!'" },
+      { role: 'B', text: "Autocorrect has NEVER turned a grocery list into a scandalous daytime soap opera episode!" }
+    ]
   }
 };
 

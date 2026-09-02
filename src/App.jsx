@@ -183,7 +183,13 @@ export default function App() {
     }
   };
 
-  const startTimer = () => setIsRunning(true);
+  const startTimer = (overrideMode) => {
+    const currentMode = overrideMode || mode;
+    setIsRunning(true);
+    if (currentMode === 'chill') {
+      setIsFullscreen(true);
+    }
+  };
   const pauseTimer = () => setIsRunning(false);
   const resetTimer = () => {
     setIsRunning(false);
