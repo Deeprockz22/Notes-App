@@ -370,7 +370,7 @@ export default function App() {
   };
 
   return (
-    <div className={`app-layout theme-${theme}`}>
+    <div className={`app-layout theme-${theme} mode-${mode}`} data-timer-mode={mode}>
       {/* CRT Scanline Shader Overlay for 8-Bit mode */}
       {theme === 'retro-pixel' && scanlinesEnabled && <div className="crt-scanlines-overlay" />}
 

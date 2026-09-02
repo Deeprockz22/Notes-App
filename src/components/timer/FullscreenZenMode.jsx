@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Minimize2, Play, Pause, RotateCcw, Sparkles, MessageSquare } from 'lucide-react';
+import { Minimize2, Play, Pause, RotateCcw, Sparkles, Palette } from 'lucide-react';
 import MagnetButton from '../react-bits/MagnetButton';
 import ShinyText from '../react-bits/ShinyText';
 import ZenLinearCrewScene from './ZenLinearCrewScene';
 import AmbientCompanionUniverse from './AmbientCompanionUniverse';
 import FocusLogo from '../brand/FocusLogo';
+
+const ZEN_BG_PRESETS = [
+  { id: 'auto', label: 'Auto Mode', icon: '✨' },
+  { id: 'space', label: 'Cosmic Nebula', icon: '🌌' },
+  { id: 'forest', label: 'Zen Forest', icon: '🌲' },
+  { id: 'sunset', label: 'Sunset Dusk', icon: '🌅' },
+  { id: 'cafe', label: 'Cozy Cafe', icon: '☕' },
+  { id: 'oled', label: 'OLED Black', icon: '🖤' }
+];
 
 export default function FullscreenZenMode({
   isOpen,
@@ -22,6 +31,28 @@ export default function FullscreenZenMode({
 }) {
   // Automatically enable Ambient Living Universe for chill mode, or allow toggle
   const [showUniverse, setShowUniverse] = useState(mode === 'chill');
+
+  // Background Scene Preset State (persisted)
+  const [zenBg, setZenBg] = useState(() => {
+    try {
+      return localStorage.getItem('phocus_zen_bg') || 'auto';
+    } catch {
+      return 'auto';
+    }
+  });
+
+  const cycleBackground = () => {
+    setZenBg((current) => {
+      const idx = ZEN_BG_PRESETS.findIndex((p) => p.id === current);
+      const nextPreset = ZEN_BG_PRESETS[(idx + 1) % ZEN_BG_PRESETS.length];
+      try {
+        localStorage.setItem('phocus_zen_bg', nextPreset.id);
+      } catch (e) {
+        // ignore
+      }
+      return nextPreset.id;
+    });
+  };
 
   useEffect(() => {
     if (mode === 'chill') {
@@ -46,9 +77,19 @@ export default function FullscreenZenMode({
   const formattedTime = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   const progress = totalDuration > 0 ? ((totalDuration - timeLeft) / totalDuration) * 100 : 0;
 
+  const activeBgObj = ZEN_BG_PRESETS.find((p) => p.id === zenBg) || ZEN_BG_PRESETS[0];
+
   return (
-    <div className={`fullscreen-zen-overlay ${showUniverse ? 'ambient-universe-active' : ''}`}>
-      {/* 🌌 Ambient Living Companion Universe (Multiple Chit-Chat Clusters) */}
+    <div
+      className={`fullscreen-zen-overlay zen-bg-${zenBg} mode-${mode} ${
+        showUniverse ? 'ambient-universe-active' : ''
+      }`}
+      data-mode={mode}
+    >
+      {/* 🌌 Mode-Adaptive Atmospheric Aurora Glow Effects */}
+      <div className="zen-mode-aurora-layer" />
+
+      {/* 🌌 Ambient Living Companion Universe (20 Staggered Chit-Chat Clusters) */}
       {showUniverse && (
         <AmbientCompanionUniverse isRunning={isRunning} progress={progress} />
       )}
@@ -60,11 +101,21 @@ export default function FullscreenZenMode({
         </div>
 
         <div className="zen-top-actions">
+          {/* Background Scene Switcher */}
+          <button
+            className="icon-btn zen-bg-picker-btn"
+            onClick={cycleBackground}
+            title={`Current Scene: ${activeBgObj.label} (Click to switch)`}
+          >
+            <Palette size={15} />
+            <span className="zen-btn-label">{activeBgObj.icon} {activeBgObj.label}</span>
+          </button>
+
           {/* Ambient Universe Toggle */}
           <button
             className={`icon-btn zen-universe-toggle-btn ${showUniverse ? 'active-universe' : ''}`}
             onClick={() => setShowUniverse((prev) => !prev)}
-            title={showUniverse ? 'Hide Companion Universe' : 'Show 50+ Ambient Companion Chats'}
+            title={showUniverse ? 'Hide Companion Universe' : 'Show 20 Ambient Companion Chats'}
           >
             <Sparkles size={16} />
             <span className="zen-btn-label">Universe</span>
@@ -86,7 +137,9 @@ export default function FullscreenZenMode({
             ? 'RELAX & CHILL • 30 MIN LOUNGE'
             : mode === 'work'
             ? 'DEEP WORK FOCUS'
-            : 'RECHARGE BREAK'}
+            : mode === 'shortBreak'
+            ? 'QUICK REFRESH BREAK'
+            : 'RESTORATIVE LONG BREAK'}
         </div>
 
         <div className="zen-digits">{formattedTime}</div>
