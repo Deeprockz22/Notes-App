@@ -961,33 +961,25 @@ body {
 .brand-container {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: default;
+}
+
+.brand-container.symbol-only {
+  padding: 4px;
 }
 
 .brand-logo-icon {
   color: var(--accent-primary);
   flex-shrink: 0;
-  filter: drop-shadow(0 0 6px var(--accent-glow));
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+  cursor: pointer;
 }
 
 .brand-container:hover .brand-logo-icon {
-  transform: rotate(90deg) scale(1.1);
-}
-
-.brand-title {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  margin: 0;
-}
-
-.brand-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #22c55e;
-  box-shadow: 0 0 10px #22c55e;
+  transform: rotate(90deg) scale(1.18);
 }
 
 /* ===================================

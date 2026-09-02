@@ -8,7 +8,6 @@ import {
   Tv,
   Check
 } from 'lucide-react';
-import ShinyText from './react-bits/ShinyText';
 import MagnetButton from './react-bits/MagnetButton';
 import FocusLogo from './brand/FocusLogo';
 import { THEME_MODES } from '../utils/themePresets';
@@ -64,16 +63,8 @@ export default function Header({
       </div>
 
       <div className="header-center">
-        <div className="brand-container">
-          <FocusLogo size={22} className="brand-logo-icon" />
-          <h1 className="brand-title">
-            <ShinyText
-              text={theme === 'retro-pixel' ? 'FOCUS 8-BIT' : theme === 'haunted' ? 'FOCUS' : 'FOCUS'}
-              speed={2.5}
-              className="brand-shiny"
-            />
-          </h1>
-          <span className="brand-dot"></span>
+        <div className="brand-container symbol-only" title="FOCUS">
+          <FocusLogo size={28} className="brand-logo-icon" />
         </div>
       </div>
 
