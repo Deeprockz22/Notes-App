@@ -1,8 +1,8 @@
 import React from 'react';
 
 /**
- * Minimalist Vector Logo for FOCUS (Concept 2: Dual Overlapping Flow Rings)
- * Represents dual-mode harmony: Pomodoro Deep Work + Brain Dump Cognitive Offloading
+ * Minimalist Vector Logo for FOCUS (Dual Overlapping Flow Rings)
+ * Precise geometric reproduction of the official minimalist brand mark.
  */
 export default function FocusLogo({ size = 26, className = '', strokeWidth = 2.4 }) {
   return (
@@ -19,7 +19,7 @@ export default function FocusLogo({ size = 26, className = '', strokeWidth = 2.4
       <circle
         cx="24"
         cy="17"
-        r="10"
+        r="9"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
@@ -28,8 +28,8 @@ export default function FocusLogo({ size = 26, className = '', strokeWidth = 2.4
       {/* Bottom Overlapping Flow Ring */}
       <circle
         cx="24"
-        cy="28"
-        r="10"
+        cy="27"
+        r="9"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
@@ -37,10 +37,10 @@ export default function FocusLogo({ size = 26, className = '', strokeWidth = 2.4
 
       {/* Left Modernist Stem */}
       <line
-        x1="14"
-        y1="17"
-        x2="14"
-        y2="41"
+        x1="15"
+        y1="27"
+        x2="15"
+        y2="42"
         stroke="currentColor"
         strokeWidth={strokeWidth}
         strokeLinecap="round"
