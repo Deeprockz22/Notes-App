@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { ANIMAL_CHARACTERS, CONVERSATION_SCRIPTS, getRandomScript } from '../../utils/companionConversations';
+import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/companionConversations';
 
-// 10 simultaneous cluster anchors covering the entire perimeter around the central clock
+// 10 simultaneous cluster anchors covering all 10 distinct 30-minute sagas
 const CLUSTER_ANCHORS = [
-  { id: 'c-top-left', top: '12%', left: '6%', topic: 'planets', offset: 0 },
-  { id: 'c-top-mid-left', top: '10%', left: '30%', topic: 'funny', offset: 1200 },
-  { id: 'c-top-mid-right', top: '10%', right: '30%', topic: 'dreams', offset: 2400 },
-  { id: 'c-top-right', top: '12%', right: '6%', topic: 'ghosts', offset: 3600 },
-  { id: 'c-mid-left', top: '44%', left: '5%', topic: 'serious', offset: 4800 },
-  { id: 'c-mid-right', top: '44%', right: '5%', topic: 'food', offset: 6000 },
-  { id: 'c-bottom-left', bottom: '14%', left: '7%', topic: 'chill', offset: 1800 },
-  { id: 'c-bottom-mid-left', bottom: '10%', left: '30%', topic: 'planets', offset: 3000 },
-  { id: 'c-bottom-mid-right', bottom: '10%', right: '30%', topic: 'funny', offset: 4200 },
-  { id: 'c-bottom-right', bottom: '14%', right: '7%', topic: 'dreams', offset: 5400 }
+  { id: 'c-top-left', top: '12%', left: '6%', topic: 'planets' },
+  { id: 'c-top-mid-left', top: '10%', left: '28%', topic: 'funny' },
+  { id: 'c-top-mid-right', top: '10%', right: '28%', topic: 'dreams' },
+  { id: 'c-top-right', top: '12%', right: '6%', topic: 'ghosts' },
+  { id: 'c-mid-left', top: '44%', left: '5%', topic: 'serious' },
+  { id: 'c-mid-right', top: '44%', right: '5%', topic: 'food' },
+  { id: 'c-bottom-left', bottom: '14%', left: '7%', topic: 'chill' },
+  { id: 'c-bottom-mid-left', bottom: '10%', left: '28%', topic: 'space_mysteries' },
+  { id: 'c-bottom-mid-right', bottom: '10%', right: '28%', topic: 'ancient' },
+  { id: 'c-bottom-right', bottom: '14%', right: '7%', topic: 'ocean' }
 ];
 
 export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
-  // 10 Simultaneous animal clusters
+  // 10 Simultaneous animal clusters mapped to their 30-minute sagas
   const [clusters, setClusters] = useState(() => {
     return CLUSTER_ANCHORS.map((anchor, idx) => {
-      const script = getRandomScript(null, anchor.topic);
-      // Pick 2 unique animal companions facing each other
+      const saga = getSagaForTopic(anchor.topic);
+      // Assign two distinctive animals facing each other
       const animalA = ANIMAL_CHARACTERS[(idx * 2) % ANIMAL_CHARACTERS.length];
       const animalB = ANIMAL_CHARACTERS[(idx * 2 + 1) % ANIMAL_CHARACTERS.length];
 
       return {
         ...anchor,
-        script,
+        saga,
         turn: 0,
         animals: [animalA, animalB]
       };
@@ -47,39 +47,29 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
     }));
   });
 
-  // Dialogue timer loop: Step dialogue every 9.5 SECONDS (at least 9 seconds as requested)
+  // Continuous 30-minute dialogue progression: Step line every 9.5s
   useEffect(() => {
     const interval = setInterval(() => {
       setClusters((prevClusters) => {
         return prevClusters.map((cluster) => {
-          const nextTurn = cluster.turn + 1;
+          const totalLines = cluster.saga.dialogues.length;
+          const nextTurn = (cluster.turn + 1) % totalLines;
 
-          // If conversation ended, load new random script and occasionally rotate animal visitor
-          if (nextTurn >= cluster.script.dialogues.length) {
-            const nextScript = getRandomScript(cluster.script.id);
-            const newAnimals = [...cluster.animals];
-
-            // 50% chance another animal visits the cluster
-            if (Math.random() > 0.45) {
-              const visitor = ANIMAL_CHARACTERS[Math.floor(Math.random() * ANIMAL_CHARACTERS.length)];
-              newAnimals[1] = visitor;
-            }
-
-            return {
-              ...cluster,
-              script: nextScript,
-              turn: 0,
-              animals: newAnimals
-            };
+          // Seamless loop or visitor rotation
+          const newAnimals = [...cluster.animals];
+          if (nextTurn === 0 && Math.random() > 0.4) {
+            const visitor = ANIMAL_CHARACTERS[Math.floor(Math.random() * ANIMAL_CHARACTERS.length)];
+            newAnimals[1] = visitor;
           }
 
           return {
             ...cluster,
-            turn: nextTurn
+            turn: nextTurn,
+            animals: newAnimals
           };
         });
       });
-    }, 9500); // Exactly 9.5 seconds per line for relaxing, readable pace
+    }, 9500); // 9.5 seconds per line for calm, readable 30-minute flow
 
     return () => clearInterval(interval);
   }, []);
@@ -89,7 +79,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
     setClusters((prev) =>
       prev.map((c) => {
         if (c.id === clusterId) {
-          const nextTurn = (c.turn + 1) % c.script.dialogues.length;
+          const nextTurn = (c.turn + 1) % c.saga.dialogues.length;
           return { ...c, turn: nextTurn };
         }
         return c;
@@ -142,12 +132,12 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       {/* 🧭 Active Ambient Channel Header */}
       <div className="ambient-status-badge">
         <span className="ambient-pulse-dot" />
-        <span className="ambient-badge-label">ANIMAL LOUNGE • 10 SIMULTANEOUS LIVE CHANNELS</span>
+        <span className="ambient-badge-label">ANIMAL UNIVERSE • 10 LIVE 30-MIN SAGAS</span>
       </div>
 
       {/* 🐾 10 Simultaneous Animal Conversational Clusters */}
       {clusters.map((cluster) => {
-        const currentDialogue = cluster.script.dialogues[cluster.turn] || cluster.script.dialogues[0];
+        const currentDialogue = cluster.saga.dialogues[cluster.turn] || cluster.saga.dialogues[0];
         const speakerName = currentDialogue.speaker;
 
         const posStyle = {
@@ -166,12 +156,12 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
             onClick={(e) => handleClusterClick(cluster.id, e)}
-            title={`Topic: ${cluster.script.title} (Click to skip line)`}
+            title={`Topic: ${cluster.saga.title} (Click to skip line)`}
           >
-            {/* 💬 Tiny, Crisp, Ultra-Readable Speech Bubble (Held for 9.5s) */}
+            {/* 💬 Tiny, Crisp, Ultra-Readable Speech Bubble */}
             <AnimatePresence mode="wait">
               <motion.div
-                key={`${cluster.script.id}-${cluster.turn}`}
+                key={`${cluster.saga.id}-${cluster.turn}`}
                 initial={{ opacity: 0, y: 5, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -5, scale: 0.96 }}
@@ -180,7 +170,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
               >
                 <div className="tiny-bubble-header">
                   <span className="tiny-speaker-name">{speakerName}</span>
-                  <span className="tiny-topic-tag">{cluster.script.topic}</span>
+                  <span className="tiny-topic-tag">{cluster.saga.tag}</span>
                 </div>
                 <p className="tiny-bubble-text">{currentDialogue.text}</p>
                 <div className="tiny-bubble-tail" />
