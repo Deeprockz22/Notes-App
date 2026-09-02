@@ -104,6 +104,7 @@ export default function App() {
     let duration = timerSettings.workDuration * 60;
     if (mode === 'shortBreak') duration = timerSettings.breakDuration * 60;
     if (mode === 'longBreak') duration = timerSettings.longBreakDuration * 60;
+    if (mode === 'chill') duration = (timerSettings.chillDuration || 30) * 60;
 
     setTotalDuration(duration);
     setTimeLeft(duration);

@@ -61,6 +61,8 @@ export default function PomodoroTimer({
         return 'Quick Refresh Break';
       case 'longBreak':
         return 'Restorative Long Break';
+      case 'chill':
+        return 'Relax & Companion Lounge';
       default:
         return 'Focus Session';
     }
@@ -105,6 +107,13 @@ export default function PomodoroTimer({
         >
           <Flame size={15} />
           <span>Long Break</span>
+        </button>
+        <button
+          className={`mode-btn ${mode === 'chill' ? 'active' : ''}`}
+          onClick={() => setMode('chill')}
+        >
+          <Sparkles size={15} />
+          <span>Relax & Chill</span>
         </button>
       </div>
 
