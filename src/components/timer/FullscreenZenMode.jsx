@@ -309,13 +309,6 @@ export default function FullscreenZenMode({
           </div>
         </div>
 
-        {/* 🧘 Daily Zen Mindfulness Wisdom (Advice Slip API) */}
-        {zenAdvice && (
-          <div className="zen-quote-pill auto-hide-element">
-            <span className="zen-quote-spark">✨</span>
-            <span className="zen-quote-text">"{zenAdvice}"</span>
-          </div>
-        )}
 
         {/* Controls: Pause & Reset (Auto-hides on idle, reveals on mouse move) */}
         <div className="zen-controls auto-hide-element">
