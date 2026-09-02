@@ -4035,26 +4035,27 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
   cursor: pointer;
-  max-width: 205px;
+  max-width: 180px;
   z-index: 2;
   transition: transform 0.25s ease;
 }
 
 .ambient-cluster-node:hover {
-  transform: scale(1.04);
+  transform: scale(1.05);
+  z-index: 5;
 }
 
 .ambient-tiny-bubble {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 6px 10px;
+  border-radius: 10px;
+  padding: 5px 8px;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-  max-width: 195px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  max-width: 175px;
   position: relative;
   text-align: left;
   transition: all 0.2s ease;
@@ -4069,24 +4070,24 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .tiny-speaker-name {
   font-family: var(--font-display);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .tiny-topic-tag {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-muted);
   background: var(--border-subtle);
-  padding: 1px 4px;
+  padding: 1px 3px;
   border-radius: var(--radius-full);
 }
 
@@ -4173,17 +4174,17 @@ body {
 }
 
 .sprite-icon {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
 }
 
 .sprite-mini-badge {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.52rem;
   font-weight: 700;
   color: var(--text-muted);
   background: var(--bg-tertiary);
-  padding: 1px 4px;
+  padding: 1px 3px;
   border-radius: var(--radius-full);
 }
 
