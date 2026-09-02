@@ -1,2 +1,5 @@
 # ShipStudio metadata
 .shipstudio/
+node_modules/
+dist/
+.DS_Store
