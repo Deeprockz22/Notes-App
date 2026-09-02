@@ -2007,41 +2007,284 @@ body {
 .btn-action {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 26px;
   border-radius: var(--radius-full);
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
 }
 
 .btn-action.primary {
   background: var(--accent-primary);
   color: var(--accent-text);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  border: 1px solid transparent;
 }
 
 .btn-action.primary:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
+  opacity: 0.95;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), 0 0 25px var(--accent-glow);
+}
+
+.btn-action.primary:active {
+  transform: translateY(1px);
 }
 
 .btn-action.primary.btn-running {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-active);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
 }
 
 .btn-action.secondary {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .btn-action.secondary:hover {
   color: var(--text-primary);
   border-color: var(--border-active);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-action.secondary:active {
+  transform: translateY(1px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   👾 UIVERSE THEME 1: 8-Bit Retro Arcade 3D Push Button
+   ───────────────────────────────────────────────────────────── */
+[data-theme='retro-pixel'] .btn-action {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+  border-radius: 0px !important;
+  text-transform: uppercase;
+  padding: 14px 22px;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+[data-theme='retro-pixel'] .btn-action.primary {
+  background: #ffd700;
+  color: #0e0720;
+  border: 3px solid #ffffff;
+  box-shadow: 0 6px 0 #000000, 0 8px 0 #1a0e38, 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+[data-theme='retro-pixel'] .btn-action.primary:hover {
+  background: #ffe234;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #000000, 0 10px 0 #1a0e38, 0 0 25px rgba(255, 215, 0, 0.6);
+}
+
+[data-theme='retro-pixel'] .btn-action.primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #000000, 0 3px 0 #1a0e38;
+}
+
+[data-theme='retro-pixel'] .btn-action.primary.btn-running {
+  background: #ff0055;
+  color: #ffffff;
+  border-color: #ffffff;
+  box-shadow: 0 6px 0 #000000, 0 8px 0 #4a001a, 0 0 20px rgba(255, 0, 85, 0.4);
+}
+
+[data-theme='retro-pixel'] .btn-action.secondary {
+  background: #1a0e38;
+  color: #00ffff;
+  border: 3px solid #00ffff;
+  box-shadow: 0 5px 0 #000000, 0 7px 0 #070312;
+}
+
+[data-theme='retro-pixel'] .btn-action.secondary:hover {
+  background: #271654;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #000000, 0 0 15px rgba(0, 255, 255, 0.4);
+}
+
+[data-theme='retro-pixel'] .btn-action.secondary:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #000000;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⚡ UIVERSE THEME 2: Cyberpunk 2077 Hologram Glitch Cut-Corner
+   ───────────────────────────────────────────────────────────── */
+[data-theme='cyberpunk'] .btn-action {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-radius: 0px !important;
+  clip-path: polygon(12px 0%, 100% 0%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0% 100%, 0% 12px);
+}
+
+[data-theme='cyberpunk'] .btn-action.primary {
+  background: #00f0ff;
+  color: #050508;
+  border: 1px solid #ffffff;
+  box-shadow: 4px 4px 0px #ff007f, 0 0 25px rgba(0, 240, 255, 0.5);
+}
+
+[data-theme='cyberpunk'] .btn-action.primary:hover {
+  background: #ffffff;
+  color: #050508;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #ff007f, 0 0 35px rgba(0, 240, 255, 0.8);
+}
+
+[data-theme='cyberpunk'] .btn-action.primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #ff007f;
+}
+
+[data-theme='cyberpunk'] .btn-action.primary.btn-running {
+  background: #ff007f;
+  color: #ffffff;
+  box-shadow: 4px 4px 0px #00f0ff, 0 0 25px rgba(255, 0, 127, 0.5);
+}
+
+[data-theme='cyberpunk'] .btn-action.secondary {
+  background: rgba(18, 18, 26, 0.85);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  box-shadow: 3px 3px 0px rgba(255, 0, 127, 0.4);
+}
+
+[data-theme='cyberpunk'] .btn-action.secondary:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: #00f0ff;
+  color: #ffffff;
+  box-shadow: 4px 4px 0px #ff007f, 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   🛰️ UIVERSE THEME 3: NASA / Sci-Fi HUD Tactical Keypad
+   ───────────────────────────────────────────────────────────── */
+[data-theme='scifi-hud'] .btn-action {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+[data-theme='scifi-hud'] .btn-action.primary {
+  background: #22c55e;
+  color: #030d06;
+  border: 1px solid #86efac;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.45), inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+[data-theme='scifi-hud'] .btn-action.primary:hover {
+  background: #4ade80;
+  box-shadow: 0 0 30px rgba(34, 197, 94, 0.75), inset 0 0 15px rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+[data-theme='scifi-hud'] .btn-action.primary.btn-running {
+  background: #0d2818;
+  color: #22c55e;
+  border-color: #22c55e;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+}
+
+[data-theme='scifi-hud'] .btn-action.secondary {
+  background: rgba(13, 40, 24, 0.7);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  box-shadow: inset 0 0 8px rgba(34, 197, 94, 0.1);
+}
+
+[data-theme='scifi-hud'] .btn-action.secondary:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   💀 UIVERSE THEME 4: Haunted Gothic Wax Seal & Blood Glow
+   ───────────────────────────────────────────────────────────── */
+[data-theme='haunted'] .btn-action {
+  font-family: 'Creepster', cursive, sans-serif;
+  letter-spacing: 1px;
+  border-radius: 8px;
+}
+
+[data-theme='haunted'] .btn-action.primary {
+  background: radial-gradient(circle, #dc2626 0%, #7f1d1d 100%);
+  color: #ffffff;
+  border: 1px solid #ef4444;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.45), inset 0 0 12px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+[data-theme='haunted'] .btn-action.primary:hover {
+  background: radial-gradient(circle, #ef4444 0%, #991b1b 100%);
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.75), inset 0 0 15px rgba(255, 0, 0, 0.4);
+  transform: translateY(-2px) scale(1.02);
+}
+
+[data-theme='haunted'] .btn-action.secondary {
+  background: rgba(26, 7, 10, 0.85);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+[data-theme='haunted'] .btn-action.secondary:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   🍵 UIVERSE THEME 5: Ghibli Matcha Soft Claymorphic Pebble
+   ───────────────────────────────────────────────────────────── */
+[data-theme='matcha-forest'] .btn-action {
+  border-radius: 24px 8px 24px 8px;
+  font-weight: 700;
+}
+
+[data-theme='matcha-forest'] .btn-action.primary {
+  background: #4ade80;
+  color: #052e16;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 20px rgba(5, 46, 22, 0.25), inset 0 2px 4px rgba(255, 255, 255, 0.6);
+}
+
+[data-theme='matcha-forest'] .btn-action.primary:hover {
+  background: #86efac;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(5, 46, 22, 0.3), inset 0 3px 6px rgba(255, 255, 255, 0.8);
+}
+
+[data-theme='matcha-forest'] .btn-action.secondary {
+  background: rgba(20, 48, 29, 0.6);
+  color: #86efac;
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme='matcha-forest'] .btn-action.secondary:hover {
+  background: rgba(74, 222, 128, 0.2);
+  border-color: #4ade80;
+  color: #ffffff;
 }
 
 .stats-row {
