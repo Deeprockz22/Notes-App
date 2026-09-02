@@ -3450,16 +3450,16 @@ body {
   transform: translateY(6px);
 }
 
-/* Hide conversation clusters on idle — but NOT during Chill / Relax sessions */
-.fullscreen-zen-overlay.zen-idle:not(.mode-chill) .ambient-universe-stage,
-.fullscreen-zen-overlay.zen-idle:not(.mode-chill) .ambient-cluster-node {
+/* Hide conversation clusters on idle — ONLY during deep Work sessions */
+.fullscreen-zen-overlay.zen-idle.mode-work .ambient-universe-stage,
+.fullscreen-zen-overlay.zen-idle.mode-work .ambient-cluster-node {
   opacity: 0 !important;
   pointer-events: none !important;
   transform: translateY(6px);
 }
 
-/* Chill mode: clusters stay fully visible and interactive even when idle */
-.fullscreen-zen-overlay.zen-idle.mode-chill .ambient-cluster-node {
+/* Chill, Short Break, Long Break: clusters stay fully visible and interactive even when idle */
+.fullscreen-zen-overlay.zen-idle:not(.mode-work) .ambient-cluster-node {
   opacity: 1 !important;
   pointer-events: auto !important;
   transform: none !important;
