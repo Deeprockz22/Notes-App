@@ -72,220 +72,161 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
     }));
   });
 
-  // 🔄 Automatically fetch today's trending topics on load every day
-  // Strictly assign to ONLY ONE cluster ('c-top-trending')
-  useEffect(() => {
-    let isMounted = true;
-    fetchDailyTrendingSaga()
-      .then((trendingSaga) => {
-        if (!isMounted || !trendingSaga?.dialogues?.length) return;
-        setClusters((prev) =>
-          prev.map((cluster) => {
-            // STRICTLY ONLY ONE cluster is the live trending channel!
-            if (cluster.id === 'c-top-trending') {
-              return {
-                ...cluster,
-                saga: trendingSaga,
-                turn: 0
-              };
-            }
-            return cluster;
-          })
-        );
-      })
-      .catch((err) => console.log('Trending topics notice:', err));
+  // ─── Named helper: fetches all live API conversation data ───
+  // forceRefresh=true bypasses localStorage → always fresh from API
+  const REFRESH_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
 
-    // 🐾 Fetch live real animal facts from public APIs (Assigned to c-top-drama)
-    fetchLiveAnimalFact()
-      .then((fact) => {
-        if (!isMounted || !fact) return;
-        const animalFactSaga = {
-          id: 'live_animal_fact_saga',
-          title: 'Daily Animal Trivia',
-          tag: '🐾 ANIMAL FACT',
+  async function loadLiveConversations(setter, forceRefresh = false) {
+    const safe = (fn) => fn.catch((err) => console.log('[Zencus] API notice:', err));
+
+    safe(fetchRandomJoke(forceRefresh).then((joke) => {
+      if (!joke) return;
+      setter((prev) => prev.map((c) => c.id === 'c-l1-2' ? { ...c, turn: 0, saga: {
+        id: 'live_joke_saga', title: 'Joke Zone', tag: '😂 JOKE ZONE',
+        dialogues: [
+          { speaker: 'A', text: `Hey, wanna hear one? "${joke.setup}"` },
+          { speaker: 'B', text: "Oof… okay, hit me!" },
+          { speaker: 'A', text: `${joke.punchline} 😄` },
+          { speaker: 'B', text: "Oh no. That's terrible. I love it." }
+        ]
+      }} : c));
+    }));
+
+    safe(fetchWikipediaFact(forceRefresh).then((wiki) => {
+      if (!wiki) return;
+      setter((prev) => prev.map((c) => c.id === 'c-r2-2' ? { ...c, turn: 0, saga: {
+        id: 'live_wiki_saga', title: `Wikipedia: ${wiki.title}`, tag: '🌐 WIKIPEDIA',
+        dialogues: [
+          { speaker: 'A', text: `Let's look up "${wiki.title}" on Wikipedia!` },
+          { speaker: 'B', text: wiki.extract },
+          { speaker: 'A', text: "Wow, I didn't know that. The world is fascinating!" },
+          { speaker: 'B', text: "Every day is a school day! 📚" }
+        ]
+      }} : c));
+    }));
+
+    safe(fetchUselessFact(forceRefresh).then((fact) => {
+      if (!fact) return;
+      setter((prev) => prev.map((c) => c.id === 'c-r1-2' ? { ...c, turn: 0, saga: {
+        id: 'live_useless_fact_saga', title: 'Useless Fact', tag: '🤔 USELESS FACT',
+        dialogues: [
+          { speaker: 'A', text: "Okay, random useless fact incoming —" },
+          { speaker: 'B', text: fact },
+          { speaker: 'A', text: "What?! How do people even discover these things?" },
+          { speaker: 'B', text: "Someone, somewhere, had too much free time. Respect." }
+        ]
+      }} : c));
+    }));
+
+    safe(fetchDadJoke(forceRefresh).then((joke) => {
+      if (!joke) return;
+      setter((prev) => prev.map((c) => c.id === 'c-l1-1' ? { ...c, turn: 0, saga: {
+        id: 'live_dad_joke_saga', title: 'Dad Joke Zone', tag: '😄 DAD JOKE',
+        dialogues: [
+          { speaker: 'A', text: "Brace yourself — dad joke incoming!" },
+          { speaker: 'B', text: joke },
+          { speaker: 'A', text: "…I can't believe I laughed at that." },
+          { speaker: 'B', text: "You did. That's the power of the dad joke. 😤" }
+        ]
+      }} : c));
+    }));
+
+    safe(fetchChuckNorrisFact(forceRefresh).then((fact) => {
+      if (!fact) return;
+      setter((prev) => prev.map((c) => c.id === 'c-l1-4' ? { ...c, turn: 0, saga: {
+        id: 'live_chuck_saga', title: 'Chuck Norris Facts', tag: '🥋 CHUCK NORRIS',
+        dialogues: [
+          { speaker: 'A', text: "Okay, Chuck Norris fact of the day:" },
+          { speaker: 'B', text: fact },
+          { speaker: 'A', text: "…Should we be scared?" },
+          { speaker: 'B', text: "Always. The answer is always yes. 🥋" }
+        ]
+      }} : c));
+    }));
+
+    safe(fetchTriviaQuestion(forceRefresh).then((trivia) => {
+      if (!trivia) return;
+      setter((prev) => prev.map((c) => c.id === 'c-r2-1' ? { ...c, turn: 0, saga: {
+        id: 'live_trivia_saga', title: 'Trivia Challenge', tag: '🧠 TRIVIA',
+        dialogues: [
+          { speaker: 'A', text: `Trivia time! "${trivia.question}"` },
+          { speaker: 'B', text: "Hmm… okay, I give up. What's the answer?" },
+          { speaker: 'A', text: `It's "${trivia.answer}"! 🏆` },
+          { speaker: 'B', text: "I totally knew that. I was just testing you." }
+        ]
+      }} : c));
+    }));
+
+    safe(fetchAffirmation(forceRefresh).then((affirmation) => {
+      if (!affirmation) return;
+      setter((prev) => prev.map((c) => c.id === 'c-l2-1' ? { ...c, turn: 0, saga: {
+        id: 'live_affirmation_saga', title: 'Daily Affirmation', tag: '💬 AFFIRMATION',
+        dialogues: [
+          { speaker: 'A', text: "Today's affirmation for both of us:" },
+          { speaker: 'B', text: `"${affirmation}"` },
+          { speaker: 'A', text: "I needed to hear that. Thank you." },
+          { speaker: 'B', text: "You've got this. Now go focus! ✨" }
+        ]
+      }} : c));
+    }));
+
+    safe(fetchZenQuote(forceRefresh).then((zenQ) => {
+      if (!zenQ) return;
+      setter((prev) => prev.map((c) => c.id === 'c-r2-4' ? { ...c, turn: 0, saga: {
+        id: 'live_zen_quote_saga', title: 'Zen Philosophy', tag: '☯️ ZEN QUOTE',
+        dialogues: [
+          { speaker: 'A', text: `"${zenQ.q}"` },
+          { speaker: 'B', text: `— ${zenQ.a}` },
+          { speaker: 'A', text: "That one actually hit deep. Let that sink in." },
+          { speaker: 'B', text: "Philosophy. It's just high-tier staring into the void. 🌌" }
+        ]
+      }} : c));
+    }));
+
+    // Animal fact & MeowFacts — daily only, no 2-min refresh
+    if (!forceRefresh) {
+      safe(fetchLiveAnimalFact().then((fact) => {
+        if (!fact) return;
+        setter((prev) => prev.map((c) => c.id === 'c-top-drama' ? { ...c, turn: 0, saga: {
+          id: 'live_animal_fact_saga', title: 'Daily Animal Trivia', tag: '🐾 ANIMAL FACT',
           dialogues: [
             { speaker: 'A', text: `Did you know? ${fact}` },
             { speaker: 'B', text: "Wait, seriously?! That is genuinely mind-blowing!" },
             { speaker: 'A', text: "Nature is full of incredible quirks." },
             { speaker: 'B', text: "Time to focus and be wise like an owl!" }
           ]
-        };
-        setClusters((prev) =>
-          prev.map((cluster) =>
-            cluster.id === 'c-top-drama' ? { ...cluster, saga: animalFactSaga, turn: 0 } : cluster
-          )
-        );
-      })
-      .catch((err) => console.log('Animal facts notice:', err));
+        }} : c));
+      }));
+    }
+  }
 
-    // 😂 Fetch a random joke (Official Joke API → c-l1-2 Joke Zone)
-    fetchRandomJoke()
-      .then((joke) => {
-        if (!isMounted || !joke) return;
-        const jokeSaga = {
-          id: 'live_joke_saga',
-          title: 'Joke Zone',
-          tag: '😂 JOKE ZONE',
-          dialogues: [
-            { speaker: 'A', text: `Hey, wanna hear one? "${joke.setup}"` },
-            { speaker: 'B', text: "Oof… okay, hit me!" },
-            { speaker: 'A', text: `${joke.punchline} 😄` },
-            { speaker: 'B', text: "Oh no. That's terrible. I love it." }
-          ]
-        };
-        setClusters((prev) =>
-          prev.map((cluster) =>
-            cluster.id === 'c-l1-2' ? { ...cluster, saga: jokeSaga, turn: 0 } : cluster
-          )
-        );
-      })
-      .catch((err) => console.log('Joke API notice:', err));
+  // 🔄 On mount: load today's trending + all conversation APIs (use cache)
+  useEffect(() => {
+    let isMounted = true;
 
-    // 🌐 Fetch a random Wikipedia article (Wikipedia REST API → c-r2-2 Wiki)
-    fetchWikipediaFact()
-      .then((wiki) => {
-        if (!isMounted || !wiki) return;
-        const wikiSaga = {
-          id: 'live_wiki_saga',
-          title: `Wikipedia: ${wiki.title}`,
-          tag: '🌐 WIKIPEDIA',
-          dialogues: [
-            { speaker: 'A', text: `Let's look up "${wiki.title}" on Wikipedia!` },
-            { speaker: 'B', text: wiki.extract },
-            { speaker: 'A', text: "Wow, I didn't know that. The world is fascinating!" },
-            { speaker: 'B', text: "Every day is a school day! 📚" }
-          ]
-        };
-        setClusters((prev) =>
-          prev.map((cluster) =>
-            cluster.id === 'c-r2-2' ? { ...cluster, saga: wikiSaga, turn: 0 } : cluster
-          )
-        );
+    fetchDailyTrendingSaga()
+      .then((trendingSaga) => {
+        if (!isMounted || !trendingSaga?.dialogues?.length) return;
+        setClusters((prev) => prev.map((c) =>
+          c.id === 'c-top-trending' ? { ...c, saga: trendingSaga, turn: 0 } : c
+        ));
       })
-      .catch((err) => console.log('Wikipedia notice:', err));
+      .catch((err) => console.log('Trending topics notice:', err));
 
-    // 🤔 Fetch a useless fact (uselessfacts.jsph.pl → c-r1-2 Useless Fact)
-    fetchUselessFact()
-      .then((fact) => {
-        if (!isMounted || !fact) return;
-        const uselessSaga = {
-          id: 'live_useless_fact_saga',
-          title: 'Useless Fact of the Day',
-          tag: '🤔 USELESS FACT',
-          dialogues: [
-            { speaker: 'A', text: "Okay, random useless fact incoming —" },
-            { speaker: 'B', text: fact },
-            { speaker: 'A', text: "What?! How do people even discover these things?" },
-            { speaker: 'B', text: "Someone, somewhere, had too much free time. Respect." }
-          ]
-        };
-        setClusters((prev) =>
-          prev.map((cluster) =>
-            cluster.id === 'c-r1-2' ? { ...cluster, saga: uselessSaga, turn: 0 } : cluster
-          )
-        );
-      })
-      .catch((err) => console.log('Useless Facts notice:', err));
+    loadLiveConversations(setClusters, false); // initial load from cache/API
 
-    // 😄 Dad Joke (icanhazdadjoke → c-l1-1)
-    fetchDadJoke()
-      .then((joke) => {
-        if (!isMounted || !joke) return;
-        const dadSaga = {
-          id: 'live_dad_joke_saga', title: 'Dad Joke Zone', tag: '😄 DAD JOKE',
-          dialogues: [
-            { speaker: 'A', text: "Brace yourself — dad joke incoming!" },
-            { speaker: 'B', text: joke },
-            { speaker: 'A', text: "…I can't believe I laughed at that." },
-            { speaker: 'B', text: "You did. That's the power of the dad joke. 😤" }
-          ]
-        };
-        setClusters((prev) =>
-          prev.map((c) => c.id === 'c-l1-1' ? { ...c, saga: dadSaga, turn: 0 } : c)
-        );
-      })
-      .catch((err) => console.log('Dad joke notice:', err));
-
-    // 🥋 Chuck Norris Fact (api.chucknorris.io → c-l1-4)
-    fetchChuckNorrisFact()
-      .then((fact) => {
-        if (!isMounted || !fact) return;
-        const chuckSaga = {
-          id: 'live_chuck_saga', title: 'Chuck Norris Facts', tag: '🥋 CHUCK NORRIS',
-          dialogues: [
-            { speaker: 'A', text: "Okay, Chuck Norris fact of the day:" },
-            { speaker: 'B', text: fact },
-            { speaker: 'A', text: "…Should we be scared?" },
-            { speaker: 'B', text: "Always. The answer is always yes. 🥋" }
-          ]
-        };
-        setClusters((prev) =>
-          prev.map((c) => c.id === 'c-l1-4' ? { ...c, saga: chuckSaga, turn: 0 } : c)
-        );
-      })
-      .catch((err) => console.log('Chuck Norris notice:', err));
-
-    // 🧠 Trivia Question (opentdb.com → c-r2-1)
-    fetchTriviaQuestion()
-      .then((trivia) => {
-        if (!isMounted || !trivia) return;
-        const triviaSaga = {
-          id: 'live_trivia_saga', title: 'Trivia Challenge', tag: '🧠 TRIVIA',
-          dialogues: [
-            { speaker: 'A', text: `Trivia time! "${trivia.question}"` },
-            { speaker: 'B', text: "Hmm… okay, I give up. What's the answer?" },
-            { speaker: 'A', text: `It's "${trivia.answer}"! 🏆` },
-            { speaker: 'B', text: "I totally knew that. I was just testing you." }
-          ]
-        };
-        setClusters((prev) =>
-          prev.map((c) => c.id === 'c-r2-1' ? { ...c, saga: triviaSaga, turn: 0 } : c)
-        );
-      })
-      .catch((err) => console.log('Trivia notice:', err));
-
-    // 💬 Daily Affirmation (affirmations.dev → c-l2-1)
-    fetchAffirmation()
-      .then((affirmation) => {
-        if (!isMounted || !affirmation) return;
-        const affirmSaga = {
-          id: 'live_affirmation_saga', title: 'Daily Affirmation', tag: '💬 AFFIRMATION',
-          dialogues: [
-            { speaker: 'A', text: "Today's affirmation for both of us:" },
-            { speaker: 'B', text: `"${affirmation}"` },
-            { speaker: 'A', text: "I needed to hear that. Thank you." },
-            { speaker: 'B', text: "You've got this. Now go focus! ✨" }
-          ]
-        };
-        setClusters((prev) =>
-          prev.map((c) => c.id === 'c-l2-1' ? { ...c, saga: affirmSaga, turn: 0 } : c)
-        );
-      })
-      .catch((err) => console.log('Affirmation notice:', err));
-
-    // ☯️ Zen/Philosophical Quote (zenquotes.io → c-r2-4)
-    fetchZenQuote()
-      .then((zenQ) => {
-        if (!isMounted || !zenQ) return;
-        const zenSaga = {
-          id: 'live_zen_quote_saga', title: 'Zen Philosophy', tag: '☯️ ZEN QUOTE',
-          dialogues: [
-            { speaker: 'A', text: `"${zenQ.q}"` },
-            { speaker: 'B', text: `— ${zenQ.a}` },
-            { speaker: 'A', text: "That one actually hit deep. Let that sink in." },
-            { speaker: 'B', text: "Philosophy. It's just high-tier staring into the void. 🌌" }
-          ]
-        };
-        setClusters((prev) =>
-          prev.map((c) => c.id === 'c-r2-4' ? { ...c, saga: zenSaga, turn: 0 } : c)
-        );
-      })
-      .catch((err) => console.log('ZenQuote notice:', err));
+    // ⏱️ Refresh all conversation content every 2 minutes (fresh from API)
+    const refreshTimer = setInterval(() => {
+      if (isMounted) loadLiveConversations(setClusters, true);
+    }, REFRESH_INTERVAL_MS);
 
     return () => {
       isMounted = false;
+      clearInterval(refreshTimer);
     };
   }, []);
+
+
 
 
 

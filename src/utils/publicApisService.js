@@ -224,7 +224,6 @@ export async function fetchLocalWeather() {
 
 // ─────────────────────────────────────────────────────────────
 // 5. 😂 RANDOM JOKE ENGINE (Official Joke API)
-// Setup + Punchline → maps perfectly to 2-animal banter
 // ─────────────────────────────────────────────────────────────
 const FALLBACK_JOKES = [
   { setup: "Why don't scientists trust atoms?", punchline: "Because they make up everything!" },
@@ -234,13 +233,11 @@ const FALLBACK_JOKES = [
   { setup: "Why can't you trust an atom?", punchline: "They make up literally everything — even this joke!" }
 ];
 
-export async function fetchRandomJoke() {
+export async function fetchRandomJoke(forceRefresh = false) {
   const cacheKey = `zencus_joke_${getTodayKey()}`;
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {}
-
+  if (!forceRefresh) {
+    try { const c = localStorage.getItem(cacheKey); if (c) return JSON.parse(c); } catch {}
+  }
   try {
     const res = await fetch('https://official-joke-api.appspot.com/random_joke');
     if (res.ok) {
@@ -251,16 +248,12 @@ export async function fetchRandomJoke() {
         return joke;
       }
     }
-  } catch (err) {
-    console.warn('[Zencus APIs] Joke API failed, using fallback:', err);
-  }
-
+  } catch (err) { console.warn('[Zencus APIs] Joke API failed:', err); }
   return FALLBACK_JOKES[Math.floor(Math.random() * FALLBACK_JOKES.length)];
 }
 
 // ─────────────────────────────────────────────────────────────
 // 6. 🌐 WIKIPEDIA RANDOM ARTICLE (Wikipedia REST API)
-// Returns a real article title + extract for animals to discuss
 // ─────────────────────────────────────────────────────────────
 const FALLBACK_WIKI = [
   { title: "The Great Wall of China", extract: "The Great Wall of China stretches over 21,000 km and was built to protect Chinese states from nomadic invasions over many centuries." },
@@ -268,40 +261,28 @@ const FALLBACK_WIKI = [
   { title: "Black Holes", extract: "A black hole's gravity is so extreme that even light cannot escape. Time passes more slowly near a black hole than far away from it." }
 ];
 
-export async function fetchWikipediaFact() {
+export async function fetchWikipediaFact(forceRefresh = false) {
   const cacheKey = `zencus_wiki_${getTodayKey()}`;
+  if (!forceRefresh) {
+    try { const c = localStorage.getItem(cacheKey); if (c) return JSON.parse(c); } catch {}
+  }
   try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {}
-
-  try {
-    // Wikipedia redirects random/summary with a 303 — fetch follows redirects automatically
-    const res = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary', {
-      redirect: 'follow'
-    });
+    const res = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary', { redirect: 'follow' });
     if (res.ok) {
       const data = await res.json();
       if (data?.title && data?.extract) {
-        // Trim extract to ~200 chars for readable bubble text
-        const extract = data.extract.length > 200
-          ? data.extract.substring(0, 197) + '…'
-          : data.extract;
+        const extract = data.extract.length > 200 ? data.extract.substring(0, 197) + '…' : data.extract;
         const result = { title: data.title, extract };
         try { localStorage.setItem(cacheKey, JSON.stringify(result)); } catch {}
         return result;
       }
     }
-  } catch (err) {
-    console.warn('[Zencus APIs] Wikipedia fetch failed, using fallback:', err);
-  }
-
+  } catch (err) { console.warn('[Zencus APIs] Wikipedia fetch failed:', err); }
   return FALLBACK_WIKI[Math.floor(Math.random() * FALLBACK_WIKI.length)];
 }
 
 // ─────────────────────────────────────────────────────────────
 // 7. 🤔 USELESS FACTS (uselessfacts.jsph.pl)
-// Random bizarre facts for animals to react to
 // ─────────────────────────────────────────────────────────────
 const FALLBACK_USELESS_FACTS = [
   "A group of crows is called a murder. A group of owls is called a parliament.",
@@ -311,13 +292,11 @@ const FALLBACK_USELESS_FACTS = [
   "There are more possible chess games than atoms in the observable universe."
 ];
 
-export async function fetchUselessFact() {
+export async function fetchUselessFact(forceRefresh = false) {
   const cacheKey = `zencus_useless_fact_${getTodayKey()}`;
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {}
-
+  if (!forceRefresh) {
+    try { const c = localStorage.getItem(cacheKey); if (c) return JSON.parse(c); } catch {}
+  }
   try {
     const res = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en');
     if (res.ok) {
@@ -328,16 +307,12 @@ export async function fetchUselessFact() {
         return fact;
       }
     }
-  } catch (err) {
-    console.warn('[Zencus APIs] Useless Facts fetch failed, using fallback:', err);
-  }
-
+  } catch (err) { console.warn('[Zencus APIs] Useless Facts fetch failed:', err); }
   return FALLBACK_USELESS_FACTS[Math.floor(Math.random() * FALLBACK_USELESS_FACTS.length)];
 }
 
 // ─────────────────────────────────────────────────────────────
 // 8. 😄 ICANHAZDADJOKE (icanhazdadjoke.com)
-// One-liner dad jokes — perfect for a groaner reaction
 // ─────────────────────────────────────────────────────────────
 const FALLBACK_DAD_JOKES = [
   "I told my wife she was drawing her eyebrows too high. She looked surprised.",
@@ -347,17 +322,13 @@ const FALLBACK_DAD_JOKES = [
   "I'm reading a book about anti-gravity. It's impossible to put down."
 ];
 
-export async function fetchDadJoke() {
+export async function fetchDadJoke(forceRefresh = false) {
   const cacheKey = `zencus_dad_joke_${getTodayKey()}`;
+  if (!forceRefresh) {
+    try { const c = localStorage.getItem(cacheKey); if (c) return JSON.parse(c); } catch {}
+  }
   try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {}
-
-  try {
-    const res = await fetch('https://icanhazdadjoke.com/', {
-      headers: { Accept: 'application/json' }
-    });
+    const res = await fetch('https://icanhazdadjoke.com/', { headers: { Accept: 'application/json' } });
     if (res.ok) {
       const data = await res.json();
       if (data?.joke) {
@@ -365,15 +336,12 @@ export async function fetchDadJoke() {
         return data.joke;
       }
     }
-  } catch (err) {
-    console.warn('[Zencus APIs] Dad Joke fetch failed:', err);
-  }
+  } catch (err) { console.warn('[Zencus APIs] Dad Joke fetch failed:', err); }
   return FALLBACK_DAD_JOKES[Math.floor(Math.random() * FALLBACK_DAD_JOKES.length)];
 }
 
 // ─────────────────────────────────────────────────────────────
 // 9. 🥋 CHUCK NORRIS FACTS (api.chucknorris.io)
-// Legendary Chuck Norris facts — always hilarious
 // ─────────────────────────────────────────────────────────────
 const FALLBACK_CHUCK = [
   "Chuck Norris counted to infinity — twice.",
@@ -383,13 +351,11 @@ const FALLBACK_CHUCK = [
   "Chuck Norris once parallel parked a train."
 ];
 
-export async function fetchChuckNorrisFact() {
+export async function fetchChuckNorrisFact(forceRefresh = false) {
   const cacheKey = `zencus_chuck_${getTodayKey()}`;
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {}
-
+  if (!forceRefresh) {
+    try { const c = localStorage.getItem(cacheKey); if (c) return JSON.parse(c); } catch {}
+  }
   try {
     const res = await fetch('https://api.chucknorris.io/jokes/random');
     if (res.ok) {
@@ -399,15 +365,12 @@ export async function fetchChuckNorrisFact() {
         return data.value;
       }
     }
-  } catch (err) {
-    console.warn('[Zencus APIs] Chuck Norris fetch failed:', err);
-  }
+  } catch (err) { console.warn('[Zencus APIs] Chuck Norris fetch failed:', err); }
   return FALLBACK_CHUCK[Math.floor(Math.random() * FALLBACK_CHUCK.length)];
 }
 
 // ─────────────────────────────────────────────────────────────
 // 10. 🧠 OPEN TRIVIA DB (opentdb.com)
-// Real trivia Q&A — animals quiz each other!
 // ─────────────────────────────────────────────────────────────
 const FALLBACK_TRIVIA = [
   { question: "What is the capital of Australia?", answer: "Canberra (not Sydney!)" },
@@ -419,45 +382,33 @@ const FALLBACK_TRIVIA = [
 
 function decodeHtml(text) {
   return text
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&ldquo;/g, '"')
-    .replace(/&rdquo;/g, '"');
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+    .replace(/&ldquo;/g, '"').replace(/&rdquo;/g, '"');
 }
 
-export async function fetchTriviaQuestion() {
+export async function fetchTriviaQuestion(forceRefresh = false) {
   const cacheKey = `zencus_trivia_${getTodayKey()}`;
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {}
-
+  if (!forceRefresh) {
+    try { const c = localStorage.getItem(cacheKey); if (c) return JSON.parse(c); } catch {}
+  }
   try {
     const res = await fetch('https://opentdb.com/api.php?amount=1&type=multiple');
     if (res.ok) {
       const data = await res.json();
       const r = data?.results?.[0];
       if (r?.question && r?.correct_answer) {
-        const result = {
-          question: decodeHtml(r.question),
-          answer: decodeHtml(r.correct_answer)
-        };
+        const result = { question: decodeHtml(r.question), answer: decodeHtml(r.correct_answer) };
         try { localStorage.setItem(cacheKey, JSON.stringify(result)); } catch {}
         return result;
       }
     }
-  } catch (err) {
-    console.warn('[Zencus APIs] Open Trivia fetch failed:', err);
-  }
+  } catch (err) { console.warn('[Zencus APIs] Open Trivia fetch failed:', err); }
   return FALLBACK_TRIVIA[Math.floor(Math.random() * FALLBACK_TRIVIA.length)];
 }
 
 // ─────────────────────────────────────────────────────────────
 // 11. 💬 AFFIRMATIONS.DEV (affirmations.dev)
-// Positive daily affirmations for motivation
 // ─────────────────────────────────────────────────────────────
 const FALLBACK_AFFIRMATIONS = [
   "Small progress is still progress. Keep going!",
@@ -467,13 +418,11 @@ const FALLBACK_AFFIRMATIONS = [
   "Believe in your ability to figure things out."
 ];
 
-export async function fetchAffirmation() {
+export async function fetchAffirmation(forceRefresh = false) {
   const cacheKey = `zencus_affirmation_${getTodayKey()}`;
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {}
-
+  if (!forceRefresh) {
+    try { const c = localStorage.getItem(cacheKey); if (c) return JSON.parse(c); } catch {}
+  }
   try {
     const res = await fetch('https://www.affirmations.dev/');
     if (res.ok) {
@@ -483,15 +432,12 @@ export async function fetchAffirmation() {
         return data.affirmation;
       }
     }
-  } catch (err) {
-    console.warn('[Zencus APIs] Affirmations fetch failed:', err);
-  }
+  } catch (err) { console.warn('[Zencus APIs] Affirmations fetch failed:', err); }
   return FALLBACK_AFFIRMATIONS[Math.floor(Math.random() * FALLBACK_AFFIRMATIONS.length)];
 }
 
 // ─────────────────────────────────────────────────────────────
 // 12. ☯️ ZENQUOTES (zenquotes.io)
-// Philosophical & stoic quotes from famous thinkers
 // ─────────────────────────────────────────────────────────────
 const FALLBACK_ZENQUOTES = [
   { q: "The present moment always will have been.", a: "Alan Watts" },
@@ -501,13 +447,11 @@ const FALLBACK_ZENQUOTES = [
   { q: "Simplicity is the ultimate sophistication.", a: "Leonardo da Vinci" }
 ];
 
-export async function fetchZenQuote() {
+export async function fetchZenQuote(forceRefresh = false) {
   const cacheKey = `zencus_zenquote_${getTodayKey()}`;
-  try {
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {}
-
+  if (!forceRefresh) {
+    try { const c = localStorage.getItem(cacheKey); if (c) return JSON.parse(c); } catch {}
+  }
   try {
     const res = await fetch('https://zenquotes.io/api/random');
     if (res.ok) {
@@ -518,8 +462,7 @@ export async function fetchZenQuote() {
         return result;
       }
     }
-  } catch (err) {
-    console.warn('[Zencus APIs] ZenQuotes fetch failed:', err);
-  }
+  } catch (err) { console.warn('[Zencus APIs] ZenQuotes fetch failed:', err); }
   return FALLBACK_ZENQUOTES[Math.floor(Math.random() * FALLBACK_ZENQUOTES.length)];
 }
+
