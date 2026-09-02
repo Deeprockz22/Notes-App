@@ -4098,13 +4098,21 @@ body {
 .tiny-bubble-tail {
   position: absolute;
   bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
   width: 8px;
   height: 8px;
   background: var(--bg-elevated);
   border-right: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
+  transform: rotate(45deg);
+  transition: left 0.3s ease;
+}
+
+.tiny-bubble-tail.tail-left {
+  left: 32%;
+}
+
+.tiny-bubble-tail.tail-right {
+  left: 68%;
 }
 
 .ambient-cluster-sprites {

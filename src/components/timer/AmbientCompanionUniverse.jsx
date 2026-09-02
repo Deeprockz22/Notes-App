@@ -18,11 +18,11 @@ const CLUSTER_ANCHORS = [
 ];
 
 export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
-  // 10 Simultaneous animal clusters mapped to their 30-minute sagas
+  // 10 Simultaneous animal clusters: Each cluster has 2 dedicated companions facing each other
   const [clusters, setClusters] = useState(() => {
     return CLUSTER_ANCHORS.map((anchor, idx) => {
       const saga = getSagaForTopic(anchor.topic);
-      // Assign two distinctive animals facing each other
+      // Pair 2 unique animal companions strictly dedicated to this cluster
       const animalA = ANIMAL_CHARACTERS[(idx * 2) % ANIMAL_CHARACTERS.length];
       const animalB = ANIMAL_CHARACTERS[(idx * 2 + 1) % ANIMAL_CHARACTERS.length];
 
@@ -47,7 +47,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
     }));
   });
 
-  // Continuous 30-minute dialogue progression: Step line every 9.5s
+  // Continuous 30-minute dialogue progression: Step line every 9.5s between the two companions
   useEffect(() => {
     const interval = setInterval(() => {
       setClusters((prevClusters) => {
@@ -55,21 +55,13 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
           const totalLines = cluster.saga.dialogues.length;
           const nextTurn = (cluster.turn + 1) % totalLines;
 
-          // Seamless loop or visitor rotation
-          const newAnimals = [...cluster.animals];
-          if (nextTurn === 0 && Math.random() > 0.4) {
-            const visitor = ANIMAL_CHARACTERS[Math.floor(Math.random() * ANIMAL_CHARACTERS.length)];
-            newAnimals[1] = visitor;
-          }
-
           return {
             ...cluster,
-            turn: nextTurn,
-            animals: newAnimals
+            turn: nextTurn
           };
         });
       });
-    }, 9500); // 9.5 seconds per line for calm, readable 30-minute flow
+    }, 9500); // Exactly 9.5 seconds per line for calm, readable 30-minute flow
 
     return () => clearInterval(interval);
   }, []);
@@ -138,7 +130,12 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       {/* 🐾 10 Simultaneous Animal Conversational Clusters */}
       {clusters.map((cluster) => {
         const currentDialogue = cluster.saga.dialogues[cluster.turn] || cluster.saga.dialogues[0];
-        const speakerName = currentDialogue.speaker;
+
+        // STRICT TWO-COMPANION LOGIC:
+        // role 'A' is strictly animal 0 (left), role 'B' is strictly animal 1 (right)
+        const isLeftSpeaker = currentDialogue.role === 'A';
+        const activeSpeaker = isLeftSpeaker ? cluster.animals[0] : cluster.animals[1];
+        const speakerDisplayName = `${activeSpeaker.icon} ${activeSpeaker.name}`;
 
         const posStyle = {
           top: cluster.top,
@@ -150,7 +147,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
         return (
           <motion.div
             key={cluster.id}
-            className="ambient-cluster-node"
+            className={`ambient-cluster-node ${isLeftSpeaker ? 'speaker-left' : 'speaker-right'}`}
             style={posStyle}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -169,62 +166,53 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
                 className="ambient-tiny-bubble"
               >
                 <div className="tiny-bubble-header">
-                  <span className="tiny-speaker-name">{speakerName}</span>
+                  <span className="tiny-speaker-name">{speakerDisplayName}</span>
                   <span className="tiny-topic-tag">{cluster.saga.tag}</span>
                 </div>
                 <p className="tiny-bubble-text">{currentDialogue.text}</p>
-                <div className="tiny-bubble-tail" />
+                {/* Tail pointing toward whichever of the 2 animals is speaking */}
+                <div className={`tiny-bubble-tail ${isLeftSpeaker ? 'tail-left' : 'tail-right'}`} />
               </motion.div>
             </AnimatePresence>
 
-            {/* 🐾 Two Animals Facing Each Other Nose-to-Nose */}
+            {/* 🐾 The TWO Animals Facing Each Other Nose-to-Nose */}
             <div className="ambient-cluster-sprites facing-pair">
-              {/* Left Animal (Faces Right) */}
-              {cluster.animals[0] && (() => {
-                const isSpeaking = speakerName.includes(cluster.animals[0].name);
-                return (
-                  <motion.div
-                    className={`ambient-sprite animal-left ${isSpeaking ? 'active-speaking' : ''}`}
-                    animate={{
-                      y: [0, -4, 0],
-                      scale: isSpeaking ? 1.15 : 1
-                    }}
-                    transition={{
-                      y: { repeat: Infinity, duration: 2.2, ease: 'easeInOut' },
-                      scale: { duration: 0.2 }
-                    }}
-                  >
-                    <span className="sprite-icon face-right">{cluster.animals[0].icon}</span>
-                    <span className="sprite-mini-badge">{cluster.animals[0].name}</span>
-                    {isSpeaking && <span className="ambient-talking-flare" />}
-                  </motion.div>
-                );
-              })()}
+              {/* Left Animal (Animal A: Faces Right) */}
+              <motion.div
+                className={`ambient-sprite animal-left ${isLeftSpeaker ? 'active-speaking' : 'is-listening'}`}
+                animate={{
+                  y: isLeftSpeaker ? [0, -6, 0] : [0, -2, 0],
+                  scale: isLeftSpeaker ? 1.2 : 1
+                }}
+                transition={{
+                  y: { repeat: Infinity, duration: 1.8, ease: 'easeInOut' },
+                  scale: { duration: 0.2 }
+                }}
+              >
+                <span className="sprite-icon face-right">{cluster.animals[0].icon}</span>
+                <span className="sprite-mini-badge">{cluster.animals[0].name}</span>
+                {isLeftSpeaker && <span className="ambient-talking-flare" />}
+              </motion.div>
 
               {/* Center Talking Spark */}
               <span className="facing-gap-spark">💬</span>
 
-              {/* Right Animal (Faces Left towards Left Animal) */}
-              {cluster.animals[1] && (() => {
-                const isSpeaking = speakerName.includes(cluster.animals[1].name);
-                return (
-                  <motion.div
-                    className={`ambient-sprite animal-right ${isSpeaking ? 'active-speaking' : ''}`}
-                    animate={{
-                      y: [0, -4, 0],
-                      scale: isSpeaking ? 1.15 : 1
-                    }}
-                    transition={{
-                      y: { repeat: Infinity, duration: 2.2, delay: 0.35, ease: 'easeInOut' },
-                      scale: { duration: 0.2 }
-                    }}
-                  >
-                    <span className="sprite-icon face-left">{cluster.animals[1].icon}</span>
-                    <span className="sprite-mini-badge">{cluster.animals[1].name}</span>
-                    {isSpeaking && <span className="ambient-talking-flare" />}
-                  </motion.div>
-                );
-              })()}
+              {/* Right Animal (Animal B: Faces Left towards Animal A) */}
+              <motion.div
+                className={`ambient-sprite animal-right ${!isLeftSpeaker ? 'active-speaking' : 'is-listening'}`}
+                animate={{
+                  y: !isLeftSpeaker ? [0, -6, 0] : [0, -2, 0],
+                  scale: !isLeftSpeaker ? 1.2 : 1
+                }}
+                transition={{
+                  y: { repeat: Infinity, duration: 1.8, delay: 0.2, ease: 'easeInOut' },
+                  scale: { duration: 0.2 }
+                }}
+              >
+                <span className="sprite-icon face-left">{cluster.animals[1].icon}</span>
+                <span className="sprite-mini-badge">{cluster.animals[1].name}</span>
+                {!isLeftSpeaker && <span className="ambient-talking-flare" />}
+              </motion.div>
             </div>
           </motion.div>
         );
