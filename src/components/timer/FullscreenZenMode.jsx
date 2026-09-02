@@ -172,14 +172,18 @@ export default function FullscreenZenMode({
         <AmbientCompanionUniverse isRunning={isRunning} progress={progress} />
       )}
 
-      {/* Top Bar (Auto-hides on idle) */}
-      <div className="fullscreen-top-bar auto-hide-element">
+      {/* Top Bar */}
+      <div className="fullscreen-top-bar">
         <div className="zen-brand">
-          <FocusLogo size={30} className="brand-logo-icon" />
-          <ShinyText text={mode === 'chill' ? 'CHILL LOUNGE' : 'ZENCUS ZEN'} speed={3} />
+          <div className="zen-symbol-wrapper">
+            <FocusLogo size={32} className="brand-logo-icon zen-persistent-symbol" />
+          </div>
+          <div className="zen-brand-text auto-hide-element">
+            <ShinyText text={mode === 'chill' ? 'CHILL LOUNGE' : 'ZENCUS ZEN'} speed={3} />
+          </div>
         </div>
 
-        <div className="zen-top-actions">
+        <div className="zen-top-actions auto-hide-element">
           {/* Unified Glass Capsule Pill: Auto Background & Universe */}
           <div className="zen-control-pill-group">
             {/* Auto / Scene Switcher Button */}

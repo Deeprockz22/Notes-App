@@ -3220,9 +3220,35 @@ body {
 }
 
 .zen-brand {
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.15em;
+  line-height: 1;
+  user-select: none;
+}
+
+.zen-symbol-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.zen-persistent-symbol {
+  color: var(--accent-primary);
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+  will-change: opacity, transform, filter;
+}
+
+.zen-brand-text {
+  display: flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .fullscreen-center-content {
@@ -3320,12 +3346,16 @@ body {
   transform: translateY(6px);
 }
 
-.fullscreen-zen-overlay.zen-idle .fullscreen-top-bar {
-  transform: translateY(-8px);
-}
-
 .fullscreen-zen-overlay.zen-idle .zen-controls {
   transform: translateY(8px);
+}
+
+/* 🧘 Persistent Zencus Symbol: Blends gracefully with the background without disappearing */
+.fullscreen-zen-overlay.zen-idle .zen-persistent-symbol {
+  opacity: 0.22 !important;
+  filter: drop-shadow(0 0 16px var(--accent-glow)) brightness(0.85);
+  transform: scale(0.95);
+  pointer-events: none;
 }
 
 /* ===================================
