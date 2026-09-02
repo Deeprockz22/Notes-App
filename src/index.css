@@ -4114,6 +4114,34 @@ body {
   margin-top: 2px;
 }
 
+.ambient-cluster-sprites.facing-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sprite-icon.face-right {
+  display: inline-block;
+  transform: scaleX(1);
+}
+
+.sprite-icon.face-left {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+.facing-gap-spark {
+  font-size: 0.78rem;
+  opacity: 0.6;
+  animation: sparkPulse 2s infinite ease-in-out;
+}
+
+@keyframes sparkPulse {
+  0%, 100% { transform: scale(0.9); opacity: 0.4; }
+  50% { transform: scale(1.25); opacity: 0.95; }
+}
+
 .ambient-sprite {
   position: relative;
   display: flex;
