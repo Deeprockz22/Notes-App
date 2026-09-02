@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/companionConversations';
 import { fetchDailyTrendingSaga } from '../../utils/trendingTopicsService';
+import { fetchLiveAnimalFact } from '../../utils/publicApisService';
 
 // EXACTLY 20 mathematically collision-free, staggered clusters
 // Strictly clear zone: Entire area under the linear bar and controls is 100% free of conversations!
@@ -23,7 +24,7 @@ const CLUSTER_ANCHORS = [
   // --- Top Sky Arc (2 clusters at top: 5%, safely high above clock digits) ---
   // c-top-trending is the EXCLUSIVE SINGLE live daily trending topic!
   { id: 'c-top-trending', top: '5%', left: '34%', topic: 'funny', isTrendingTarget: true },
-  { id: 'c-top-drama', top: '5%', right: '34%', topic: 'cheating_husband' },
+  { id: 'c-top-drama', top: '5%', right: '34%', topic: 'cheating_husband', isAnimalFactTarget: true },
 
   // --- Inner Right Column (4 clusters, right: 17%, staggered to fill space without encroaching center) ---
   { id: 'c-r2-1', top: '17%', right: '17%', topic: 'cheating_husband' },
@@ -91,6 +92,37 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
         );
       })
       .catch((err) => console.log('Trending topics notice:', err));
+
+    // 🐾 Fetch live real animal facts from public APIs (Assigned to c-top-drama)
+    fetchLiveAnimalFact()
+      .then((fact) => {
+        if (!isMounted || !fact) return;
+        const animalFactSaga = {
+          id: 'live_animal_fact_saga',
+          title: 'Daily Animal Trivia',
+          tag: '🐾 ANIMAL FACT',
+          dialogues: [
+            { speaker: 'A', text: `Did you know? ${fact}` },
+            { speaker: 'B', text: "Wait, seriously?! That is genuinely mind-blowing!" },
+            { speaker: 'A', text: "Nature is full of incredible quirks." },
+            { speaker: 'B', text: "Time to focus and be wise like an owl!" }
+          ]
+        };
+
+        setClusters((prev) =>
+          prev.map((cluster) => {
+            if (cluster.id === 'c-top-drama') {
+              return {
+                ...cluster,
+                saga: animalFactSaga,
+                turn: 0
+              };
+            }
+            return cluster;
+          })
+        );
+      })
+      .catch((err) => console.log('Animal facts notice:', err));
 
     return () => {
       isMounted = false;
@@ -187,6 +219,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
         const activeSpeaker = isLeftSpeaker ? cluster.animals[0] : cluster.animals[1];
         const speakerDisplayName = `${activeSpeaker.icon} ${activeSpeaker.name}`;
         const isLiveTrending = Boolean(cluster.saga.isLiveTrending);
+        const isLiveFact = Boolean(cluster.isAnimalFactTarget);
 
         const posStyle = {
           top: cluster.top,
@@ -199,7 +232,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
           <motion.div
             key={cluster.id}
             className={`ambient-cluster-node ${isLeftSpeaker ? 'speaker-left' : 'speaker-right'} ${
-              isLiveTrending ? 'trending-node' : ''
+              isLiveTrending ? 'trending-node' : isLiveFact ? 'fact-node' : ''
             }`}
             style={posStyle}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -216,11 +249,11 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -5, scale: 0.96 }}
                 transition={{ duration: 0.25 }}
-                className={`ambient-tiny-bubble ${isLiveTrending ? 'trending-bubble' : ''}`}
+                className={`ambient-tiny-bubble ${isLiveTrending ? 'trending-bubble' : isLiveFact ? 'fact-bubble' : ''}`}
               >
                 <div className="tiny-bubble-header">
                   <span className="tiny-speaker-name">{speakerDisplayName}</span>
-                  <span className={`tiny-topic-tag ${isLiveTrending ? 'trending-tag' : ''}`}>
+                  <span className={`tiny-topic-tag ${isLiveTrending ? 'trending-tag' : isLiveFact ? 'fact-tag' : ''}`}>
                     {cluster.saga.tag}
                   </span>
                 </div>
@@ -250,7 +283,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
               </motion.div>
 
               {/* Center Talking Spark */}
-              <span className="facing-gap-spark">{isLiveTrending ? '🔥' : '💬'}</span>
+              <span className="facing-gap-spark">{isLiveTrending ? '🔥' : isLiveFact ? '🐾' : '💬'}</span>
 
               {/* Right Animal (Faces Left towards Animal A) */}
               <motion.div

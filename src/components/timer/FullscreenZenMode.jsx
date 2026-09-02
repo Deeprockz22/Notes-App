@@ -5,6 +5,11 @@ import ShinyText from '../react-bits/ShinyText';
 import FogSphere from '../react-bits/FogSphere';
 import AmbientCompanionUniverse from './AmbientCompanionUniverse';
 import FocusLogo from '../brand/FocusLogo';
+import {
+  fetchDailyZenAdvice,
+  fetchNasaCosmicBackdrop,
+  fetchLocalWeather
+} from '../../utils/publicApisService';
 
 const ZEN_BG_PRESETS = [
   { id: 'auto', label: 'Auto', icon: '✨' },
@@ -53,7 +58,7 @@ export default function FullscreenZenMode({
   // Automatically enable Ambient Living Universe for chill mode, or allow toggle
   const [showUniverse, setShowUniverse] = useState(mode === 'chill');
 
-  // Mouse activity tracking for auto-hiding all UI elements except time and bar
+  // Mouse activity tracking for auto-hiding all UI elements except time, bar, and soft logo
   const [isMouseActive, setIsMouseActive] = useState(true);
   const mouseTimerRef = useRef(null);
 
@@ -65,6 +70,32 @@ export default function FullscreenZenMode({
       return 'auto';
     }
   });
+
+  // 🌐 Public APIs Data State
+  const [weather, setWeather] = useState(null);
+  const [nasaBackdrop, setNasaBackdrop] = useState(null);
+  const [zenAdvice, setZenAdvice] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let isMounted = true;
+
+    fetchLocalWeather().then((w) => {
+      if (isMounted && w) setWeather(w);
+    }).catch(console.warn);
+
+    fetchNasaCosmicBackdrop().then((nb) => {
+      if (isMounted && nb) setNasaBackdrop(nb);
+    }).catch(console.warn);
+
+    fetchDailyZenAdvice().then((adv) => {
+      if (isMounted && adv) setZenAdvice(adv);
+    }).catch(console.warn);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen]);
 
   const cycleBackground = () => {
     setZenBg((current) => {
@@ -150,6 +181,15 @@ export default function FullscreenZenMode({
       } ${!isMouseActive ? 'zen-idle' : 'zen-active'}`}
       data-mode={mode}
     >
+      {/* 🌌 NASA Cosmic Deep-Space Backdrop (Only in Cosmic Scene) */}
+      {zenBg === 'space' && nasaBackdrop?.url && (
+        <div
+          className="zen-nasa-backdrop"
+          style={{ backgroundImage: `url(${nasaBackdrop.url})` }}
+          title={`NASA Deep Space: ${nasaBackdrop.title}`}
+        />
+      )}
+
       {/* 🔮 Volumetric Ray-Marched Fog Sphere (React Bits Component) */}
       {showFogSphere && (
         <FogSphere
@@ -174,6 +214,7 @@ export default function FullscreenZenMode({
 
       {/* Top Bar */}
       <div className="fullscreen-top-bar">
+        {/* Brand: Persistent Symbol + Auto-hiding Shimmer Typography */}
         <div className="zen-brand">
           <div className="zen-symbol-wrapper">
             <FocusLogo size={32} className="brand-logo-icon zen-persistent-symbol" />
@@ -183,7 +224,20 @@ export default function FullscreenZenMode({
           </div>
         </div>
 
+        {/* Actions & Live Weather Capsule (Auto-hides on idle) */}
         <div className="zen-top-actions auto-hide-element">
+          {/* 🌧️ Real-Time Weather Capsule (Open-Meteo + ipwho.is) */}
+          {weather && (
+            <div
+              className="zen-weather-pill"
+              title={`Live Weather: ${weather.city} • ${weather.condition} (${weather.tempC}°C)`}
+            >
+              <span className="zen-weather-icon">{weather.icon}</span>
+              <span className="zen-weather-temp">{weather.tempC}°C</span>
+              <span className="zen-weather-city">{weather.city}</span>
+            </div>
+          )}
+
           {/* Unified Glass Capsule Pill: Auto Background & Universe */}
           <div className="zen-control-pill-group">
             {/* Auto / Scene Switcher Button */}
@@ -254,6 +308,14 @@ export default function FullscreenZenMode({
             <span>{Math.round(progress)}% COMPLETED</span>
           </div>
         </div>
+
+        {/* 🧘 Daily Zen Mindfulness Wisdom (Advice Slip API) */}
+        {zenAdvice && (
+          <div className="zen-quote-pill auto-hide-element">
+            <span className="zen-quote-spark">✨</span>
+            <span className="zen-quote-text">"{zenAdvice}"</span>
+          </div>
+        )}
 
         {/* Controls: Pause & Reset (Auto-hides on idle, reveals on mouse move) */}
         <div className="zen-controls auto-hide-element">

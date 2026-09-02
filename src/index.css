@@ -3327,6 +3327,110 @@ body {
 }
 
 /* ===================================
+   PUBLIC APIS INTEGRATION STYLES
+   =================================== */
+.zen-nasa-backdrop {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.24;
+  filter: saturate(1.35) brightness(0.65);
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+  animation: nasaSubtleDrift 90s linear infinite alternate;
+}
+
+@keyframes nasaSubtleDrift {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.06) translate(-1%, -1%); }
+}
+
+.zen-weather-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-full);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.zen-weather-pill:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.zen-weather-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.zen-weather-temp {
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.zen-weather-city {
+  opacity: 0.75;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+.zen-quote-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 520px;
+  margin: 6px auto 14px auto;
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  line-height: 1.4;
+  user-select: none;
+}
+
+.zen-quote-spark {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: #facc15;
+}
+
+/* Animal Fact Cluster Styling */
+.ambient-tiny-bubble.fact-bubble {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);
+}
+
+.tiny-topic-tag.fact-tag {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+/* ===================================
    AUTO-HIDE IDLE BEHAVIOR (MOUSE INACTIVITY)
    =================================== */
 .auto-hide-element {
