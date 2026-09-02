@@ -64,7 +64,7 @@ export default function Header({
 
       <div className="header-center">
         <div className="brand-container symbol-only" title="Zencus">
-          <FocusLogo size={28} className="brand-logo-icon" />
+          <FocusLogo size={38} className="brand-logo-icon" />
         </div>
       </div>
 

@@ -7,7 +7,7 @@ import React from 'react';
  * 2. Precision Modernist "Z" (The Zencus mark)
  * 3. Central Focus Core (Pinpoint attention & clarity)
  */
-export default function FocusLogo({ size = 26, className = '', strokeWidth = 2.6 }) {
+export default function FocusLogo({ size = 36, className = '', strokeWidth = 2.8 }) {
   return (
     <svg
       width={size}
