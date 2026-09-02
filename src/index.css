@@ -2295,6 +2295,134 @@ body {
   margin-top: 6px;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   👾 UIVERSE TIMER DIAL 1: 8-Bit Retro Arcade CRT Radar
+   ───────────────────────────────────────────────────────────── */
+[data-theme='retro-pixel'] .timer-dial-wrapper {
+  border-radius: 0px !important;
+  border: 4px solid #ffd700 !important;
+  background: #0e0720 !important;
+  box-shadow: 0 0 0 4px #000000, 6px 6px 0 #000000, 0 0 25px rgba(255, 215, 0, 0.4) !important;
+}
+
+[data-theme='retro-pixel'] .timer-dial-wrapper.running {
+  box-shadow: 0 0 0 4px #000000, 8px 8px 0 #000000, 0 0 40px rgba(255, 215, 0, 0.7) !important;
+}
+
+[data-theme='retro-pixel'] .ring-progress {
+  stroke: #00ffff !important;
+  stroke-linecap: square !important;
+  filter: drop-shadow(0 0 8px #00ffff) drop-shadow(0 0 14px #ffd700);
+}
+
+[data-theme='retro-pixel'] .timer-digits {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 2.1rem !important;
+  color: #ffd700 !important;
+  text-shadow: 3px 3px 0 #000000, 0 0 15px rgba(255, 215, 0, 0.6) !important;
+  letter-spacing: 1px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ⚡ UIVERSE TIMER DIAL 2: Cyberpunk 2077 Plasma Core
+   ───────────────────────────────────────────────────────────── */
+[data-theme='cyberpunk'] .timer-dial-wrapper {
+  border: 2px solid #00f0ff !important;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, rgba(5, 5, 12, 0.95) 100%) !important;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.45), inset 0 0 25px rgba(255, 0, 127, 0.3) !important;
+}
+
+[data-theme='cyberpunk'] .timer-dial-wrapper.running {
+  box-shadow: 0 0 45px rgba(0, 240, 255, 0.7), inset 0 0 35px rgba(255, 0, 127, 0.5) !important;
+}
+
+[data-theme='cyberpunk'] .ring-progress {
+  stroke: #00f0ff !important;
+  filter: drop-shadow(0 0 10px #00f0ff) drop-shadow(0 0 18px #ff007f);
+}
+
+[data-theme='cyberpunk'] .timer-digits {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 800;
+  color: #ffffff !important;
+  text-shadow: 0 0 15px #00f0ff, 0 0 30px #ff007f !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   🛰️ UIVERSE TIMER DIAL 3: NASA / Sci-Fi HUD Sonar Telemetry
+   ───────────────────────────────────────────────────────────── */
+[data-theme='scifi-hud'] .timer-dial-wrapper {
+  border-radius: 6px !important;
+  border: 2px solid #22c55e !important;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, rgba(3, 13, 6, 0.96) 100%) !important;
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.35), inset 0 0 20px rgba(34, 197, 94, 0.15) !important;
+}
+
+[data-theme='scifi-hud'] .timer-dial-wrapper.running {
+  box-shadow: 0 0 40px rgba(34, 197, 94, 0.65), inset 0 0 30px rgba(34, 197, 94, 0.3) !important;
+}
+
+[data-theme='scifi-hud'] .ring-progress {
+  stroke: #22c55e !important;
+  filter: drop-shadow(0 0 10px #22c55e) drop-shadow(0 0 20px rgba(34, 197, 94, 0.8));
+}
+
+[data-theme='scifi-hud'] .timer-digits {
+  font-family: 'Orbitron', monospace !important;
+  color: #86efac !important;
+  text-shadow: 0 0 15px rgba(34, 197, 94, 0.8) !important;
+  letter-spacing: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   🍵 UIVERSE TIMER DIAL 4: Ghibli Matcha Zen Water Basin
+   ───────────────────────────────────────────────────────────── */
+[data-theme='matcha-forest'] .timer-dial-wrapper {
+  border: 2px solid rgba(74, 222, 128, 0.35) !important;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.18) 0%, rgba(10, 32, 18, 0.95) 100%) !important;
+  box-shadow: 0 15px 35px rgba(5, 46, 22, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-theme='matcha-forest'] .timer-dial-wrapper.running {
+  box-shadow: 0 20px 45px rgba(5, 46, 22, 0.6), 0 0 30px rgba(74, 222, 128, 0.4) !important;
+}
+
+[data-theme='matcha-forest'] .ring-progress {
+  stroke: #4ade80 !important;
+  filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.6));
+}
+
+[data-theme='matcha-forest'] .timer-digits {
+  color: #f0fdf4 !important;
+  text-shadow: 0 0 15px rgba(74, 222, 128, 0.4) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   💀 UIVERSE TIMER DIAL 5: Haunted Blood-Moon Occult Eclipse
+   ───────────────────────────────────────────────────────────── */
+[data-theme='haunted'] .timer-dial-wrapper {
+  border: 2px solid #ef4444 !important;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.22) 0%, rgba(10, 1, 3, 0.98) 100%) !important;
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.5), inset 0 0 25px rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-theme='haunted'] .timer-dial-wrapper.running {
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.8), inset 0 0 35px rgba(255, 0, 0, 0.4) !important;
+}
+
+[data-theme='haunted'] .ring-progress {
+  stroke: #ef4444 !important;
+  filter: drop-shadow(0 0 12px #ef4444) drop-shadow(0 0 25px rgba(239, 68, 68, 0.8));
+}
+
+[data-theme='haunted'] .timer-digits {
+  font-family: 'Creepster', cursive !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 18px rgba(239, 68, 68, 0.9), 0 0 30px rgba(255, 0, 0, 0.6) !important;
+  font-size: 3.5rem !important;
+  letter-spacing: 2px;
+}
+
 .timer-edit-form {
   display: flex;
   align-items: center;
