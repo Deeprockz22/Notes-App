@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/companionConversations';
+import { fetchDailyTrendingSaga } from '../../utils/trendingTopicsService';
 
 // 16 simultaneous non-overlapping cluster anchors
 // Strict Exclusion Zone: Center 32%-68% width and 24%-76% height is 100% clear for clock & linear bar!
@@ -60,6 +61,33 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       delay: Math.random() * 2.5
     }));
   });
+
+  // 🔄 Automatically fetch today's trending topics on load every day
+  useEffect(() => {
+    let isMounted = true;
+    fetchDailyTrendingSaga()
+      .then((trendingSaga) => {
+        if (!isMounted || !trendingSaga?.dialogues?.length) return;
+        setClusters((prev) =>
+          prev.map((cluster) => {
+            // Feature today's live trending topics in top-wing-l and left-upper clusters
+            if (cluster.id === 'c-top-wing-l' || cluster.id === 'c-left-upper') {
+              return {
+                ...cluster,
+                saga: trendingSaga,
+                turn: 0
+              };
+            }
+            return cluster;
+          })
+        );
+      })
+      .catch((err) => console.log('Trending topics notice:', err));
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Continuous dialogue progression: Step line every 9.5s
   useEffect(() => {
@@ -138,7 +166,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
       {/* 🧭 Active Ambient Channel Header */}
       <div className="ambient-status-badge">
         <span className="ambient-pulse-dot" />
-        <span className="ambient-badge-label">ANIMAL UNIVERSE • 16 LIVE CHANNELS</span>
+        <span className="ambient-badge-label">ANIMAL UNIVERSE • 16 LIVE CHANNELS • DAILY TRENDS ACTIVE</span>
       </div>
 
       {/* 🐾 16 Simultaneous Non-Overlapping Animal Conversational Clusters */}
@@ -150,6 +178,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
         const isLeftSpeaker = currentDialogue.role === 'A';
         const activeSpeaker = isLeftSpeaker ? cluster.animals[0] : cluster.animals[1];
         const speakerDisplayName = `${activeSpeaker.icon} ${activeSpeaker.name}`;
+        const isLiveTrending = Boolean(cluster.saga.isLiveTrending);
 
         const posStyle = {
           top: cluster.top,
@@ -161,7 +190,9 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
         return (
           <motion.div
             key={cluster.id}
-            className={`ambient-cluster-node ${isLeftSpeaker ? 'speaker-left' : 'speaker-right'}`}
+            className={`ambient-cluster-node ${isLeftSpeaker ? 'speaker-left' : 'speaker-right'} ${
+              isLiveTrending ? 'trending-node' : ''
+            }`}
             style={posStyle}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -177,11 +208,13 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -5, scale: 0.96 }}
                 transition={{ duration: 0.25 }}
-                className="ambient-tiny-bubble"
+                className={`ambient-tiny-bubble ${isLiveTrending ? 'trending-bubble' : ''}`}
               >
                 <div className="tiny-bubble-header">
                   <span className="tiny-speaker-name">{speakerDisplayName}</span>
-                  <span className="tiny-topic-tag">{cluster.saga.tag}</span>
+                  <span className={`tiny-topic-tag ${isLiveTrending ? 'trending-tag' : ''}`}>
+                    {cluster.saga.tag}
+                  </span>
                 </div>
                 <p className="tiny-bubble-text">{currentDialogue.text}</p>
                 {/* Directional Tail pointing to active companion */}
@@ -209,7 +242,7 @@ export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {
               </motion.div>
 
               {/* Center Talking Spark */}
-              <span className="facing-gap-spark">💬</span>
+              <span className="facing-gap-spark">{isLiveTrending ? '🔥' : '💬'}</span>
 
               {/* Right Animal (Faces Left towards Animal A) */}
               <motion.div
