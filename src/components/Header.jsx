@@ -25,48 +25,9 @@ export default function Header({
   companionType = 'dino',
   openCompanionPicker
 }) {
-  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-
-  const activeThemeObj = THEME_MODES.find((t) => t.id === theme) || THEME_MODES[0];
-
   return (
     <header className="app-header">
       <div className="header-left">
-        {/* Experience Mode Dropdown */}
-        <div className="theme-dropdown-container">
-          <button
-            className="theme-mode-trigger-btn"
-            onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
-            title="Switch Experience Mode"
-          >
-            <span className="theme-mode-icon">{activeThemeObj.icon}</span>
-            <span className="theme-mode-name">{activeThemeObj.name}</span>
-          </button>
-
-          {isThemeMenuOpen && (
-            <div className="theme-dropdown-menu">
-              <div className="theme-menu-title">Select Experience Mode</div>
-              {THEME_MODES.map((mode) => (
-                <button
-                  key={mode.id}
-                  className={`theme-menu-option ${theme === mode.id ? 'active' : ''}`}
-                  onClick={() => {
-                    setTheme(mode.id);
-                    setIsThemeMenuOpen(false);
-                  }}
-                >
-                  <span className="mode-opt-icon">{mode.icon}</span>
-                  <div className="mode-opt-info">
-                    <span className="mode-opt-name">{mode.name}</span>
-                    <span className="mode-opt-desc">{mode.description}</span>
-                  </div>
-                  {theme === mode.id && <Check size={14} className="active-check" />}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* Pet Wardrobe Switcher Button */}
         <button
           className="theme-mode-trigger-btn pet-wardrobe-trigger-btn"

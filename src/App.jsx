@@ -8,6 +8,7 @@ import TaskManager from './components/tasks/TaskManager';
 import NotesHub from './components/notes/NotesHub';
 import SettingsModal from './components/SettingsModal';
 import CompanionPickerModal from './components/companion/CompanionPickerModal';
+import DynamicIslandModesDock from './components/modes/DynamicIslandModesDock';
 import ParticlesBackground from './components/react-bits/ParticlesBackground';
 import ClickSpark from './components/react-bits/ClickSpark';
 import { Storage, uid } from './utils/storage';
@@ -479,6 +480,12 @@ export default function App() {
         setActiveTab={setActiveTab}
         taskCount={tasks.filter((t) => !t.completed).length}
         noteCount={notes.filter((n) => !n.trash).length}
+      />
+
+      {/* Right Side Dynamic Island Theme Modes Dock (Pure Typography, No Emojis) */}
+      <DynamicIslandModesDock
+        currentTheme={theme}
+        setTheme={setTheme}
       />
 
       {/* Floating Mini Timer Indicator when outside timer tab */}
