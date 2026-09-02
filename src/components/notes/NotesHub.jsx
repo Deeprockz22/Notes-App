@@ -10,7 +10,8 @@ import {
   Trash2,
   Lock,
   Layers,
-  RotateCcw
+  RotateCcw,
+  X
 } from 'lucide-react';
 import NoteCard from './NoteCard';
 import NoteEditorModal from './NoteEditorModal';
@@ -142,9 +143,10 @@ export default function NotesHub({
     }
 
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+      const q = searchQuery.toLowerCase().trim();
       const matchTitle = (n.title || '').toLowerCase().includes(q);
-      const matchContent = (n.content || '').toLowerCase().includes(q);
+      const textContent = (n.content || '').replace(/<[^>]+>/g, ' ').toLowerCase();
+      const matchContent = textContent.includes(q);
       return matchTitle || matchContent;
     }
 
@@ -214,9 +216,20 @@ export default function NotesHub({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by title, contents, or #tag..."
+              placeholder="Search notes, body text, or #tag..."
               className="notes-search-input"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                className="search-clear-btn"
+                onClick={() => setSearchQuery('')}
+                title="Clear search"
+                aria-label="Clear search"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
 
           {availableTags.length > 0 && currentFolder !== 'trash' && (
@@ -234,6 +247,21 @@ export default function NotesHub({
             </div>
           )}
         </div>
+
+        {/* Active Search Filter Feedback Bar */}
+        {searchQuery.trim() && (
+          <div className="active-search-indicator">
+            <span>
+              Showing <strong>{filteredNotes.length}</strong> matching note{filteredNotes.length === 1 ? '' : 's'} for "<em>{searchQuery}</em>"
+            </span>
+            <button
+              className="search-indicator-clear"
+              onClick={() => setSearchQuery('')}
+            >
+              Clear filter
+            </button>
+          </div>
+        )}
 
         {/* Pinned Notes Section */}
         {pinnedNotes.length > 0 && (
