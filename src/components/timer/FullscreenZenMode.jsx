@@ -5,6 +5,7 @@ import ShinyText from '../react-bits/ShinyText';
 import FogSphere from '../react-bits/FogSphere';
 import AmbientCompanionUniverse from './AmbientCompanionUniverse';
 import FocusLogo from '../brand/FocusLogo';
+import WittyFlySwitch from '../ui/WittyFlySwitch';
 import {
   fetchDailyZenAdvice,
   fetchNasaCosmicBackdrop,
@@ -252,16 +253,23 @@ export default function FullscreenZenMode({
 
             <div className="zen-pill-divider" />
 
-            {/* Universe Toggle Button */}
-            <button
-              className={`zen-top-pill-btn zen-universe-toggle-btn ${showUniverse ? 'active-universe' : ''}`}
-              onClick={() => setShowUniverse((prev) => !prev)}
-              title={showUniverse ? 'Hide Companion Universe' : 'Show 20 Ambient Companion Chats'}
+            {/* Uiverse Neumorphic Switch (witty-fly-56): Companion Universe Toggle */}
+            <div
+              className="zen-switch-pill-item"
+              title={showUniverse ? 'Companion Universe: ACTIVE (Toggle off)' : 'Companion Universe: IDLE (Toggle on)'}
             >
-              <Sparkles size={14} className="zen-sparkle-icon" />
-              <span className="zen-btn-label">Universe</span>
-              {showUniverse && <span className="zen-active-dot" />}
-            </button>
+              <span className="zen-switch-mini-label">
+                <Sparkles size={13} className="zen-sparkle-icon" />
+                <span>Universe</span>
+              </span>
+              <WittyFlySwitch
+                checked={showUniverse}
+                onChange={(val) => setShowUniverse(val)}
+                width="3.5rem"
+                accentHue="142deg"
+                baseHue="220deg"
+              />
+            </div>
           </div>
 
           {/* Close / Minimize Button */}

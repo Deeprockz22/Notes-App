@@ -5631,6 +5631,30 @@ body {
   box-shadow: 0 0 12px var(--accent-glow);
 }
 
+.zen-switch-pill-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 4px 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+.zen-switch-mini-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.zen-sparkle-icon {
+  color: #38bdf8;
+}
+
 .zen-top-pill-btn.active-universe {
   color: var(--accent-text);
   background: var(--accent-primary);
@@ -5861,6 +5885,128 @@ body {
 @keyframes dinoLegB {
   0% { transform: translateY(-3px); }
   100% { transform: translateY(0); }
+}
+
+/* ===================================================
+   🔘 UIVERSE: Witty-Fly-56 Neumorphic Switch (csemszepp)
+   =================================================== */
+.witty-fly-switch-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  --hue: 220deg;
+  --width: 4.8rem;
+  --accent-hue: 22deg;
+  --duration: 0.5s;
+  --easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+}
+
+.witty-togglesw {
+  display: none !important;
+}
+
+.witty-switch {
+  --shadow-offset: calc(var(--width) / 20);
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  width: var(--width);
+  height: calc(var(--width) / 2.3);
+  border-radius: var(--width);
+  box-shadow: inset 5px 5px 8px hsl(var(--hue) 20% 40% / 50%),
+    inset -5px -5px 8px hsl(var(--hue) 20% 90% / 30%),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  background: hsl(var(--hue) 20% 25%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.witty-indicator {
+  position: absolute;
+  width: 38%;
+  height: 60%;
+  transition: all var(--duration) var(--easing);
+  box-shadow: inset 0 0 2px hsl(var(--hue) 20% 15% / 60%),
+    inset 0 0 3px 2px hsl(var(--hue) 20% 15% / 60%),
+    inset 0 0 5px 2px hsl(var(--hue) 20% 45% / 60%);
+}
+
+.witty-indicator.left {
+  --hue: var(--accent-hue);
+  overflow: hidden;
+  left: 8%;
+  border-radius: 100px 0 0 100px;
+  background: linear-gradient(180deg, hsl(calc(var(--accent-hue) + 20deg) 95% 80%) 10%, hsl(calc(var(--accent-hue) + 20deg) 100% 60%) 30%, hsl(var(--accent-hue) 90% 50%) 60%, hsl(var(--accent-hue) 90% 60%) 75%, hsl(var(--accent-hue) 90% 50%));
+}
+
+.witty-indicator.left::after {
+  content: '';
+  position: absolute;
+  opacity: 0.6;
+  width: 100%;
+  height: 100%;
+}
+
+.witty-indicator.right {
+  right: 8%;
+  border-radius: 0 100px 100px 0;
+  background-image: linear-gradient(180deg, hsl(var(--hue) 20% 95%), hsl(var(--hue) 20% 65%) 60%, hsl(var(--hue) 20% 70%) 70%, hsl(var(--hue) 20% 65%));
+}
+
+.witty-button {
+  position: absolute;
+  z-index: 2;
+  width: 50%;
+  height: 80%;
+  left: 6%;
+  border-radius: 100px;
+  background-image: linear-gradient(160deg, hsl(var(--hue) 20% 95%) 40%, hsl(var(--hue) 20% 65%) 70%);
+  transition: all var(--duration) var(--easing);
+  box-shadow: 2px 2px 3px hsl(var(--hue) 18% 30% / 80%),
+    2px 2px 6px hsl(var(--hue) 18% 30% / 40%),
+    4px 8px 10px hsl(var(--hue) 18% 20% / 40%);
+}
+
+.witty-button::before,
+.witty-button::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  width: 41%;
+  height: 80%;
+  border-radius: 100%;
+}
+
+.witty-button::before {
+  left: 5%;
+  box-shadow: inset 1px 1px 2px hsl(var(--hue) 20% 85%);
+  background-image: linear-gradient(-50deg, hsl(var(--hue) 20% 95%) 20%, hsl(var(--hue) 20% 85%) 80%);
+}
+
+.witty-button::after {
+  right: 5%;
+  box-shadow: inset 1px 1px 3px hsl(var(--hue) 20% 70%);
+  background-image: linear-gradient(-50deg, hsl(var(--hue) 20% 95%) 20%, hsl(var(--hue) 20% 75%) 80%);
+}
+
+.witty-togglesw:checked ~ .witty-button {
+  left: 44%;
+}
+
+.witty-togglesw:not(:checked) ~ .witty-indicator.left,
+.witty-togglesw:checked ~ .witty-indicator.right {
+  box-shadow: inset 0 0 5px hsl(var(--hue) 20% 15% / 100%),
+    inset 10px 10px 8px hsl(var(--hue) 20% 15% / 100%),
+    inset 10px 10px 12px hsl(var(--hue) 20% 45% / 100%);
+  filter: brightness(0.65);
+}
+
+.witty-togglesw:checked ~ .witty-indicator.left {
+  filter: brightness(1.2);
+  box-shadow: 0 0 12px hsl(var(--accent-hue) 100% 60% / 80%),
+    inset 0 0 4px #ffffff;
 }
 
 
