@@ -1,7 +1,7 @@
 {
-  "name": "Focus - Productivity Tool",
-  "short_name": "Focus",
-  "description": "A minimalist black and white productivity tool with Pomodoro timer, task manager, and rich notes",
+  "name": "phocus • Minimalist Productivity Suite",
+  "short_name": "phocus",
+  "description": "phocus — A minimalist productivity suite combining Pomodoro timer, priority task management, and Brain Dump notes",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
