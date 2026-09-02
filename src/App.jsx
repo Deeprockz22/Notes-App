@@ -12,6 +12,7 @@ import DynamicIslandModesDock from './components/modes/DynamicIslandModesDock';
 import ParticlesBackground from './components/react-bits/ParticlesBackground';
 import ClickSpark from './components/react-bits/ClickSpark';
 import RetroArcadeSprites from './components/ambient/RetroArcadeSprites';
+import TokyoDriftMatrixBackground from './components/ambient/TokyoDriftMatrixBackground';
 import { Storage, uid } from './utils/storage';
 import { themedAudio } from './utils/retroAudio';
 import confetti from 'canvas-confetti';
@@ -421,6 +422,9 @@ export default function App() {
 
       {/* 👾 8-Bit Retro Arcade Ambient Pixel Sprites (Only on Home Screen, Not Fullscreen) */}
       {theme === 'retro-pixel' && !isFullscreen && <RetroArcadeSprites />}
+
+      {/* 🎌 Tokyo Drift Katakana Matrix Neon Background (Only on Home Screen, Not Fullscreen) */}
+      {theme === 'tokyo-drift' && !isFullscreen && <TokyoDriftMatrixBackground />}
 
       {/* Persistent App Header */}
       <Header
