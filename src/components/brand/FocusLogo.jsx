@@ -13,7 +13,7 @@ export default function FocusLogo({ size = 26, className = '', strokeWidth = 2.4
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`focus-brand-logo ${className}`}
-      aria-label="FOCUS Logo"
+      aria-label="phocus Logo"
     >
       {/* Top Flow Ring */}
       <circle

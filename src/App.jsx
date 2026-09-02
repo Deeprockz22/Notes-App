@@ -136,9 +136,9 @@ export default function App() {
     const formatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
     if (isRunning) {
-      document.title = `(${formatted}) ${mode === 'work' ? 'Focus' : 'Break'} • FOCUS`;
+      document.title = `(${formatted}) ${mode === 'work' ? 'Focus' : 'Break'} • phocus`;
     } else {
-      document.title = 'FOCUS • Minimalist Productivity';
+      document.title = 'phocus • Minimalist Productivity Suite';
     }
   }, [timeLeft, isRunning, mode]);
 

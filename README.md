@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ FOCUS — Ultra-Aesthetic Productivity & Brain Dump Suite
+# ⚡ phocus — Ultra-Aesthetic Productivity & Brain Dump Suite
 
 ### *“Your mind is for having ideas, not holding them.”*
 
@@ -10,7 +10,7 @@
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.0-ff0055?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable-purple?style=for-the-badge&logo=pwa&logoColor=white)](https://deeprockz22.github.io/Notes-App/)
 
-**A gamified, hyper-aesthetic productivity suite fusing Brain Dump organization, Pomodoro flow states, 12 multi-experiential themes, 7 interactive focus pets, and cognitive neuroscience offloading.**
+**A gamified, hyper-aesthetic productivity suite fusing Brain Dump organization, Pomodoro flow states, 18 multi-experiential & solid dual themes, 7 interactive focus pets, and cognitive neuroscience offloading.**
 
 ---
 
@@ -23,11 +23,11 @@
 ## 🌟 Highlights at a Glance
 
 ```
-       ⚡ FOCUS PRODUCTIVITY ECOSYSTEM
+       ⚡ PHOCUS PRODUCTIVITY ECOSYSTEM
  ├── ⏱️ Flow Engine     -> Pomodoro dials, liquid tanks, mini-pill timer, full-screen Zen mode
  ├── 🧠 Brain Dump Hub  -> Hierarchical folders, Whiteboard sketchpad, 4-digit PIN lock, dynamic tables
  ├── 🐾 Pet Wardrobe    -> 7 interactive mascots (Neo, Luna, Archimedes, Pyro, Cosmo, Byte, Spooky)
- ├── 🎨 12 Theme Modes  -> 8-Bit Arcade, Matcha Forest, Tokyo Drift, Bioluminescent Ocean, Saiyan Aura
+ ├── 🎨 18 Theme Modes  -> 6 Solid Dual Palettes + 12 Experiential Themes (8-Bit, Matcha, Tokyo, etc.)
  ├── 🎧 Ambient Audio   -> Procedural Web Audio binaural beats, rain synth, chiptune coin rewards
  └── 🧠 Cognitive RAM   -> Real-time working memory offloading motivation grounded in neuroscience
 ```
