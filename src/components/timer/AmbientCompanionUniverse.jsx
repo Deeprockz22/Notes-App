@@ -5,40 +5,38 @@ import { ANIMAL_CHARACTERS, SAGA_TOPICS, getSagaForTopic } from '../../utils/com
 import { fetchDailyTrendingSaga } from '../../utils/trendingTopicsService';
 
 // EXACTLY 20 mathematically collision-free, staggered clusters
-// Honeycomb staggered positioning: guaranteed zero overlap between bubbles & zero overlap with central timer!
+// Strictly clear zone: Entire area under the linear bar and controls is 100% free of conversations!
 const CLUSTER_ANCHORS = [
-  // --- Outer Left Column (4 clusters, left: 2%, vertical step 24%) ---
+  // --- Outer Left Column (5 clusters, left: 2%, along far left wall) ---
   { id: 'c-l1-1', top: '6%', left: '2%', topic: 'planets' },
-  { id: 'c-l1-2', top: '30%', left: '2%', topic: 'funny' },
-  { id: 'c-l1-3', top: '54%', left: '2%', topic: 'cheating_husband' },
-  { id: 'c-l1-4', top: '78%', left: '2%', topic: 'ghosts' },
+  { id: 'c-l1-2', top: '28%', left: '2%', topic: 'funny' },
+  { id: 'c-l1-3', top: '50%', left: '2%', topic: 'cheating_husband' },
+  { id: 'c-l1-4', top: '72%', left: '2%', topic: 'ghosts' },
+  { id: 'c-l1-5', bottom: '3%', left: '2%', topic: 'ancient' },
 
-  // --- Inner Left Column (4 clusters, left: 17%, staggered top offsets to fill gap!) ---
-  { id: 'c-l2-1', top: '18%', left: '17%', topic: 'cheating_wife' },
-  { id: 'c-l2-2', top: '42%', left: '17%', topic: 'food' },
-  { id: 'c-l2-3', top: '66%', left: '17%', topic: 'dreams' },
-  { id: 'c-l2-4', bottom: '4%', left: '17%', topic: 'ancient' },
+  // --- Inner Left Column (4 clusters, left: 17%, staggered to fill space without encroaching center) ---
+  { id: 'c-l2-1', top: '17%', left: '17%', topic: 'cheating_wife' },
+  { id: 'c-l2-2', top: '39%', left: '17%', topic: 'food' },
+  { id: 'c-l2-3', top: '61%', left: '17%', topic: 'dreams' },
+  { id: 'c-l2-4', bottom: '6%', left: '17%', topic: 'space_mysteries' },
 
   // --- Top Sky Arc (2 clusters at top: 5%, safely high above clock digits) ---
   // c-top-trending is the EXCLUSIVE SINGLE live daily trending topic!
   { id: 'c-top-trending', top: '5%', left: '34%', topic: 'funny', isTrendingTarget: true },
   { id: 'c-top-drama', top: '5%', right: '34%', topic: 'cheating_husband' },
 
-  // --- Inner Right Column (4 clusters, right: 17%, staggered top offsets to fill gap!) ---
-  { id: 'c-r2-1', top: '18%', right: '17%', topic: 'cheating_husband' },
-  { id: 'c-r2-2', top: '42%', right: '17%', topic: 'space_mysteries' },
-  { id: 'c-r2-3', top: '66%', right: '17%', topic: 'food' },
-  { id: 'c-r2-4', bottom: '4%', right: '17%', topic: 'ocean' },
+  // --- Inner Right Column (4 clusters, right: 17%, staggered to fill space without encroaching center) ---
+  { id: 'c-r2-1', top: '17%', right: '17%', topic: 'cheating_husband' },
+  { id: 'c-r2-2', top: '39%', right: '17%', topic: 'space_mysteries' },
+  { id: 'c-r2-3', top: '61%', right: '17%', topic: 'food' },
+  { id: 'c-r2-4', bottom: '6%', right: '17%', topic: 'ocean' },
 
-  // --- Outer Right Column (4 clusters, right: 2%, vertical step 24%) ---
+  // --- Outer Right Column (5 clusters, right: 2%, along far right wall) ---
   { id: 'c-r1-1', top: '6%', right: '2%', topic: 'serious' },
-  { id: 'c-r1-2', top: '30%', right: '2%', topic: 'cheating_wife' },
-  { id: 'c-r1-3', top: '54%', right: '2%', topic: 'dreams' },
-  { id: 'c-r1-4', top: '78%', right: '2%', topic: 'chill' },
-
-  // --- Bottom Floor Arc (2 clusters below controls at bottom: 3%) ---
-  { id: 'c-bot-1', bottom: '3%', left: '34%', topic: 'chill' },
-  { id: 'c-bot-2', bottom: '3%', right: '34%', topic: 'funny' }
+  { id: 'c-r1-2', top: '28%', right: '2%', topic: 'cheating_wife' },
+  { id: 'c-r1-3', top: '50%', right: '2%', topic: 'dreams' },
+  { id: 'c-r1-4', top: '72%', right: '2%', topic: 'chill' },
+  { id: 'c-r1-5', bottom: '3%', right: '2%', topic: 'funny' }
 ];
 
 export default function AmbientCompanionUniverse({ isRunning, progress = 0 }) {

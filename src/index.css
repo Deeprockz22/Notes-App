@@ -3278,9 +3278,11 @@ body {
   padding: 6px 14px 6px 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   cursor: pointer;
-  max-width: 360px;
+  width: auto;
+  min-width: 90px;
+  max-width: fit-content;
   text-align: left;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
@@ -4040,7 +4042,8 @@ body {
   align-items: center;
   gap: 3px;
   cursor: pointer;
-  max-width: 180px;
+  width: auto;
+  max-width: 230px;
   z-index: 2;
   transition: transform 0.25s ease;
 }
@@ -4058,10 +4061,13 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-  max-width: 160px;
+  width: fit-content;
+  min-width: 80px;
+  max-width: 200px;
   position: relative;
   text-align: left;
-  transition: all 0.2s ease;
+  transition: width 0.25s ease, max-width 0.25s ease;
+  box-sizing: border-box;
 }
 
 .ambient-tiny-bubble:hover {
